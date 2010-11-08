@@ -33,7 +33,7 @@ namespace :gem do
   end
 end
 
-namespace :bench do
+namespace :benchmark do
   desc "Run the zlib benchmark"
   task :zlib do
     Dir.chdir('profile'){ ruby "bench_zlib.rb" }
@@ -42,6 +42,18 @@ namespace :bench do
   desc "Run the pr-zlib benchmark"
   task :przlib do
     sh "ruby -Ilib profile/bench_pr_zlib.rb"
+  end
+end
+
+namespace :profile do
+  desc "Run the profiler on the write operation"
+  task :write do
+    sh "ruby -Ilib profile/profile_pr_zlib_write.rb"
+  end
+
+  desc "Run the profiler on the read operation"
+  task :read do
+    sh "ruby -Ilib profile/profile_pr_zlib_read.rb"
   end
 end
 
