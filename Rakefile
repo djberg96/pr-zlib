@@ -1,6 +1,9 @@
 require 'rake'
+require 'rake/clean'
 require 'rake/testtask'
 require 'rbconfig'
+
+CLEAN.include("**/*.rbc", "**/*.gem", "**/*.txt", "**/*.gz")
 
 desc 'Install the pr-zlib library'
 task :install do
