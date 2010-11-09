@@ -31,434 +31,426 @@
 #
 
 class Fixnum
-   def ord
-      self
-   end
+  def ord
+    self
+  end
 end
 
 module Rbzlib
+  MAX_MEM_LEVEL = 9
+  DEF_MEM_LEVEL = 8
+  MAX_WBITS     = 15
+  DEF_WBITS     = MAX_WBITS
 
-   MAX_MEM_LEVEL = 9
-   DEF_MEM_LEVEL = 8
-   MAX_WBITS     = 15
-   DEF_WBITS     = MAX_WBITS
+  Z_stream = Struct.new(
+    :next_in,
+    :avail_in,
+    :total_in,
+    :next_out,
+    :avail_out,
+    :total_out,
+    :msg,
+    :state,
+    :data_type,
+    :adler,
+    :reserved
+  )
 
-   Z_stream = Struct.new(
-      :next_in,
-      :avail_in,
-      :total_in,
-      :next_out,
-      :avail_out,
-      :total_out,
-      :msg,
-      :state,
-      :data_type,
-      :adler,
-      :reserved
-   )
+  Gz_header = Struct.new(
+    :text,
+    :time,
+    :xflags,
+    :os,
+    :extra,
+    :extra_len,
+    :extra_max,
+    :name,
+    :name_max,
+    :comment,
+    :comm_max,
+    :hcrc,
+    :done
+  )
 
-   Gz_header = Struct.new(
-      :text,
-      :time,
-      :xflags,
-      :os,
-      :extra,
-      :extra_len,
-      :extra_max,
-      :name,
-      :name_max,
-      :comment,
-      :comm_max,
-      :hcrc,
-      :done
-   )
+  Z_NO_FLUSH      = 0
+  Z_PARTIAL_FLUSH = 1
+  Z_SYNC_FLUSH    = 2
+  Z_FULL_FLUSH    = 3
+  Z_FINISH        = 4
+  Z_BLOCK         = 5
 
-   Z_NO_FLUSH      = 0
-   Z_PARTIAL_FLUSH = 1
-   Z_SYNC_FLUSH    = 2
-   Z_FULL_FLUSH    = 3
-   Z_FINISH        = 4
-   Z_BLOCK         = 5
+  Z_OK            = 0
+  Z_STREAM_END    = 1
+  Z_NEED_DICT     = 2
+  Z_ERRNO         = (-1)
+  Z_STREAM_ERROR  = (-2)
+  Z_DATA_ERROR    = (-3)
+  Z_MEM_ERROR     = (-4)
+  Z_BUF_ERROR     = (-5)
+  Z_VERSION_ERROR = (-6)
 
-   Z_OK            = 0
-   Z_STREAM_END    = 1
-   Z_NEED_DICT     = 2
-   Z_ERRNO         = (-1)
-   Z_STREAM_ERROR  = (-2)
-   Z_DATA_ERROR    = (-3)
-   Z_MEM_ERROR     = (-4)
-   Z_BUF_ERROR     = (-5)
-   Z_VERSION_ERROR = (-6)
+  Z_NO_COMPRESSION      = 0
+  Z_BEST_SPEED          = 1
+  Z_BEST_COMPRESSION    = 9
+  Z_DEFAULT_COMPRESSION = (-1)
 
-   Z_NO_COMPRESSION      = 0
-   Z_BEST_SPEED          = 1
-   Z_BEST_COMPRESSION    = 9
-   Z_DEFAULT_COMPRESSION = (-1)
+  Z_FILTERED         = 1
+  Z_HUFFMAN_ONLY     = 2
+  Z_RLE              = 3
+  Z_FIXED            = 4
+  Z_DEFAULT_STRATEGY = 0
 
-   Z_FILTERED         = 1
-   Z_HUFFMAN_ONLY     = 2
-   Z_RLE              = 3
-   Z_FIXED            = 4
-   Z_DEFAULT_STRATEGY = 0
+  Z_BINARY   = 0
+  Z_ASCII    = 1
+  Z_TEXT     = 1
+  Z_UNKNOWN  = 2
 
-   Z_BINARY   = 0
-   Z_ASCII    = 1
-   Z_TEXT     = 1
-   Z_UNKNOWN  = 2
+  Z_DEFLATED   = 8
 
-   Z_DEFLATED   = 8
+  STORED_BLOCK = 0
+  STATIC_TREES = 1
+  DYN_TREES    = 2
 
-   STORED_BLOCK = 0
-   STATIC_TREES = 1
-   DYN_TREES    = 2
+  MIN_MATCH   = 3
+  MAX_MATCH   = 258
+  PRESET_DICT = 0x20
 
-   MIN_MATCH   = 3
-   MAX_MATCH   = 258
-   PRESET_DICT = 0x20
+  ZLIB_VERSION = '1.2.3'
 
-   ZLIB_VERSION = '1.2.3'
+  Z_errbase = Z_NEED_DICT
 
-   Z_errbase = Z_NEED_DICT
+  @@z_errmsg = [
+    'need dictionary',
+    'stream end',
+    '',
+    'file error',
+    'stream error',
+    'data error',
+    'insufficient memory',
+    'buffer error',
+    'incompatible version',
+    ''
+  ]
 
-   @@z_errmsg = [
-      'need dictionary',
-      'stream end',
-      '',
-      'file error',
-      'stream error',
-      'data error',
-      'insufficient memory',
-      'buffer error',
-      'incompatible version',
-      ''
-   ]
+  @@z_verbose = 1
 
-   @@z_verbose = 1
+  def zError(err)
+    @@z_errmsg[Z_NEED_DICT - err]
+  end
 
-   def zError(err)
-      @@z_errmsg[Z_NEED_DICT - err]
-   end
+  def zlibVersion
+    ZLIB_VERSION
+  end
 
-   def zlibVersion()
-      ZLIB_VERSION
-   end
+  def z_error(m)
+    raise RuntimeError, m
+  end
 
-   def z_error(m)
-      raise(RuntimeError,m)
-   end
+  class Bytef
+    attr_accessor :buffer, :offset
 
-   class Bytef
-      attr_accessor :buffer, :offset
+    def initialize(buffer, offset=0)
+      if [String, Array].include?(buffer.class)
+        @buffer = buffer
+        @offset = offset
+      else
+        @buffer = buffer.buffer
+        @offset = offset
+      end
+    end
 
-      def initialize(buffer, offset=0)
-         if [String, Array].include?(buffer.class)
-            @buffer = buffer
-            @offset = offset
-         else
-            @buffer = buffer.buffer
-            @offset = offset
-         end
+    def length
+      @buffer.length
+    end
+
+    def +(inc)
+      @offset += inc
+      self
+    end
+
+    def -(dec)
+      @offset -= dec
+      self
+    end
+
+    def [](idx)
+      if @buffer.is_a?(String)
+        @buffer[idx + @offset].ord
+      else
+        @buffer[idx + @offset]
+      end
+    end
+
+    def []=(idx, val)
+      if @buffer.is_a?(String) && val.is_a?(Fixnum)
+        @buffer[idx + @offset] = val.chr
+      else
+        @buffer[idx + @offset] = val
+      end
+    end
+
+    def get()
+      if @buffer.is_a?(String)
+        @buffer[@offset].ord
+      else
+        @buffer[@offset]
+      end
+    end
+
+    def set(val)
+      if @buffer.is_a?(String) && val.is_a?(Fixnum)
+        @buffer[@offset] = val.chr
+      else
+        @buffer[@offset] = val
+      end
+    end
+
+    def current
+      @buffer[@offset..-1]
+    end
+  end
+
+  class Posf < Bytef
+    def +(inc)
+      @offset += inc * 2
+      self
+    end
+
+    def -(dec)
+      @offset -= dec * 2
+      self
+    end
+
+    def [](idx)
+      @buffer[(idx * 2) + @offset, 2].unpack('S').first
+    end
+
+    def []=(idx, val)
+      @buffer[(idx * 2) + @offset, 2] = [val].pack('S')
+    end
+
+    def get()
+      @buffer[@offset, 2].unpack('S').first
+    end
+
+    def set(val)
+      @buffer[@offset, 2] = [val].pack('S')
+    end
+  end
+
+  BASE = 65521
+  NMAX = 5552
+
+  module_function
+
+  # Compute the Adler-32 checksum of a data stream
+  def adler32(adler, buf, len=0)
+    return 1 if buf.nil?
+
+    len = buf.length if len.zero?
+    sum2 = (adler >> 16) & 0xFFFF
+    adler &= 0xffff
+
+    if len == 1
+      adler += buf[0].ord
+
+      if adler >= BASE
+        adler -= BASE
       end
 
-      def length
-         @buffer.length
-      end
+      sum2 += adler
 
-      def +(inc)
-         @offset += inc
-         self
-      end
-
-      def -(dec)
-         @offset -= dec
-         self
-      end
-
-      def [](idx)
-         if @buffer.is_a?(String)
-            @buffer[idx + @offset].ord
-         else
-            @buffer[idx + @offset]
-         end
-      end
-
-      def []=(idx, val)
-         if @buffer.is_a?(String) && val.is_a?(Fixnum)
-            @buffer[idx + @offset] = val.chr
-         else
-            @buffer[idx + @offset] = val
-         end
-      end
-
-      def get()
-         if @buffer.is_a?(String)
-            @buffer[@offset].ord
-         else
-            @buffer[@offset]
-         end
-      end
-
-      def set(val)
-         if @buffer.is_a?(String) && val.is_a?(Fixnum)
-            @buffer[@offset] = val.chr
-         else
-            @buffer[@offset] = val
-         end
-      end
-
-      def current
-         @buffer[@offset..-1]
-      end
-   end
-
-   class Posf < Bytef
-      def +(inc)
-         @offset += inc * 2
-         self
-      end
-
-      def -(dec)
-         @offset -= dec * 2
-         self
-      end
-
-      def [](idx)
-         @buffer[(idx * 2) + @offset, 2].unpack('S').first
-      end
-
-      def []=(idx, val)
-         @buffer[(idx * 2) + @offset, 2] = [val].pack('S')
-      end
-
-      def get()
-         @buffer[@offset, 2].unpack('S').first
-      end
-
-      def set(val)
-         @buffer[@offset, 2] = [val].pack('S')
-      end
-   end
-
-   BASE = 65521
-   NMAX = 5552
-
-   module_function
-
-   #  compute the Adler-32 checksum of a data stream
-   def adler32(adler, buf, len=0)
-      return 1 if buf.nil?
-
-      len = buf.length if len.zero?
-      sum2 = (adler >> 16) & 0xFFFF
-      adler &= 0xffff
-
-      if len == 1
-         adler += buf[0].ord
-         if adler >= BASE
-            adler -= BASE
-         end
-
-         sum2 += adler
-
-         if sum2 >= BASE
-            sum2 -= BASE
-         end
-
-         return adler | (sum2 << 16)
-      end
-
-      if len < 16
-         i = 0
-
-         while len > 0
-            len -= 1
-            adler += buf[i].ord
-            i += 1
-            sum2 += adler
-         end
-
-         if adler >= BASE
-            adler -= BASE
-         end
-
-         sum2 %= BASE
-
-         return adler | (sum2 << 16)
-      end
-
-      i = 0
-
-      while len >= NMAX
-         len -= NMAX
-         n = NMAX / 16
-
-         loop do
-            for j in 0 .. 15
-               adler += buf[i+j].ord
-               sum2 += adler
-            end
-            i += 16
-            n -= 1
-            break if n.zero?
-         end
-         adler %= BASE
-         sum2 %= BASE
-      end
-
-      if len.nonzero?
-        while (len >= 16)
-          len -= 16
-          for j in 0 .. 15
-            adler += buf[i+j].ord
-            sum2 += adler
-          end
-          i += 16
-        end
-        while len.nonzero?
-          len -= 1
-          adler += buf[i].ord
-          i += 1
-          sum2 += adler
-        end
-        adler %= BASE
-        sum2 %= BASE
+      if sum2 >= BASE
+        sum2 -= BASE
       end
 
       return adler | (sum2 << 16)
-   end
+    end
 
-   @@crc_table = [
-      0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419,
-      0x706af48f, 0xe963a535, 0x9e6495a3, 0x0edb8832, 0x79dcb8a4,
-      0xe0d5e91e, 0x97d2d988, 0x09b64c2b, 0x7eb17cbd, 0xe7b82d07,
-      0x90bf1d91, 0x1db71064, 0x6ab020f2, 0xf3b97148, 0x84be41de,
-      0x1adad47d, 0x6ddde4eb, 0xf4d4b551, 0x83d385c7, 0x136c9856,
-      0x646ba8c0, 0xfd62f97a, 0x8a65c9ec, 0x14015c4f, 0x63066cd9,
-      0xfa0f3d63, 0x8d080df5, 0x3b6e20c8, 0x4c69105e, 0xd56041e4,
-      0xa2677172, 0x3c03e4d1, 0x4b04d447, 0xd20d85fd, 0xa50ab56b,
-      0x35b5a8fa, 0x42b2986c, 0xdbbbc9d6, 0xacbcf940, 0x32d86ce3,
-      0x45df5c75, 0xdcd60dcf, 0xabd13d59, 0x26d930ac, 0x51de003a,
-      0xc8d75180, 0xbfd06116, 0x21b4f4b5, 0x56b3c423, 0xcfba9599,
-      0xb8bda50f, 0x2802b89e, 0x5f058808, 0xc60cd9b2, 0xb10be924,
-      0x2f6f7c87, 0x58684c11, 0xc1611dab, 0xb6662d3d, 0x76dc4190,
-      0x01db7106, 0x98d220bc, 0xefd5102a, 0x71b18589, 0x06b6b51f,
-      0x9fbfe4a5, 0xe8b8d433, 0x7807c9a2, 0x0f00f934, 0x9609a88e,
-      0xe10e9818, 0x7f6a0dbb, 0x086d3d2d, 0x91646c97, 0xe6635c01,
-      0x6b6b51f4, 0x1c6c6162, 0x856530d8, 0xf262004e, 0x6c0695ed,
-      0x1b01a57b, 0x8208f4c1, 0xf50fc457, 0x65b0d9c6, 0x12b7e950,
-      0x8bbeb8ea, 0xfcb9887c, 0x62dd1ddf, 0x15da2d49, 0x8cd37cf3,
-      0xfbd44c65, 0x4db26158, 0x3ab551ce, 0xa3bc0074, 0xd4bb30e2,
-      0x4adfa541, 0x3dd895d7, 0xa4d1c46d, 0xd3d6f4fb, 0x4369e96a,
-      0x346ed9fc, 0xad678846, 0xda60b8d0, 0x44042d73, 0x33031de5,
-      0xaa0a4c5f, 0xdd0d7cc9, 0x5005713c, 0x270241aa, 0xbe0b1010,
-      0xc90c2086, 0x5768b525, 0x206f85b3, 0xb966d409, 0xce61e49f,
-      0x5edef90e, 0x29d9c998, 0xb0d09822, 0xc7d7a8b4, 0x59b33d17,
-      0x2eb40d81, 0xb7bd5c3b, 0xc0ba6cad, 0xedb88320, 0x9abfb3b6,
-      0x03b6e20c, 0x74b1d29a, 0xead54739, 0x9dd277af, 0x04db2615,
-      0x73dc1683, 0xe3630b12, 0x94643b84, 0x0d6d6a3e, 0x7a6a5aa8,
-      0xe40ecf0b, 0x9309ff9d, 0x0a00ae27, 0x7d079eb1, 0xf00f9344,
-      0x8708a3d2, 0x1e01f268, 0x6906c2fe, 0xf762575d, 0x806567cb,
-      0x196c3671, 0x6e6b06e7, 0xfed41b76, 0x89d32be0, 0x10da7a5a,
-      0x67dd4acc, 0xf9b9df6f, 0x8ebeeff9, 0x17b7be43, 0x60b08ed5,
-      0xd6d6a3e8, 0xa1d1937e, 0x38d8c2c4, 0x4fdff252, 0xd1bb67f1,
-      0xa6bc5767, 0x3fb506dd, 0x48b2364b, 0xd80d2bda, 0xaf0a1b4c,
-      0x36034af6, 0x41047a60, 0xdf60efc3, 0xa867df55, 0x316e8eef,
-      0x4669be79, 0xcb61b38c, 0xbc66831a, 0x256fd2a0, 0x5268e236,
-      0xcc0c7795, 0xbb0b4703, 0x220216b9, 0x5505262f, 0xc5ba3bbe,
-      0xb2bd0b28, 0x2bb45a92, 0x5cb36a04, 0xc2d7ffa7, 0xb5d0cf31,
-      0x2cd99e8b, 0x5bdeae1d, 0x9b64c2b0, 0xec63f226, 0x756aa39c,
-      0x026d930a, 0x9c0906a9, 0xeb0e363f, 0x72076785, 0x05005713,
-      0x95bf4a82, 0xe2b87a14, 0x7bb12bae, 0x0cb61b38, 0x92d28e9b,
-      0xe5d5be0d, 0x7cdcefb7, 0x0bdbdf21, 0x86d3d2d4, 0xf1d4e242,
-      0x68ddb3f8, 0x1fda836e, 0x81be16cd, 0xf6b9265b, 0x6fb077e1,
-      0x18b74777, 0x88085ae6, 0xff0f6a70, 0x66063bca, 0x11010b5c,
-      0x8f659eff, 0xf862ae69, 0x616bffd3, 0x166ccf45, 0xa00ae278,
-      0xd70dd2ee, 0x4e048354, 0x3903b3c2, 0xa7672661, 0xd06016f7,
-      0x4969474d, 0x3e6e77db, 0xaed16a4a, 0xd9d65adc, 0x40df0b66,
-      0x37d83bf0, 0xa9bcae53, 0xdebb9ec5, 0x47b2cf7f, 0x30b5ffe9,
-      0xbdbdf21c, 0xcabac28a, 0x53b39330, 0x24b4a3a6, 0xbad03605,
-      0xcdd70693, 0x54de5729, 0x23d967bf, 0xb3667a2e, 0xc4614ab8,
-      0x5d681b02, 0x2a6f2b94, 0xb40bbe37, 0xc30c8ea1, 0x5a05df1b,
-      0x2d02ef8d]
-
-   # Tables of CRC-32s of all single-byte values, made by make_crc_table()
-   def get_crc_table()
-      @@crc_table
-   end
-
-   # compute the CRC-32 of a data stream
-   def crc32(crc, buf, len=0)
-      return 0 if buf.nil?
-      len = buf.length if len.zero?
-      crc = crc ^ 0xffffffff
+    if len < 16
       i = 0
 
-      while len >= 8
-         crc = @@crc_table[(crc ^ buf[i].ord) & 0xff] ^ (crc >> 8)
-         i+=1
-         crc = @@crc_table[(crc ^ buf[i].ord) & 0xff] ^ (crc >> 8)
-         i+=1
-         crc = @@crc_table[(crc ^ buf[i].ord) & 0xff] ^ (crc >> 8)
-         i+=1
-         crc = @@crc_table[(crc ^ buf[i].ord) & 0xff] ^ (crc >> 8)
-         i+=1
-         crc = @@crc_table[(crc ^ buf[i].ord) & 0xff] ^ (crc >> 8)
-         i+=1
-         crc = @@crc_table[(crc ^ buf[i].ord) & 0xff] ^ (crc >> 8)
-         i+=1
-         crc = @@crc_table[(crc ^ buf[i].ord) & 0xff] ^ (crc >> 8)
-         i+=1
-         crc = @@crc_table[(crc ^ buf[i].ord) & 0xff] ^ (crc >> 8)
-         i+=1
-         len -= 8
+      while len > 0
+        len -= 1
+        adler += buf[i].ord
+        i += 1
+        sum2 += adler
       end
 
-      if len.nonzero?
-         loop do
-            crc = @@crc_table[(crc ^ buf[i].ord) & 0xff] ^ (crc >> 8)
-            i+=1
-            len -= 1
-            break if len.zero?
-         end
+      if adler >= BASE
+        adler -= BASE
       end
-      crc ^ 0xffffffff
-   end
 
-   OS_CODE = 0
+      sum2 %= BASE
 
-   SEEK_SET = 0
-   SEEK_CUR = 1
-   SEEK_END = 2
-   Z_EOF = -1
-   Z_BUFSIZE = 16384
+      return adler | (sum2 << 16)
+    end
 
-   @@gz_magic = "\x1F\x8B"
+    i = 0
 
-   ASCII_FLAG  = 0x01
-   HEAD_CRC    = 0x02
-   EXTRA_FIELD = 0x04
-   ORIG_NAME   = 0x08
-   COMMENT_    = 0x10
-   RESERVED    = 0xE0
+    while len >= NMAX
+      len -= NMAX
+      n = NMAX / 16
 
-   Gz_stream = Struct.new(
-      :stream,
-      :z_err,
-      :z_eof,
-      :file,
-      :inbuf,
-      :outbuf,
-      :crc,
-      :msg,
-      :path,
-      :transparent,
-      :mode,
-      :start,
-      :in,
-      :out,
-      :back,
-      :last
-   )
+      loop do
+        for j in 0 .. 15
+          adler += buf[i+j].ord
+          sum2 += adler
+        end
+        i += 16
+        n -= 1
+        break if n.zero?
+      end
+      adler %= BASE
+      sum2 %= BASE
+    end
+
+    if len.nonzero?
+      while (len >= 16)
+        len -= 16
+        for j in 0 .. 15
+          adler += buf[i+j].ord
+          sum2 += adler
+        end
+        i += 16
+      end
+      while len.nonzero?
+        len -= 1
+        adler += buf[i].ord
+        i += 1
+        sum2 += adler
+      end
+      adler %= BASE
+      sum2 %= BASE
+    end
+
+    return adler | (sum2 << 16)
+  end
+
+  @@crc_table = [
+    0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419,
+    0x706af48f, 0xe963a535, 0x9e6495a3, 0x0edb8832, 0x79dcb8a4,
+    0xe0d5e91e, 0x97d2d988, 0x09b64c2b, 0x7eb17cbd, 0xe7b82d07,
+    0x90bf1d91, 0x1db71064, 0x6ab020f2, 0xf3b97148, 0x84be41de,
+    0x1adad47d, 0x6ddde4eb, 0xf4d4b551, 0x83d385c7, 0x136c9856,
+    0x646ba8c0, 0xfd62f97a, 0x8a65c9ec, 0x14015c4f, 0x63066cd9,
+    0xfa0f3d63, 0x8d080df5, 0x3b6e20c8, 0x4c69105e, 0xd56041e4,
+    0xa2677172, 0x3c03e4d1, 0x4b04d447, 0xd20d85fd, 0xa50ab56b,
+    0x35b5a8fa, 0x42b2986c, 0xdbbbc9d6, 0xacbcf940, 0x32d86ce3,
+    0x45df5c75, 0xdcd60dcf, 0xabd13d59, 0x26d930ac, 0x51de003a,
+    0xc8d75180, 0xbfd06116, 0x21b4f4b5, 0x56b3c423, 0xcfba9599,
+    0xb8bda50f, 0x2802b89e, 0x5f058808, 0xc60cd9b2, 0xb10be924,
+    0x2f6f7c87, 0x58684c11, 0xc1611dab, 0xb6662d3d, 0x76dc4190,
+    0x01db7106, 0x98d220bc, 0xefd5102a, 0x71b18589, 0x06b6b51f,
+    0x9fbfe4a5, 0xe8b8d433, 0x7807c9a2, 0x0f00f934, 0x9609a88e,
+    0xe10e9818, 0x7f6a0dbb, 0x086d3d2d, 0x91646c97, 0xe6635c01,
+    0x6b6b51f4, 0x1c6c6162, 0x856530d8, 0xf262004e, 0x6c0695ed,
+    0x1b01a57b, 0x8208f4c1, 0xf50fc457, 0x65b0d9c6, 0x12b7e950,
+    0x8bbeb8ea, 0xfcb9887c, 0x62dd1ddf, 0x15da2d49, 0x8cd37cf3,
+    0xfbd44c65, 0x4db26158, 0x3ab551ce, 0xa3bc0074, 0xd4bb30e2,
+    0x4adfa541, 0x3dd895d7, 0xa4d1c46d, 0xd3d6f4fb, 0x4369e96a,
+    0x346ed9fc, 0xad678846, 0xda60b8d0, 0x44042d73, 0x33031de5,
+    0xaa0a4c5f, 0xdd0d7cc9, 0x5005713c, 0x270241aa, 0xbe0b1010,
+    0xc90c2086, 0x5768b525, 0x206f85b3, 0xb966d409, 0xce61e49f,
+    0x5edef90e, 0x29d9c998, 0xb0d09822, 0xc7d7a8b4, 0x59b33d17,
+    0x2eb40d81, 0xb7bd5c3b, 0xc0ba6cad, 0xedb88320, 0x9abfb3b6,
+    0x03b6e20c, 0x74b1d29a, 0xead54739, 0x9dd277af, 0x04db2615,
+    0x73dc1683, 0xe3630b12, 0x94643b84, 0x0d6d6a3e, 0x7a6a5aa8,
+    0xe40ecf0b, 0x9309ff9d, 0x0a00ae27, 0x7d079eb1, 0xf00f9344,
+    0x8708a3d2, 0x1e01f268, 0x6906c2fe, 0xf762575d, 0x806567cb,
+    0x196c3671, 0x6e6b06e7, 0xfed41b76, 0x89d32be0, 0x10da7a5a,
+    0x67dd4acc, 0xf9b9df6f, 0x8ebeeff9, 0x17b7be43, 0x60b08ed5,
+    0xd6d6a3e8, 0xa1d1937e, 0x38d8c2c4, 0x4fdff252, 0xd1bb67f1,
+    0xa6bc5767, 0x3fb506dd, 0x48b2364b, 0xd80d2bda, 0xaf0a1b4c,
+    0x36034af6, 0x41047a60, 0xdf60efc3, 0xa867df55, 0x316e8eef,
+    0x4669be79, 0xcb61b38c, 0xbc66831a, 0x256fd2a0, 0x5268e236,
+    0xcc0c7795, 0xbb0b4703, 0x220216b9, 0x5505262f, 0xc5ba3bbe,
+    0xb2bd0b28, 0x2bb45a92, 0x5cb36a04, 0xc2d7ffa7, 0xb5d0cf31,
+    0x2cd99e8b, 0x5bdeae1d, 0x9b64c2b0, 0xec63f226, 0x756aa39c,
+    0x026d930a, 0x9c0906a9, 0xeb0e363f, 0x72076785, 0x05005713,
+    0x95bf4a82, 0xe2b87a14, 0x7bb12bae, 0x0cb61b38, 0x92d28e9b,
+    0xe5d5be0d, 0x7cdcefb7, 0x0bdbdf21, 0x86d3d2d4, 0xf1d4e242,
+    0x68ddb3f8, 0x1fda836e, 0x81be16cd, 0xf6b9265b, 0x6fb077e1,
+    0x18b74777, 0x88085ae6, 0xff0f6a70, 0x66063bca, 0x11010b5c,
+    0x8f659eff, 0xf862ae69, 0x616bffd3, 0x166ccf45, 0xa00ae278,
+    0xd70dd2ee, 0x4e048354, 0x3903b3c2, 0xa7672661, 0xd06016f7,
+    0x4969474d, 0x3e6e77db, 0xaed16a4a, 0xd9d65adc, 0x40df0b66,
+    0x37d83bf0, 0xa9bcae53, 0xdebb9ec5, 0x47b2cf7f, 0x30b5ffe9,
+    0xbdbdf21c, 0xcabac28a, 0x53b39330, 0x24b4a3a6, 0xbad03605,
+    0xcdd70693, 0x54de5729, 0x23d967bf, 0xb3667a2e, 0xc4614ab8,
+    0x5d681b02, 0x2a6f2b94, 0xb40bbe37, 0xc30c8ea1, 0x5a05df1b,
+    0x2d02ef8d
+  ]
+
+  # Tables of CRC-32s of all single-byte values, made by make_crc_table().
+  #
+  def get_crc_table
+    @@crc_table
+  end
+
+  # Compute the CRC-32 of a data stream.
+  #
+  def crc32(crc, buf, len=0)
+    return 0 if buf.nil?
+    len = buf.length if len.zero?
+    crc = crc ^ 0xffffffff
+    i = 0
+
+    while len >= 8
+      8.times{
+        crc = @@crc_table[(crc ^ buf[i].ord) & 0xff] ^ (crc >> 8)
+        i += 1
+      }
+      len -= 8
+    end
+
+    if len.nonzero?
+      loop do
+        crc = @@crc_table[(crc ^ buf[i].ord) & 0xff] ^ (crc >> 8)
+        i += 1
+        len -= 1
+        break if len.zero?
+      end
+    end
+
+    crc ^ 0xffffffff
+  end
+
+  OS_CODE = 0
+
+  SEEK_SET = 0
+  SEEK_CUR = 1
+  SEEK_END = 2
+  Z_EOF = -1
+  Z_BUFSIZE = 16384
+
+  @@gz_magic = "\x1F\x8B"
+
+  ASCII_FLAG  = 0x01
+  HEAD_CRC    = 0x02
+  EXTRA_FIELD = 0x04
+  ORIG_NAME   = 0x08
+  COMMENT_    = 0x10
+  RESERVED    = 0xE0
+
+  Gz_stream = Struct.new(
+    :stream,
+    :z_err,
+    :z_eof,
+    :file,
+    :inbuf,
+    :outbuf,
+    :crc,
+    :msg,
+    :path,
+    :transparent,
+    :mode,
+    :start,
+    :in,
+    :out,
+    :back,
+    :last
+  )
 
    # Opens a gzip (.gz) file for reading or writing. The mode parameter
    # is as in fopen ("rb" or "wb"). The file is given either by file descriptor
