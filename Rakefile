@@ -36,7 +36,7 @@ namespace :gem do
   end
 end
 
-namespace :benchmark do
+namespace :bench do
   desc "Run the zlib benchmark"
   task :zlib do
     Dir.chdir('profile'){ ruby "bench_zlib.rb" }
