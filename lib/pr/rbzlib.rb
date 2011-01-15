@@ -665,7 +665,7 @@ module Rbzlib
    def check_header(s)
       len = s.stream.avail_in
 
-      if len < 2 
+      if len < 2
          if len.nonzero?
             s.inbuf[0] = s.stream.next_in[0]
          end
@@ -915,35 +915,35 @@ module Rbzlib
       return c
    end
 
-   # Reads bytes from the compressed file until len-1 characters are
-   # read, or a newline character is read and transferred to buf, or an
-   # end-of-file condition is encountered.  The string is then terminated
-   # with a null character.
-   #
-   # Returns buf, or Z_NULL in case of error.
-   #
-   def gzgets(file,buf,len)
-      return nil if buf.nil? || (len <= 0)
+  # Reads bytes from the compressed file until len-1 characters are
+  # read, or a newline character is read and transferred to buf, or an
+  # end-of-file condition is encountered.  The string is then terminated
+  # with a null character.
+  #
+  # Returns buf, or Z_NULL in case of error.
+  #
+  def gzgets(file,buf,len)
+    return nil if buf.nil? || (len <= 0)
 
-      i = 0
-      gzchar = 0.chr
+    i = 0
+    gzchar = 0.chr
 
-      loop do
-         len-=1
-         bytes = gzread(file, gzchar, 1)
-         buf[i] = gzchar[0]
-         i += 1
-         break if len.zero? || (bytes != 1) || (gzchar == (13).chr)
-      end
+    loop do
+      len-=1
+      bytes = gzread(file, gzchar, 1)
+      buf[i] = gzchar[0]
+      i += 1
+      break if len.zero? || (bytes != 1) || (gzchar == (13).chr)
+    end
 
-      buf[i..-1] = ''
-      buf.chomp!(0.chr)
+    buf[i..-1] = ''
+    buf.chomp!(0.chr)
 
-      if i.zero? && (len > 0)
-         return nil
-      else
-         return buf
-      end
+    if i.zero? && (len > 0)
+      return nil
+    else
+      return buf
+    end
   end
 
   #   Writes the given number of uncompressed bytes into the compressed file.
@@ -2863,15 +2863,15 @@ module Rbzlib
     end
 
     h = HEAP_SIZE
-    max_length.downto(1) do |bits|
-      n = s.bl_count[bits]
+    max_length.downto(1) do |nbits|
+      n = s.bl_count[nbits]
       while n.nonzero?
         h -= 1
         m = s.heap[h]
         next if (m > max_code)
-        if (tree[m].dl != bits)
-          s.opt_len += (bits - tree[m].dl) * tree[m].fc
-          tree[m].dl = bits
+        if (tree[m].dl != nbits)
+          s.opt_len += (nbits - tree[m].dl) * tree[m].fc
+          tree[m].dl = nbits
         end
         n-=1
       end
@@ -2923,8 +2923,8 @@ module Rbzlib
     end
     desc.max_code = max_code
 
-    (s.heap_len / 2).downto(1) do |n|
-      pqdownheap(s, tree, n)
+    (s.heap_len / 2).downto(1) do |nheap|
+      pqdownheap(s, tree, nheap)
     end
 
     node = elems
@@ -3611,10 +3611,10 @@ module Rbzlib
     dmask = (1 << state.distbits) - 1
     status = nil
     this = nil
-    
+
     op = -1
     len = -1
-    
+
     loop do
       if status.nil?
         if (bits < 15)
