@@ -770,149 +770,151 @@ module Rbzlib
     return err
   end
 
-   # Reads the given number of uncompressed bytes from the compressed file.
-   # gzread returns the number of bytes actually read (0 for end of file).
-   def gzread(file,buf,len)
-      s = file
-      start = Bytef.new(buf)
+  # Reads the given number of uncompressed bytes from the compressed file.
+  # gzread returns the number of bytes actually read (0 for end of file).
+  def gzread(file,buf,len)
+    s = file
+    start = Bytef.new(buf)
 
-      if s.nil? || s.mode != 'r'
-         return Z_STREAM_ERROR
+    if s.nil? || s.mode != 'r'
+      return Z_STREAM_ERROR
+    end
+
+    return -1 if (s.z_err == Z_DATA_ERROR) || (s.z_err == Z_ERRNO)
+    return 0 if (s.z_err == Z_STREAM_END)
+
+    next_out = Bytef.new(buf)
+    s.stream.next_out = Bytef.new(buf)
+    s.stream.avail_out = len
+
+    if s.stream.avail_out.nonzero? && s.back != Z_EOF
+      next_out.set(s.back)
+      next_out += 1
+      s.stream.next_out += 1
+      s.stream.avail_out -= 1
+      s.back = Z_EOF
+      s.out += 1
+      start += 1
+
+      if s.last
+        s.z_err = Z_STREAM_END
+        return 1
+      end
+    end
+
+    while s.stream.avail_out.nonzero?
+      if s.transparent
+        n = s.stream.avail_in
+
+        if n > s.stream.avail_out
+          n = s.stream.avail_out
+        end
+
+        if n > 0
+          s.stream.next_out.buffer[s.stream.next_out.offset,n] = s.stream.next_in.current[0,n]
+          next_out += n
+          s.stream.next_out.offset = next_out.offset
+          s.stream.next_in += n
+          s.stream.avail_out -= n
+          s.stream.avail_in -= n
+        end
+
+        if s.stream.avail_out > 0
+          buff = s.file.read(s.stream.avail_out)
+          if buff
+            next_out.buffer[next_out.offset,buff.length] = buff
+            s.stream.avail_out -= buff.length
+          end
+        end
+
+        len -= s.stream.avail_out
+        s.in += len
+        s.out += len
+
+        if len.zero?
+          s.z_eof = true
+        end
+
+        return len
       end
 
-      return -1 if (s.z_err == Z_DATA_ERROR) || (s.z_err == Z_ERRNO)
-      return 0 if (s.z_err == Z_STREAM_END)
+      if s.stream.avail_in.zero? && !s.z_eof
+        begin
+          buf = s.file.read(Z_BUFSIZE)
+          if buf
+            s.inbuf[0,buf.length] = buf
+            s.stream.avail_in = buf.length
+          else
+            s.stream.avail_in = 0
+          end
+        rescue
+          s.z_err = Z_ERRNO
+        end
 
-      next_out = Bytef.new(buf)
-      s.stream.next_out = Bytef.new(buf)
-      s.stream.avail_out = len
-
-      if s.stream.avail_out.nonzero? && s.back != Z_EOF
-         next_out.set(s.back)
-         next_out += 1
-         s.stream.next_out += 1
-         s.stream.avail_out -= 1
-         s.back = Z_EOF
-         s.out += 1
-         start += 1
-
-         if s.last
-            s.z_err = Z_STREAM_END
-            return 1
-         end
+        if s.stream.avail_in.zero?
+          s.z_eof = true
+          break if(s.z_err == Z_ERRNO)
+        end
+        s.stream.next_in = Bytef.new(s.inbuf)
       end
 
-      while s.stream.avail_out.nonzero?
-         if s.transparent
-            n = s.stream.avail_in
+      s.in += s.stream.avail_in
+      s.out += s.stream.avail_out
+      s.z_err = inflate(s.stream, Z_NO_FLUSH)
+      s.in -= s.stream.avail_in
+      s.out -= s.stream.avail_out
 
-            if n > s.stream.avail_out
-               n = s.stream.avail_out
-            end
-
-            if n > 0
-               s.stream.next_out.buffer[s.stream.next_out.offset,n] = s.stream.next_in.current[0,n]
-               next_out += n
-               s.stream.next_out.offset = next_out.offset
-               s.stream.next_in += n
-               s.stream.avail_out -= n
-               s.stream.avail_in -= n
-            end
-
-            if s.stream.avail_out > 0
-               buff = s.file.read(s.stream.avail_out)
-               if buff
-                  next_out.buffer[next_out.offset,buff.length] = buff
-                  s.stream.avail_out -= buff.length
-               end
-            end
-
-            len -= s.stream.avail_out
-            s.in += len
-            s.out += len
-            if len.zero?
-               s.z_eof = true
-            end
-            return len
-         end
-
-         if s.stream.avail_in.zero? && !s.z_eof
-            begin
-               buf = s.file.read(Z_BUFSIZE)
-               if buf
-                  s.inbuf[0,buf.length] = buf
-                  s.stream.avail_in = buf.length
-               else
-                  s.stream.avail_in = 0
-               end
-            rescue
-               s.z_err = Z_ERRNO
-            end
-
-            if s.stream.avail_in.zero?
-               s.z_eof = true
-               break if(s.z_err == Z_ERRNO)
-            end
-            s.stream.next_in = Bytef.new(s.inbuf)
-         end
-
-         s.in += s.stream.avail_in
-         s.out += s.stream.avail_out
-         s.z_err = inflate(s.stream, Z_NO_FLUSH)
-         s.in -= s.stream.avail_in
-         s.out -= s.stream.avail_out
-
-         if s.z_err == Z_STREAM_END
-            s.crc = crc32(s.crc, start.current,s.stream.next_out.offset - start.offset)
-            start = s.stream.next_out.dup
-            if getLong(s) != s.crc
-               s.z_err = Z_DATA_ERROR
-            else
-               getLong(s)
-               check_header(s)
-               if s.z_err == Z_OK
-                  inflateReset(s.stream)
-                  s.crc = crc32(0, nil)
-               end
-            end
-         end
-
-         break if s.z_err != Z_OK || s.z_eof
+      if s.z_err == Z_STREAM_END
+        s.crc = crc32(s.crc, start.current,s.stream.next_out.offset - start.offset)
+        start = s.stream.next_out.dup
+        if getLong(s) != s.crc
+          s.z_err = Z_DATA_ERROR
+        else
+          getLong(s)
+          check_header(s)
+          if s.z_err == Z_OK
+            inflateReset(s.stream)
+            s.crc = crc32(0, nil)
+          end
+        end
       end
 
-      s.crc = crc32(s.crc, start.current,s.stream.next_out.offset - start.offset)
+      break if s.z_err != Z_OK || s.z_eof
+    end
 
-      if len == s.stream.avail_out && (s.z_err == Z_DATA_ERROR || s.z_err = Z_ERRNO)
-         return -1
-      end
+    s.crc = crc32(s.crc, start.current,s.stream.next_out.offset - start.offset)
 
-      return len - s.stream.avail_out
-   end
+    if len == s.stream.avail_out && (s.z_err == Z_DATA_ERROR || s.z_err = Z_ERRNO)
+      return -1
+    end
 
-   # Reads one byte from the compressed file. gzgetc returns this byte
-   # or -1 in case of end of file or error.
-   #
-   def gzgetc(file)
-      c = 0.chr
-      if (gzread(file,c,1) == 1)
-         return c
-      else
-         return -1
-      end
-   end
+    return len - s.stream.avail_out
+  end
 
-   # Push one byte back onto the stream.
-   #
-   def gzungetc(c, file)
-      s = file
-      return Z_EOF if s.nil? || s.mode != 'r' || c == Z_EOF || s.back != Z_EOF
-      s.back = c
-      s.out -= 1
-      s.last = (s.z_err == Z_STREAM_END)
-      s.z_err = Z_OK if s.last
-      s.z_eof = false
+  # Reads one byte from the compressed file. gzgetc returns this byte
+  # or -1 in case of end of file or error.
+  #
+  def gzgetc(file)
+    c = 0.chr
+    if (gzread(file,c,1) == 1)
       return c
-   end
+    else
+      return -1
+    end
+  end
+
+  # Push one byte back onto the stream.
+  #
+  def gzungetc(c, file)
+    s = file
+    return Z_EOF if s.nil? || s.mode != 'r' || c == Z_EOF || s.back != Z_EOF
+    s.back = c
+    s.out -= 1
+    s.last = (s.z_err == Z_STREAM_END)
+    s.z_err = Z_OK if s.last
+    s.z_eof = false
+    return c
+  end
 
   # Reads bytes from the compressed file until len-1 characters are
   # read, or a newline character is read and transferred to buf, or an
