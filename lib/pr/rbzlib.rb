@@ -452,324 +452,323 @@ module Rbzlib
     :last
   )
 
-   # Opens a gzip (.gz) file for reading or writing. The mode parameter
-   # is as in fopen ("rb" or "wb"). The file is given either by file descriptor
-   # or path name (if fd == -1).
-   #
-   # gz_open returns NULL if the file could not be opened or if there was
-   # insufficient memory to allocate the (de)compression state; errno
-   # can be checked to distinguish the two cases (if errno is zero, the
-   # zlib error is Z_MEM_ERROR).
-   #
-   def gz_open(path, mode, fd)
-      return nil if path.nil? || mode.nil?
+  # Opens a gzip (.gz) file for reading or writing. The mode parameter
+  # is as in fopen ("rb" or "wb"). The file is given either by file descriptor
+  # or path name (if fd == -1).
+  #
+  # gz_open returns NULL if the file could not be opened or if there was
+  # insufficient memory to allocate the (de)compression state; errno
+  # can be checked to distinguish the two cases (if errno is zero, the
+  # zlib error is Z_MEM_ERROR).
+  #
+  def gz_open(path, mode, fd)
+    return nil if path.nil? || mode.nil?
 
-      s = Gz_stream.new
-      s.stream = Z_stream.new
+    s = Gz_stream.new
+    s.stream = Z_stream.new
 
-      level = Z_DEFAULT_COMPRESSION
-      strategy = Z_DEFAULT_STRATEGY
+    level = Z_DEFAULT_COMPRESSION
+    strategy = Z_DEFAULT_STRATEGY
 
-      s.stream.next_in = nil
-      s.stream.next_out = nil
-      s.stream.avail_in = 0
-      s.stream.avail_out = 0
-      s.stream.msg = ''
+    s.stream.next_in = nil
+    s.stream.next_out = nil
+    s.stream.avail_in = 0
+    s.stream.avail_out = 0
+    s.stream.msg = ''
 
-      s.file = nil
-      s.z_err = Z_OK
-      s.z_eof = false
-      s.inbuf = nil
-      s.outbuf = nil
-      s.in = 0
-      s.out = 0
-      s.back = Z_EOF
-      s.crc = crc32(0, nil)
-      s.msg = ''
-      s.transparent = false
-      s.path = path.dup
-      s.mode = nil
+    s.file = nil
+    s.z_err = Z_OK
+    s.z_eof = false
+    s.inbuf = nil
+    s.outbuf = nil
+    s.in = 0
+    s.out = 0
+    s.back = Z_EOF
+    s.crc = crc32(0, nil)
+    s.msg = ''
+    s.transparent = false
+    s.path = path.dup
+    s.mode = nil
 
-      fmode = ''
+    fmode = ''
 
-      mode.each_byte do |c|
-         s.mode = 'r' if c == ?r.ord
-         s.mode = 'w' if c == ?w.ord || c == ?a.ord
+    mode.each_byte do |c|
+      s.mode = 'r' if c == ?r.ord
+      s.mode = 'w' if c == ?w.ord || c == ?a.ord
 
-         if c >= ?0.ord && c <= ?9.ord
-            level = c - ?0.ord
-         elsif c == ?f.ord
-            strategy = Z_FILTERED
-         elsif c == ?h.ord
-            strategy = Z_HUFFMAN_ONLY
-         elsif c == ?R.ord
-            strategy = Z_RLE
-         else
-            fmode += c.chr
-         end
-      end
-
-      if s.mode.nil?
-         destroy(s)
-         return nil
-      end
-
-      if s.mode == 'w'
-         err = deflateInit2(
-            s.stream,
-            level,
-            Z_DEFLATED,
-            -MAX_WBITS,
-            DEF_MEM_LEVEL,
-            strategy
-         )
-
-         s.outbuf = 0.chr * Z_BUFSIZE
-         s.stream.next_out = Bytef.new(s.outbuf)
-
-         if err != Z_OK || s.outbuf.nil?
-            destroy(s)
-            return nil
-         end
+      if c >= ?0.ord && c <= ?9.ord
+        level = c - ?0.ord
+      elsif c == ?f.ord
+        strategy = Z_FILTERED
+      elsif c == ?h.ord
+        strategy = Z_HUFFMAN_ONLY
+      elsif c == ?R.ord
+        strategy = Z_RLE
       else
-         s.inbuf = 0.chr * Z_BUFSIZE
-         s.stream.next_in = Bytef.new(s.inbuf)
+        fmode += c.chr
+      end
+    end
 
-         err = inflateInit2_(s.stream, -MAX_WBITS, ZLIB_VERSION, s.stream.size)
+    if s.mode.nil?
+      destroy(s)
+      return nil
+    end
 
-         if err != Z_OK || s.inbuf.nil?
-            destroy(s)
-            return nil
-         end
+    if s.mode == 'w'
+      err = deflateInit2(
+        s.stream,
+        level,
+        Z_DEFLATED,
+        -MAX_WBITS,
+        DEF_MEM_LEVEL,
+        strategy
+      )
+
+      s.outbuf = 0.chr * Z_BUFSIZE
+      s.stream.next_out = Bytef.new(s.outbuf)
+
+      if err != Z_OK || s.outbuf.nil?
+        destroy(s)
+        return nil
+      end
+    else
+      s.inbuf = 0.chr * Z_BUFSIZE
+      s.stream.next_in = Bytef.new(s.inbuf)
+
+      err = inflateInit2_(s.stream, -MAX_WBITS, ZLIB_VERSION, s.stream.size)
+
+      if err != Z_OK || s.inbuf.nil?
+        destroy(s)
+        return nil
+      end
+    end
+
+    s.stream.avail_out = Z_BUFSIZE
+
+    s.file = fd < 0 ? File.new(path, fmode) : IO.new(fd, fmode)
+
+    if s.mode == 'w'
+      gzheader = 0.chr * 10
+      gzheader[0] = @@gz_magic[0]
+      gzheader[1] = @@gz_magic[1]
+      gzheader[2] = Z_DEFLATED.chr
+      gzheader[3] = 0.chr
+      gzheader[4] = 0.chr
+      gzheader[5] = 0.chr
+      gzheader[6] = 0.chr
+      gzheader[7] = 0.chr
+      gzheader[8] = 0.chr
+      gzheader[9] = OS_CODE.chr
+      s.file.write(gzheader)
+      s.start = 10
+    else
+      check_header(s)
+      s.start = s.file.pos - s.stream.avail_in
+    end
+
+    return s
+  end
+
+  # Opens a gzip (.gz) file for reading or writing.
+  #
+  def gzopen(path,mode)
+    return gz_open(path, mode, -1)
+  end
+
+  # Associate a gzFile with the file descriptor fd. fd is not dup'ed here
+  # to mimic the behavio(u)r of fdopen.
+  #
+  def gzdopen(fd,mode)
+    return nil if fd < 0
+    name = "<fd:#{fd}"
+    return gz_open(name, mode, fd)
+  end
+
+  # Update the compression level and strategy
+  #
+  def gzsetparams(file,level,strategy)
+    s = file
+
+    if s.nil? || s.mode != 'w'
+      return Z_STREAM_ERROR
+    end
+
+    if s.stream.avail_out.zero?
+      s.stream.next_out = Bytef.new(s.outbuf)
+      written = s.file.write(s.outbuf)
+
+      if written != Z_BUFSIZE
+        s.z_err = Z_ERRNO
       end
 
       s.stream.avail_out = Z_BUFSIZE
+    end
 
-      errno = 0
-      s.file = fd < 0 ? File.new(path, fmode) : IO.new(fd, fmode)
+    return deflateParams(s.stream, level, strategy)
+  end
 
-      if s.mode == 'w'
-         gzheader = 0.chr * 10
-         gzheader[0] = @@gz_magic[0]
-         gzheader[1] = @@gz_magic[1]
-         gzheader[2] = Z_DEFLATED.chr
-         gzheader[3] = 0.chr
-         gzheader[4] = 0.chr
-         gzheader[5] = 0.chr
-         gzheader[6] = 0.chr
-         gzheader[7] = 0.chr
-         gzheader[8] = 0.chr
-         gzheader[9] = OS_CODE.chr
-         s.file.write(gzheader)
-         s.start = 10
-      else
-         check_header(s)
-         s.start = s.file.pos - s.stream.avail_in
-      end
+  # Read a byte from a gz_stream; update next_in and avail_in. Return EOF
+  # for end of file.
+  # IN assertion: the stream s has been sucessfully opened for reading.
+  #
+  def get_byte(s)
+    return Z_EOF if s.z_eof
 
-      return s
-   end
+    if s.stream.avail_in.zero?
+       begin
+          s.inbuf = s.file.read(Z_BUFSIZE)
+          s.stream.avail_in = s.inbuf.length if s.inbuf
+       rescue
+          s.inbuf = nil
+          s.z_err = Z_ERRNO
+       end
 
-   # Opens a gzip (.gz) file for reading or writing.
-   #
-   def gzopen(path,mode)
-      return gz_open(path, mode, -1)
-   end
+       if s.inbuf.nil?
+          s.z_eof = true
+          return Z_EOF
+       end
+       s.stream.next_in = Bytef.new(s.inbuf)
+    end
 
-   # Associate a gzFile with the file descriptor fd. fd is not dup'ed here
-   # to mimic the behavio(u)r of fdopen.
-   #
-   def gzdopen(fd,mode)
-      return nil if fd < 0
-      name = "<fd:#{fd}"
-      return gz_open(name, mode, fd)
-   end
+    s.stream.avail_in-=1
+    _get_byte = s.stream.next_in.get
+    s.stream.next_in+=1
 
-   # Update the compression level and strategy
-   #
-   def gzsetparams(file,level,strategy)
-      s = file
+    return _get_byte
+  end
 
-      if s.nil? || s.mode != 'w'
-         return Z_STREAM_ERROR
-      end
+  # Reads a long in LSB order from the given gz_stream. Sets z_err in case
+  # of error.
+  def getLong(s)
+    x = 0.chr * 4
+    x[0] = (get_byte(s)).chr
+    x[1] = (get_byte(s)).chr
+    x[2] = (get_byte(s)).chr
+    c = get_byte(s)
+    x[3] = (c).chr
 
-      if s.stream.avail_out.zero?
-         s.stream.next_out = Bytef.new(s.outbuf)
-         written = s.file.write(s.outbuf)
+    s.z_err = Z_DATA_ERROR if (c == Z_EOF)
 
-         if written != Z_BUFSIZE
-            s.z_err = Z_ERRNO
-         end
+    return (x.unpack('L').first)
+  end
 
-         s.stream.avail_out = Z_BUFSIZE
-      end
+  # Check the gzip header of a gz_stream opened for reading. Set the stream
+  # mode to transparent if the gzip magic header is not present; set s->err
+  # to Z_DATA_ERROR if the magic header is present but the rest of the header
+  # is incorrect.
+  #
+  # IN assertion: the stream s has already been created sucessfully;
+  #    s->stream.avail_in is zero for the first time, but may be non-zero
+  #    for concatenated .gz files.
+  #
+  def check_header(s)
+    len = s.stream.avail_in
 
-      return deflateParams(s.stream, level, strategy)
-   end
-
-   # Read a byte from a gz_stream; update next_in and avail_in. Return EOF
-   # for end of file.
-   # IN assertion: the stream s has been sucessfully opened for reading.
-   #
-   def get_byte(s)
-      return Z_EOF if s.z_eof
-
-      if s.stream.avail_in.zero?
-         begin
-            s.inbuf = s.file.read(Z_BUFSIZE)
-            s.stream.avail_in = s.inbuf.length if s.inbuf
-         rescue
-            s.inbuf = nil
-            s.z_err = Z_ERRNO
-         end
-
-         if s.inbuf.nil?
-            s.z_eof = true
-            return Z_EOF
-         end
-         s.stream.next_in = Bytef.new(s.inbuf)
-      end
-
-      s.stream.avail_in-=1
-      _get_byte = s.stream.next_in.get
-      s.stream.next_in+=1
-
-      return _get_byte
-   end
-
-   # Reads a long in LSB order from the given gz_stream. Sets z_err in case
-   # of error.
-   def getLong(s)
-      x = 0.chr * 4
-      x[0] = (get_byte(s)).chr
-      x[1] = (get_byte(s)).chr
-      x[2] = (get_byte(s)).chr
-      c = get_byte(s)
-      x[3] = (c).chr
-
-      s.z_err = Z_DATA_ERROR if (c == Z_EOF)
-
-      return (x.unpack('L').first)
-   end
-
-   # Check the gzip header of a gz_stream opened for reading. Set the stream
-   # mode to transparent if the gzip magic header is not present; set s->err
-   # to Z_DATA_ERROR if the magic header is present but the rest of the header
-   # is incorrect.
-   #
-   # IN assertion: the stream s has already been created sucessfully;
-   #    s->stream.avail_in is zero for the first time, but may be non-zero
-   #    for concatenated .gz files.
-   #
-   def check_header(s)
-      len = s.stream.avail_in
-
-      if len < 2
-         if len.nonzero?
-            s.inbuf[0] = s.stream.next_in[0]
-         end
-
-         begin
-            buf = s.file.read(Z_BUFSIZE >> len)
-            if buf
-               s.inbuf[len,buf.length] = buf
-               len = buf.length
-            else
-               len = 0
-            end
-         rescue
-            len = 0
-            s.z_err = Z_ERRNO
-         end
-
-         s.stream.avail_in += len
-         s.stream.next_in = Bytef.new(s.inbuf)
-
-         if s.stream.avail_in < 2
-            s.transparent = !s.stream.avail_in.zero?
-            return
-         end
-      end
-
-      if s.stream.next_in[0] != @@gz_magic[0].ord ||
-         s.stream.next_in[1] != @@gz_magic[1].ord
-      then
-         s.transparent = true
-         return
-      end
-
-      s.stream.avail_in -= 2
-      s.stream.next_in += 2
-
-      method = get_byte(s)
-      flags = get_byte(s)
-
-      if (method != Z_DEFLATED) || (flags & RESERVED).nonzero?
-         s.z_err = Z_DATA_ERROR
-         return
-      end
-
-      for len in 0 .. 5
-         get_byte(s)
-      end
-
-      if (flags & EXTRA_FIELD).nonzero?
-         len = (get_byte(s))
-         len += ((get_byte(s)) << 8)
-         while len.nonzero? || (get_byte(s) != Z_EOF)
-             len -= 1
-         end
-      end
-
-      if (flags & ORIG_NAME).nonzero?
-         loop do
-            c = get_byte(s)
-            break if c.zero? || (c == Z_EOF)
-         end
-      end
-
-      if (flags & COMMENT_).nonzero?
-         loop do
-            c = get_byte(s)
-            break if c.zero? || (c == Z_EOF)
-         end
-      end
-
-      if (flags & HEAD_CRC).nonzero?
-         get_byte(s)
-         get_byte(s)
-      end
-
-      s.z_err = s.z_eof ? Z_DATA_ERROR : Z_OK
-   end
-
-   # Cleanup then free the given gz_stream. Return a zlib error code.
-   def destroy(s)
-      err = Z_OK
-      return Z_STREAM_ERROR if s.nil?
-
-      if s.stream.state
-         if s.mode == 'w'
-            err = deflateEnd(s.stream)
-         elsif s.mode == 'r'
-            err = inflateEnd(s.stream)
-         end
+    if len < 2
+      if len.nonzero?
+        s.inbuf[0] = s.stream.next_in[0]
       end
 
       begin
-         s.file.close if s.file
-         s.file = nil
+        buf = s.file.read(Z_BUFSIZE >> len)
+        if buf
+          s.inbuf[len,buf.length] = buf
+          len = buf.length
+        else
+          len = 0
+        end
       rescue
-         err = Z_ERRNO
+        len = 0
+        s.z_err = Z_ERRNO
       end
 
-      if s.z_err < 0
-         err = s.z_err
-      end
+      s.stream.avail_in += len
+      s.stream.next_in = Bytef.new(s.inbuf)
 
-      return err
-   end
+      if s.stream.avail_in < 2
+        s.transparent = !s.stream.avail_in.zero?
+        return
+      end
+    end
+
+    if s.stream.next_in[0] != @@gz_magic[0].ord ||
+      s.stream.next_in[1] != @@gz_magic[1].ord
+    then
+      s.transparent = true
+      return
+    end
+
+    s.stream.avail_in -= 2
+    s.stream.next_in += 2
+
+    method = get_byte(s)
+    flags = get_byte(s)
+
+    if (method != Z_DEFLATED) || (flags & RESERVED).nonzero?
+      s.z_err = Z_DATA_ERROR
+      return
+    end
+
+    for len in 0 .. 5
+      get_byte(s)
+    end
+
+    if (flags & EXTRA_FIELD).nonzero?
+      len = (get_byte(s))
+      len += ((get_byte(s)) << 8)
+      while len.nonzero? || (get_byte(s) != Z_EOF)
+        len -= 1
+      end
+    end
+
+    if (flags & ORIG_NAME).nonzero?
+      loop do
+        c = get_byte(s)
+        break if c.zero? || (c == Z_EOF)
+      end
+    end
+
+    if (flags & COMMENT_).nonzero?
+      loop do
+        c = get_byte(s)
+        break if c.zero? || (c == Z_EOF)
+      end
+    end
+
+    if (flags & HEAD_CRC).nonzero?
+      get_byte(s)
+      get_byte(s)
+    end
+
+    s.z_err = s.z_eof ? Z_DATA_ERROR : Z_OK
+  end
+
+  # Cleanup then free the given gz_stream. Return a zlib error code.
+  def destroy(s)
+    err = Z_OK
+    return Z_STREAM_ERROR if s.nil?
+
+    if s.stream.state
+      if s.mode == 'w'
+        err = deflateEnd(s.stream)
+      elsif s.mode == 'r'
+        err = inflateEnd(s.stream)
+      end
+    end
+
+    begin
+      s.file.close if s.file
+      s.file = nil
+    rescue
+      err = Z_ERRNO
+    end
+
+    if s.z_err < 0
+      err = s.z_err
+    end
+
+    return err
+  end
 
    # Reads the given number of uncompressed bytes from the compressed file.
    # gzread returns the number of bytes actually read (0 for end of file).
