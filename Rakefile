@@ -5,14 +5,6 @@ require 'rbconfig'
 
 CLEAN.include("**/*.rbc", "**/*.gem", "**/*.txt", "**/*.gz")
 
-desc 'Install the pr-zlib library'
-task :install do
-  install_dir = File.join(Config::CONFIG['sitelibdir'], 'pr')
-  Dir.mkdir(install_dir) unless File.exists?(install_dir)
-  files = ['lib/pr/zlib.rb', 'lib/pr/rbzlib.rb']
-  files.each{ |file| cp(file, install_dir, :verbose => true) }
-end
-
 desc 'Install the pr-zlib library as zlib'
 task :install_as_zlib do
   install_dir = File.join(Config::CONFIG['sitelibdir'], 'pr')
