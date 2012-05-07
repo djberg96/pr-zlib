@@ -1197,11 +1197,11 @@ module Rbzlib
 
   # Outputs a long in LSB order to the given file
   def putLong(s,x)
-    for n in 0 .. 3
+    4.times{
       c = x & 0xFF
       s.putc(c)
       x = x >> 8
-    end
+    }
   end
 
    # Flushes all pending output if necessary, closes the compressed file
@@ -2448,7 +2448,7 @@ module Rbzlib
       end
     end
     if (s.match_available)
-      bflush = _tr_tally(s, 0, s.window[s.strstart-1].ord)
+      _tr_tally(s, 0, s.window[s.strstart-1].ord)
       s.match_available = false
     end
     FLUSH_BLOCK_ONLY(s, flush == Z_FINISH)
@@ -3801,20 +3801,20 @@ module Rbzlib
                 state.mode = BAD
                 break
             end
-        elsif (op & 64).zero?
-            this = lcode[this.val + (hold & ((1 << op) - 1))]
-            status = :dolen
-            redo
-        elsif (op & 32).nonzero?
-            state.mode = TYPE
-            break
-        else
-            strm.msg = "invalid literal/length code"
-            state.mode = BAD
-            break
-        end
-        status = nil
-        break unless (_in.offset < last.offset && out.offset < _end.offset)
+      elsif (op & 64).zero?
+          this = lcode[this.val + (hold & ((1 << op) - 1))]
+          status = :dolen
+          redo
+      elsif (op & 32).nonzero?
+          state.mode = TYPE
+          break
+      else
+          strm.msg = "invalid literal/length code"
+          state.mode = BAD
+          break
+      end
+      status = nil
+      break unless (_in.offset < last.offset && out.offset < _end.offset)
     end
     len = bits >> 3
     _in -= len
@@ -4152,12 +4152,12 @@ module Rbzlib
   # Get a byte of input into the bit accumulator, or return from inflate()
   # if there is no input available.
   def PULLBYTE()
-        throw :inf_leave if @@have.zero?
-        @@have -= 1
-        c = (@@next.get)
-        @@hold += (@@next.get) << @@bits
-        @@next += 1
-        @@bits += 8
+    throw :inf_leave if @@have.zero?
+    @@have -= 1
+    @@next.get
+    @@hold += (@@next.get) << @@bits
+    @@next += 1
+    @@bits += 8
   end
 
   # Assure that there are at least n bits in the bit accumulator.  If there is
@@ -4952,7 +4952,7 @@ module Rbzlib
             state.bits -= 8
         end
         state.have = 0
-        _next,state.have = syncsearch((state.have), buf, len)
+        _,state.have = syncsearch((state.have), buf, len)
     end
 
     len,state.have = syncsearch((state.have), strm.next_in, strm.avail_in)
