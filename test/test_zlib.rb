@@ -3,10 +3,7 @@
 #
 # Test case for the Zlib module.
 ########################################################################
-require 'rubygems'
-gem 'test-unit'
-
-require 'test/unit'
+require 'test-unit'
 require 'pr/zlib'
 
 class TC_Zlib < Test::Unit::TestCase

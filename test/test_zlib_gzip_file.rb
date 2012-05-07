@@ -3,11 +3,8 @@
 #
 # Test case for the Zlib::GzipFile base class.
 ########################################################################
-require 'rubygems'
-gem 'test-unit'
-
 require 'pr/zlib'
-require 'test/unit'
+require 'test-unit'
 
 class TC_Zlib_GzipFile < Test::Unit::TestCase
    def self.startup

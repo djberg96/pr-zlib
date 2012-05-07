@@ -3,15 +3,12 @@
 #
 # Test case for the Zlib::Bytef class.
 ########################################################################
-require 'rubygems'
-gem 'test-unit'
-
 require 'pr/rbzlib'
-require 'test/unit'
+require 'test-unit'
 
 class TC_Rbzlib_Bytef < Test::Unit::TestCase
    def setup
-      @buffer = 0.chr * 32 
+      @buffer = 0.chr * 32
       @bytef  = Rbzlib::Bytef.new(@buffer)
    end
 

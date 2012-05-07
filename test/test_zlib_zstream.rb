@@ -1,7 +1,4 @@
-require 'rubygems'
-gem 'test-unit'
-
-require 'test/unit'
+require 'test-unit'
 require 'pr/zlib'
 
 class TC_Zlib_Zstream < Test::Unit::TestCase

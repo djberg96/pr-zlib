@@ -3,10 +3,7 @@
 #
 # Tests for the GzipReader class.
 ########################################################################
-require 'rubygems'
-gem 'test-unit'
-
-require 'test/unit'
+require 'test-unit'
 require 'fileutils'
 require 'pr/zlib'
 
@@ -96,7 +93,7 @@ class TC_GzipReader < Test::Unit::TestCase
    def test_read_expected_errors
       assert_raise(ArgumentError){ @gz_reader.read(-1) }
    end
-   
+
    def test_getc_basic
       assert_respond_to(@gz_reader, :getc)
       assert_nothing_raised{ @gz_reader.getc }
@@ -146,7 +143,7 @@ class TC_GzipReader < Test::Unit::TestCase
 
    def test_readline_basic
       assert_respond_to(@gz_reader, :readline)
-      assert_nothing_raised{ @gz_reader.readline } 
+      assert_nothing_raised{ @gz_reader.readline }
    end
 
    def test_readline

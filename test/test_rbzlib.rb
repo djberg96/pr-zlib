@@ -3,11 +3,8 @@
 #
 # Test case for the Rbzlib module.
 ########################################################################
-require 'rubygems'
-gem 'test-unit'
-
 require 'pr/rbzlib'
-require 'test/unit'
+require 'test-unit'
 
 class TC_Rbzlib < Test::Unit::TestCase
   include Rbzlib

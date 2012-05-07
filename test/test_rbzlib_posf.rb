@@ -3,11 +3,8 @@
 #
 # Test case for the Zlib::Posf class.
 ########################################################################
-require 'rubygems'
-gem 'test-unit'
-
 require 'pr/rbzlib'
-require 'test/unit'
+require 'test-unit'
 
 class TC_Rbzlib_Posf < Test::Unit::TestCase
    def setup
