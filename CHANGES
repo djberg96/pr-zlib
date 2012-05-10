@@ -1,5 +1,7 @@
 = 1.0.1 - ???
 * Added benchmark and profiler scripts and rake tasks.
+* Switched profiling scripts to use ruby-prof.
+* The test-unit and ruby-prof libraries are now development dependencies.
 * Minor updates to eliminate warnings for 1.9.3.
 * Some minor test suite updates, mostly for 1.9.3.
 
