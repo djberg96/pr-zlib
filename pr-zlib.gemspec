@@ -13,6 +13,7 @@ Gem::Specification.new do |spec|
   spec.extra_rdoc_files  = ['README', 'CHANGES', 'MANIFEST']
    
   spec.add_development_dependency('test-unit', '>= 2.4.0')
+  spec.add_development_dependency('ruby-prof')
    
   spec.description = <<-EOF
     The pr-zlib library is a pure Ruby implementation of both the zlib C

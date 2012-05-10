@@ -11,8 +11,16 @@ File.open(FILE_NAME, "w") do |fh|
   }
 end
 
-require 'profile'
+require 'ruby-prof'
 
-Zlib::GzipWriter.open(GZ_FILE_NAME) do |gz|
-  gz.write(File.read(FILE_NAME))
+result = RubyProf.profile do
+  Zlib::GzipWriter.open(GZ_FILE_NAME) do |gz|
+    gz.write(File.read(FILE_NAME))
+  end
 end
+
+File.delete(FILE_NAME) if File.exists?(FILE_NAME)
+File.delete(GZ_FILE_NAME) if File.exists?(GZ_FILE_NAME)
+
+printer = RubyProf::FlatPrinter.new(result)
+printer.print(STDOUT)
