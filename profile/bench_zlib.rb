@@ -15,7 +15,7 @@ FILE_NAME = "benchmark.txt"
 GZ_FILE_NAME = "benchmark.txt.gz"
 
 File.open(FILE_NAME, "w") do |fh|
-  100000.times{ |x|
+  10000.times{ |x|
     s = "Now is the time for #{x} good men to come to the aid of their country."
     fh.puts s
   }
@@ -23,7 +23,7 @@ end
 
 Benchmark.bm do |x|
   x.report("write") do
-    50.times{
+    5.times{
       Zlib::GzipWriter.open(GZ_FILE_NAME) do |gz|
         gz.write(File.read(FILE_NAME))
       end
@@ -31,7 +31,7 @@ Benchmark.bm do |x|
   end
 
   x.report("read") do
-    100.times{
+    5.times{
       Zlib::GzipReader.open(GZ_FILE_NAME) do |gz|
         gz.read
       end
