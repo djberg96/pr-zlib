@@ -179,6 +179,6 @@ class TC_Zlib_GzipWriter < Test::Unit::TestCase
   end
 
   def self.shutdown
-    File.delete(@@file) if File.exists?(@@file)
+    File.delete(@@file) if File.exist?(@@file)
   end
 end

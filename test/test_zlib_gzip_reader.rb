@@ -177,7 +177,7 @@ class TC_GzipReader < Test::Unit::TestCase
   end
 
   def self.shutdown
-    File.delete(@@gz_file) if File.exists?(@@gz_file)
+    File.delete(@@gz_file) if File.exist?(@@gz_file)
     @@gz_file = nil
   end
 end
