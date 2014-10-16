@@ -5,8 +5,7 @@ Gem::Specification.new do |spec|
   spec.version           = '1.0.1'
   spec.authors           = ['Park Heesob', 'Daniel Berger']
   spec.email             = 'phasis@gmail.com'
-  spec.homepage          = 'http://www.rubyforge.org/projects/pure'
-  spec.rubyforge_project = 'pure'
+  spec.homepage          = 'https://github.com/djberg96/pr-zlib'
   spec.summary           = 'Pure Ruby version of the zlib library'
   spec.test_files        = Dir['test/*.rb']
   spec.files             = Dir["**/*"].reject{ |f| f.include?('git') }
