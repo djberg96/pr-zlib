@@ -397,10 +397,10 @@ module Rbzlib
     i = 0
 
     while len >= 8
-      8.times{
+      while i < 8
         crc = @@crc_table[(crc ^ buf[i].ord) & 0xff] ^ (crc >> 8)
         i += 1
-      }
+      end
       len -= 8
     end
 
