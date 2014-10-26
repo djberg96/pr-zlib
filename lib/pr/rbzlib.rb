@@ -247,7 +247,7 @@ module Rbzlib
   def adler32(adler, buf, len=0)
     return 1 if buf.nil?
 
-    len = buf.length if len.zero?
+    len = buf.length if len == 0
     sum2 = (adler >> 16) & 0xFFFF
     adler &= 0xffff
 
@@ -299,13 +299,13 @@ module Rbzlib
         end
         i += 16
         n -= 1
-        break if n.zero?
+        break if n == 0
       end
       adler %= BASE
       sum2 %= BASE
     end
 
-    if len.nonzero?
+    if len != 0
       while (len >= 16)
         len -= 16
         for j in 0 .. 15
@@ -314,7 +314,7 @@ module Rbzlib
         end
         i += 16
       end
-      while len.nonzero?
+      while len != 0
         len -= 1
         adler += buf[i].ord
         i += 1
@@ -392,7 +392,7 @@ module Rbzlib
   #
   def crc32(crc, buf, len=0)
     return 0 if buf.nil?
-    len = buf.length if len.zero?
+    len = buf.length if len == 0
     crc = crc ^ 0xffffffff
     i = 0
 
@@ -404,12 +404,12 @@ module Rbzlib
       len -= 8
     end
 
-    if len.nonzero?
+    if len != 0
       loop do
         crc = @@crc_table[(crc ^ buf[i].ord) & 0xff] ^ (crc >> 8)
         i += 1
         len -= 1
-        break if len.zero?
+        break if len == 0
       end
     end
 
@@ -593,7 +593,7 @@ module Rbzlib
       return Z_STREAM_ERROR
     end
 
-    if s.stream.avail_out.zero?
+    if s.stream.avail_out == 0
       s.stream.next_out = Bytef.new(s.outbuf)
       written = s.file.write(s.outbuf)
 
@@ -614,7 +614,7 @@ module Rbzlib
   def get_byte(s)
     return Z_EOF if s.z_eof
 
-    if s.stream.avail_in.zero?
+    if s.stream.avail_in == 0
        begin
           s.inbuf = s.file.read(Z_BUFSIZE)
           s.stream.avail_in = s.inbuf.length if s.inbuf
@@ -665,7 +665,7 @@ module Rbzlib
     len = s.stream.avail_in
 
     if len < 2
-      if len.nonzero?
+      if len != 0
         s.inbuf[0] = s.stream.next_in[0]
       end
 
@@ -686,7 +686,7 @@ module Rbzlib
       s.stream.next_in = Bytef.new(s.inbuf)
 
       if s.stream.avail_in < 2
-        s.transparent = !s.stream.avail_in.zero?
+        s.transparent = !s.stream.avail_in == 0
         return
       end
     end
@@ -704,7 +704,7 @@ module Rbzlib
     method = get_byte(s)
     flags = get_byte(s)
 
-    if (method != Z_DEFLATED) || (flags & RESERVED).nonzero?
+    if (method != Z_DEFLATED) || (flags & RESERVED) != 0
       s.z_err = Z_DATA_ERROR
       return
     end
@@ -713,29 +713,29 @@ module Rbzlib
       get_byte(s)
     end
 
-    if (flags & EXTRA_FIELD).nonzero?
+    if (flags & EXTRA_FIELD) != 0
       len = (get_byte(s))
       len += ((get_byte(s)) << 8)
-      while len.nonzero? || (get_byte(s) != Z_EOF)
+      while len != 0 || (get_byte(s) != Z_EOF)
         len -= 1
       end
     end
 
-    if (flags & ORIG_NAME).nonzero?
+    if (flags & ORIG_NAME) != 0
       loop do
         c = get_byte(s)
-        break if c.zero? || (c == Z_EOF)
+        break if c == 0 || (c == Z_EOF)
       end
     end
 
-    if (flags & COMMENT_).nonzero?
+    if (flags & COMMENT_) != 0
       loop do
         c = get_byte(s)
-        break if c.zero? || (c == Z_EOF)
+        break if c == 0 || (c == Z_EOF)
       end
     end
 
-    if (flags & HEAD_CRC).nonzero?
+    if (flags & HEAD_CRC) != 0
       get_byte(s)
       get_byte(s)
     end
@@ -787,7 +787,7 @@ module Rbzlib
     s.stream.next_out = Bytef.new(buf)
     s.stream.avail_out = len
 
-    if s.stream.avail_out.nonzero? && s.back != Z_EOF
+    if s.stream.avail_out != 0 && s.back != Z_EOF
       next_out.set(s.back)
       next_out += 1
       s.stream.next_out += 1
@@ -802,7 +802,7 @@ module Rbzlib
       end
     end
 
-    while s.stream.avail_out.nonzero?
+    while s.stream.avail_out != 0
       if s.transparent
         n = s.stream.avail_in
 
@@ -831,14 +831,14 @@ module Rbzlib
         s.in += len
         s.out += len
 
-        if len.zero?
+        if len == 0
           s.z_eof = true
         end
 
         return len
       end
 
-      if s.stream.avail_in.zero? && !s.z_eof
+      if s.stream.avail_in == 0 && !s.z_eof
         begin
           buf = s.file.read(Z_BUFSIZE)
           if buf
@@ -851,7 +851,7 @@ module Rbzlib
           s.z_err = Z_ERRNO
         end
 
-        if s.stream.avail_in.zero?
+        if s.stream.avail_in == 0
           s.z_eof = true
           break if(s.z_err == Z_ERRNO)
         end
@@ -934,13 +934,13 @@ module Rbzlib
       bytes = gzread(file, gzchar, 1)
       buf[i] = gzchar[0]
       i += 1
-      break if len.zero? || (bytes != 1) || (gzchar == (13).chr)
+      break if len == 0 || (bytes != 1) || (gzchar == (13).chr)
     end
 
     buf[i..-1] = ''
     buf.chomp!(0.chr)
 
-    if i.zero? && (len > 0)
+    if i == 0 && (len > 0)
       return nil
     else
       return buf
@@ -957,8 +957,8 @@ module Rbzlib
 
     s.stream.next_in = Bytef.new(buf)
     s.stream.avail_in = len
-    while s.stream.avail_in.nonzero?
-      if s.stream.avail_out.zero?
+    while s.stream.avail_in != 0
+      if s.stream.avail_out == 0
         s.stream.next_out = Bytef.new(s.outbuf)
         written = s.file.write(s.outbuf)
         if (written != Z_BUFSIZE)
@@ -1010,7 +1010,7 @@ module Rbzlib
     loop do
       len = Z_BUFSIZE - s.stream.avail_out
 
-      if len.nonzero?
+      if len != 0
         written = s.file.write(s.outbuf[0,len])
         if (written != len)
           s.z_err = Z_ERRNO
@@ -1025,11 +1025,11 @@ module Rbzlib
       s.z_err = deflate(s.stream, flush)
       s.out -= s.stream.avail_out
 
-      if len.zero? && (s.z_err == Z_BUF_ERROR)
+      if len == 0 && (s.z_err == Z_BUF_ERROR)
         s.z_err = Z_OK
       end
 
-      done = s.stream.avail_out.nonzero? || (s.z_err == Z_STREAM_END)
+      done = s.stream.avail_out != 0 || (s.z_err == Z_STREAM_END)
       break if (s.z_err != Z_OK) && (s.z_err != Z_STREAM_END)
 
     end
@@ -1046,7 +1046,7 @@ module Rbzlib
     s = file
     err = do_flush(file, flush)
 
-    if err.nonzero?
+    if err != 0
       return err
     end
 
@@ -1111,7 +1111,7 @@ module Rbzlib
         end
 
         size = gzwrite(file, s.inbuf, size)
-        if size.zero?
+        if size == 0
           return(-1)
         end
 
@@ -1145,10 +1145,10 @@ module Rbzlib
       return(-1)
     end
 
-    if offset.nonzero? && s.outbuf.nil?
+    if offset != 0 && s.outbuf.nil?
       s.outbuf = 0.chr * Z_BUFSIZE
     end
-    if(offset.nonzero? && s.back != Z_EOF)
+    if(offset != 0 && s.back != Z_EOF)
       s.back = Z_EOF
       s.out += 1
       offset -= 1
@@ -1406,7 +1406,7 @@ module Rbzlib
     end
 
     s = strm.state
-    strm.adler = adler32(strm.adler, dictionary,dictLength) if s.wrap.nonzero?
+    strm.adler = adler32(strm.adler, dictionary,dictLength) if s.wrap != 0
     if (length < MIN_MATCH)
       return Z_OK
     end
@@ -1449,7 +1449,7 @@ module Rbzlib
     if (s.wrap < 0)
       s.wrap = -s.wrap
     end
-    s.status = s.wrap.nonzero? ? INIT_STATE : BUSY_STATE
+    s.status = s.wrap != 0 ? INIT_STATE : BUSY_STATE
     strm.adler = (s.wrap==2) ? crc32(0,nil) : adler32(0,nil)
     s.last_flush = Z_NO_FLUSH
 
@@ -1496,7 +1496,7 @@ module Rbzlib
     end
     func = @@configuration_table[s.level].func
 
-    if (func != @@configuration_table[level].func) && strm.total_in.nonzero?
+    if (func != @@configuration_table[level].func) && strm.total_in != 0
         err = deflate(strm, Z_PARTIAL_FLUSH)
     end
     if (s.level != level)
@@ -1574,14 +1574,14 @@ module Rbzlib
     if (len > strm.avail_out)
       len = strm.avail_out
     end
-    return if len.zero?
+    return if len == 0
     strm.next_out.buffer[strm.next_out.offset,len] = s.pending_out.current[0,len]
     strm.next_out += len
     s.pending_out += len
     strm.total_out += len
     strm.avail_out -= len
     s.pending -= len
-    if s.pending.zero?
+    if s.pending == 0
       s.pending_out = Bytef.new(strm.state.pending_buf)
     end
   end
@@ -1594,13 +1594,13 @@ module Rbzlib
     s = strm.state
 
     if strm.next_out.nil? ||
-       (strm.next_in.nil? && strm.avail_in.nonzero?) ||
+       (strm.next_in.nil? && strm.avail_in != 0) ||
        ((s.status == FINISH_STATE) && (flush != Z_FINISH))
       strm.msg = @@z_errmsg[Z_errbase - Z_STREAM_ERROR]
       return Z_STREAM_ERROR
     end
 
-    if strm.avail_out.zero?
+    if strm.avail_out == 0
       strm.msg = @@z_errmsg[Z_errbase - Z_BUF_ERROR]
       return Z_BUF_ERROR
     end
@@ -1688,7 +1688,7 @@ module Rbzlib
           level_flags = 3
         end
         header |= (level_flags << 6)
-        if s.strstart.nonzero?
+        if s.strstart != 0
           header |= PRESET_DICT
         end
         header += 31 - (header % 31)
@@ -1696,7 +1696,7 @@ module Rbzlib
         s.status = BUSY_STATE
         putShortMSB(s, header)
 
-        if s.strstart.nonzero?
+        if s.strstart != 0
           putShortMSB(s, (strm.adler >> 16))
           putShortMSB(s, (strm.adler & 0xffff))
         end
@@ -1751,12 +1751,12 @@ module Rbzlib
           s.gzindex+=1
           s.pending_buf[s.pending] = val
           s.pending+=1
-          break if val.zero?
+          break if val == 0
         end
         if (s.gzhead.hcrc && s.pending > beg)
           strm.adler = crc32(strm.adler, s.pending_buf.buffer[beg,s.pending - beg])
         end
-        if val.zero?
+        if val == 0
           s.gzindex = 0
           s.status = COMMENT_STATE
         end
@@ -1783,12 +1783,12 @@ module Rbzlib
           s.gzindex+=1
           s.pending_buf[s.pending] = val
           s.pending+=1
-          break if val.zero?
+          break if val == 0
         end
         if (s.gzhead.hcrc && s.pending > beg)
           strm.adler = crc32(strm.adler, s.pending_buf.buffer[beg,s.pending - beg])
         end
-        if val.zero?
+        if val == 0
           s.status = HCRC_STATE
         end
       else
@@ -1812,28 +1812,28 @@ module Rbzlib
         s.status = BUSY_STATE
       end
     end
-    if s.pending.nonzero?
+    if s.pending != 0
       flush_pending(strm)
-      if strm.avail_out.zero?
+      if strm.avail_out == 0
         s.last_flush = -1
         return Z_OK
       end
-    elsif strm.avail_in.zero? && (flush <= old_flush) && (flush != Z_FINISH)
+    elsif strm.avail_in == 0 && (flush <= old_flush) && (flush != Z_FINISH)
       strm.msg = @@z_errmsg[Z_errbase - Z_BUF_ERROR]
       return Z_BUF_ERROR
     end
-    if (s.status == FINISH_STATE) && strm.avail_in.nonzero?
+    if (s.status == FINISH_STATE) && strm.avail_in != 0
       strm.msg = @@z_errmsg[Z_errbase - Z_BUF_ERROR]
       return Z_BUF_ERROR
     end
 
-    if strm.avail_in.nonzero? || s.lookahead.nonzero? || ((flush != Z_NO_FLUSH) && (s.status != FINISH_STATE))
+    if strm.avail_in != 0 || s.lookahead != 0 || ((flush != Z_NO_FLUSH) && (s.status != FINISH_STATE))
       bstate = send(@@configuration_table[s.level].func, s, flush)
       if (bstate == :finish_started) || (bstate == :finish_done)
         s.status = FINISH_STATE
       end
       if (bstate == :need_more) || (bstate == :finish_started)
-        if strm.avail_out.zero?
+        if strm.avail_out == 0
           s.last_flush = -1
         end
         return Z_OK
@@ -1850,7 +1850,7 @@ module Rbzlib
           end
         end
         flush_pending(strm)
-        if strm.avail_out.zero?
+        if strm.avail_out == 0
           s.last_flush = -1
           return Z_OK
         end
@@ -1889,7 +1889,7 @@ module Rbzlib
     flush_pending(strm)
 
     s.wrap = -s.wrap if (s.wrap > 0)
-    return s.pending.nonzero? ? Z_OK : Z_STREAM_END
+    return s.pending != 0 ? Z_OK : Z_STREAM_END
   end
 
   #
@@ -1961,7 +1961,7 @@ module Rbzlib
     if (len > size)
       len = size
     end
-    if len.zero?
+    if len == 0
       return 0
     end
 
@@ -2086,7 +2086,7 @@ module Rbzlib
 
         cur_match = prev[cur_match & wmask]
         chain_length -= 1
-    end until (cur_match <= limit) || chain_length.zero?
+    end until (cur_match <= limit) || chain_length == 0
 
     if best_len <= s.lookahead
       return best_len
@@ -2159,7 +2159,7 @@ module Rbzlib
     loop do
       more = s.window_size - s.lookahead - s.strstart
 
-      if more.zero? && s.strstart.zero? && s.lookahead.zero?
+      if more == 0 && s.strstart == 0 && s.lookahead == 0
         more = wsize
       elsif (more == (-1))
           more -= 1
@@ -2182,7 +2182,7 @@ module Rbzlib
             s.head[ap] = ZNIL
           end
           n -= 1
-          break if n.zero?
+          break if n == 0
         end
 
         n = wsize
@@ -2196,11 +2196,11 @@ module Rbzlib
             s.prev[ap] = ZNIL
           end
           n-=1
-          break if n.zero?
+          break if n == 0
         end
         more += wsize
       end
-      return if s.strm.avail_in.zero?
+      return if s.strm.avail_in == 0
 
       n = read_buf(s.strm, s.window,(s.strstart + s.lookahead),more)
       s.lookahead += n
@@ -2209,7 +2209,7 @@ module Rbzlib
         s.ins_h = s.window[s.strstart].ord
         s.ins_h = ((s.ins_h << s.hash_shift) ^ s.window[s.strstart+1].ord) & s.hash_mask
       end
-      break if (s.lookahead >= MIN_LOOKAHEAD) || s.strm.avail_in.zero?
+      break if (s.lookahead >= MIN_LOOKAHEAD) || s.strm.avail_in == 0
     end
   end
 
@@ -2244,21 +2244,21 @@ module Rbzlib
     loop do
       if (s.lookahead <= 1)
         fill_window(s)
-        if s.lookahead.zero? && (flush == Z_NO_FLUSH)
+        if s.lookahead == 0 && (flush == Z_NO_FLUSH)
           return :need_more
         end
 
-        break if s.lookahead.zero?
+        break if s.lookahead == 0
       end
       s.strstart += s.lookahead
       s.lookahead = 0
 
       max_start = s.block_start + max_block_size
-      if s.strstart.zero? || ((s.strstart) >= max_start)
+      if s.strstart == 0 || ((s.strstart) >= max_start)
         s.lookahead = (s.strstart - max_start)
         s.strstart = (max_start)
         FLUSH_BLOCK_ONLY(s, false)
-        if s.strm.avail_out.zero?
+        if s.strm.avail_out == 0
           return :need_more
         end
       end
@@ -2266,14 +2266,14 @@ module Rbzlib
       if (s.strstart - (s.block_start) >=
           s.w_size-MIN_LOOKAHEAD)
         FLUSH_BLOCK_ONLY(s, false)
-        if s.strm.avail_out.zero?
+        if s.strm.avail_out == 0
           return :need_more
         end
       end
     end
 
     FLUSH_BLOCK_ONLY(s, flush == Z_FINISH)
-    if s.strm.avail_out.zero?
+    if s.strm.avail_out == 0
       if flush == Z_FINISH
         return :finish_started
       else
@@ -2303,7 +2303,7 @@ module Rbzlib
           return :need_more
         end
 
-        break if s.lookahead.zero?
+        break if s.lookahead == 0
       end
 
       if (s.lookahead >= MIN_MATCH)
@@ -2329,7 +2329,7 @@ module Rbzlib
             s.strstart += 1
             hash_head = INSERT_STRING(s, s.strstart, hash_head)
             s.match_length -= 1
-            break if s.match_length.zero?
+            break if s.match_length == 0
           end
           s.strstart += 1
         else
@@ -2347,13 +2347,13 @@ module Rbzlib
       end
       if bflush
         FLUSH_BLOCK_ONLY(s, false)
-        if s.strm.avail_out.zero?
+        if s.strm.avail_out == 0
           return :need_more
         end
       end
     end
     FLUSH_BLOCK_ONLY(s, flush == Z_FINISH)
-    if s.strm.avail_out.zero?
+    if s.strm.avail_out == 0
       if flush == Z_FINISH
         return :finish_started
       else
@@ -2381,7 +2381,7 @@ module Rbzlib
           return :need_more
         end
 
-        break if s.lookahead.zero?
+        break if s.lookahead == 0
       end
 
       if (s.lookahead >= MIN_MATCH)
@@ -2420,14 +2420,14 @@ module Rbzlib
             hash_head = INSERT_STRING(s, s.strstart, hash_head)
           end
           s.prev_length-=1
-          break if s.prev_length.zero?
+          break if s.prev_length == 0
         end
         s.match_available = false
         s.match_length = MIN_MATCH-1
         s.strstart+=1
         if (bflush)
           FLUSH_BLOCK_ONLY(s, false)
-          if s.strm.avail_out.zero?
+          if s.strm.avail_out == 0
             return :need_more
           end
         end
@@ -2438,7 +2438,7 @@ module Rbzlib
           end
           s.strstart+=1
           s.lookahead-=1
-          if s.strm.avail_out.zero?
+          if s.strm.avail_out == 0
             return :need_more
           end
       else
@@ -2452,7 +2452,7 @@ module Rbzlib
       s.match_available = false
     end
     FLUSH_BLOCK_ONLY(s, flush == Z_FINISH)
-    if s.strm.avail_out.zero?
+    if s.strm.avail_out == 0
       if flush == Z_FINISH
         return :finish_started
       else
@@ -2735,7 +2735,7 @@ module Rbzlib
 
     for n in 0..max_code
       len = tree[n].dl
-      next if len.zero?
+      next if len == 0
       tree[n].fc = bi_reverse(next_code[len], len)
       next_code[len] += 1
     end
@@ -2850,11 +2850,11 @@ module Rbzlib
       end
     end
 
-    return if overflow.zero?
+    return if overflow == 0
 
     loop do
       bits = max_length-1
-      bits -= 1 while s.bl_count[bits].zero?
+      bits -= 1 while s.bl_count[bits] == 0
       s.bl_count[bits] -= 1
       s.bl_count[bits+1] += 2
       s.bl_count[max_length] -= 1
@@ -2866,7 +2866,7 @@ module Rbzlib
     h = HEAP_SIZE
     max_length.downto(1) do |nbits|
       n = s.bl_count[nbits]
-      while n.nonzero?
+      while n != 0
         h -= 1
         m = s.heap[h]
         next if (m > max_code)
@@ -2895,7 +2895,7 @@ module Rbzlib
     s.heap_max = HEAP_SIZE
 
     for n in 0 ... elems
-      if tree[n].fc.nonzero?
+      if tree[n].fc != 0
         max_code = n
         s.heap_len+=1
         s.heap[s.heap_len] = n
@@ -2973,7 +2973,7 @@ module Rbzlib
     max_count = 7
     min_count = 4
 
-    if nextlen.zero?
+    if nextlen == 0
       max_count = 138
       min_count = 3
     end
@@ -2987,7 +2987,7 @@ module Rbzlib
         next
       elsif (count < min_count)
         s.bl_tree[curlen].fc += count
-      elsif curlen.nonzero?
+      elsif curlen != 0
         if (curlen != prevlen)
           s.bl_tree[curlen].fc+=1
         end
@@ -2999,7 +2999,7 @@ module Rbzlib
       end
       count = 0
       prevlen = curlen
-      if nextlen.zero?
+      if nextlen == 0
         max_count = 138
         min_count = 3
       elsif (curlen == nextlen)
@@ -3021,7 +3021,7 @@ module Rbzlib
     max_count = 7
     min_count = 4
 
-    if nextlen.zero?
+    if nextlen == 0
       max_count = 138
       min_count = 3
     end
@@ -3035,9 +3035,9 @@ module Rbzlib
         loop do
           send_bits(s, s.bl_tree[curlen].fc, s.bl_tree[curlen].dl)
           count-=1
-          break if count.zero?
+          break if count == 0
         end
-      elsif curlen.nonzero?
+      elsif curlen != 0
         if (curlen != prevlen)
           send_bits(s, s.bl_tree[curlen].fc, s.bl_tree[curlen].dl)
           count-=1
@@ -3053,7 +3053,7 @@ module Rbzlib
       end
       count = 0
       prevlen = curlen
-      if nextlen.zero?
+      if nextlen == 0
         max_count = 138
         min_count = 3
       elsif (curlen == nextlen)
@@ -3077,7 +3077,7 @@ module Rbzlib
     max_blindex = 0
     (BL_CODES-1).downto(3) do |i|
       max_blindex = i
-      break if s.bl_tree[@@bl_order[i]].dl.nonzero?
+      break if s.bl_tree[@@bl_order[i]].dl != 0
     end
     s.opt_len += 3*(max_blindex+1) + 5+5+4
 
@@ -3132,7 +3132,7 @@ module Rbzlib
       s.pending+=1
     end
     i = 0
-    while len.nonzero?
+    while len != 0
       len-=1
       s.pending_buf[s.pending] = buf[i].ord
       i+=1
@@ -3194,11 +3194,11 @@ module Rbzlib
   # IN assertion: the fields Freq of dyn_ltree are set.
   def set_data_type(s)
     for n in 0 ... 9
-      break if s.dyn_ltree[n].fc.nonzero?
+      break if s.dyn_ltree[n].fc != 0
     end
     if n == 9
         for n in 14 ... 32
-            break if s.dyn_ltree[n].fc.nonzero?
+            break if s.dyn_ltree[n].fc != 0
         end
     end
     s.strm.data_type = (n == 32) ? Z_TEXT : Z_BINARY
@@ -3207,18 +3207,18 @@ module Rbzlib
   # Send the block data compressed using the given Huffman trees
   def compress_block(s,ltree,dtree)
     lx = 0
-    if s.last_lit.nonzero?
+    if s.last_lit != 0
       loop do
         dist = s.d_buf[lx]
         lc = s.l_buf[lx]
         lx+=1
-        if dist.zero?
+        if dist == 0
           send_bits(s, ltree[lc].fc, ltree[lc].dl)
         else
           code = @@_length_code[lc]
           send_bits(s, ltree[code+LITERALS+1].fc, ltree[code+LITERALS+1].dl)
           extra = @@extra_lbits[code]
-          if extra.nonzero?
+          if extra != 0
             lc -= @@base_length[code]
             send_bits(s, lc, extra)
           end
@@ -3227,7 +3227,7 @@ module Rbzlib
 
           send_bits(s, dtree[code].fc, dtree[code].dl)
           extra = @@extra_dbits[code]
-          if extra.nonzero?
+          if extra != 0
             dist-= @@base_dist[code]
             send_bits(s, dist, extra)
           end
@@ -3285,7 +3285,7 @@ module Rbzlib
     s.d_buf[s.last_lit] = dist
     s.l_buf[s.last_lit] = lc
     s.last_lit+=1
-    if dist.zero?
+    if dist == 0
       s.dyn_ltree[lc].fc+=1
     else
       s.matches+=1
@@ -3394,11 +3394,11 @@ module Rbzlib
     max = 0
     MAXBITS.downto(1) do |i|
         max = i
-        break if count[max].nonzero?
+        break if count[max] != 0
     end
 
     root = max if (root > max)
-    if max.zero?
+    if max == 0
         this.op = 64
         this.bits = 1
         this.val = 0
@@ -3410,7 +3410,7 @@ module Rbzlib
         return [0,bits,offset]
     end
     for min in 1 .. MAXBITS
-        break if count[min].nonzero?
+        break if count[min] != 0
     end
     root = min if (root < min)
 
@@ -3430,7 +3430,7 @@ module Rbzlib
     end
 
     for sym in 0 ... codes
-        if lens[sym].nonzero?
+        if lens[sym] != 0
           work[offs[lens[sym]]] = sym
           offs[lens[sym]]+=1
         end
@@ -3484,13 +3484,13 @@ module Rbzlib
         loop do
             fill -= incr
             _next[((huff >> drop) + fill)] = this.dup
-            break if fill.zero?
+            break if fill == 0
         end
         incr = 1 << (len - 1)
-        while (huff & incr).nonzero?
+        while (huff & incr) != 0
             incr >>= 1
         end
-        if incr.nonzero?
+        if incr != 0
             huff &= incr - 1
             huff += incr
         else
@@ -3498,13 +3498,13 @@ module Rbzlib
         end
         sym+=1
         count[len]-=1
-        if count[len].zero?
+        if count[len] == 0
             break if (len == max)
             len = lens[work[sym]]
         end
 
         if (len > root && (huff & mask) != low)
-            if drop.zero?
+            if drop == 0
                 drop = root
             end
 
@@ -3533,8 +3533,8 @@ module Rbzlib
     this.op = 64
     this.bits = (len - drop)
     this.val = 0
-    while huff.nonzero?
-        if (drop.nonzero? && (huff & mask) != low)
+    while huff != 0
+        if (drop != 0 && (huff & mask) != low)
             drop = 0
             len = root
             _next.offset = offset
@@ -3543,10 +3543,10 @@ module Rbzlib
 
         _next[(huff >> drop)] = this.dup
         incr = 1 << (len - 1)
-        while (huff & incr).nonzero?
+        while (huff & incr) != 0
             incr >>= 1
         end
-        if incr.nonzero?
+        if incr != 0
             huff &= incr - 1
             huff += incr
         else
@@ -3635,14 +3635,14 @@ module Rbzlib
           bits -= op
           op = (this.op)
       end
-      if op.zero?
+      if op == 0
             out += 1
             out.set(this.val)
-      elsif (op & 16).nonzero? || status == :dodist
-          if(status != :dodist && (op & 16).nonzero?)
+      elsif (op & 16) != 0 || status == :dodist
+          if(status != :dodist && (op & 16) != 0)
             len = (this.val)
             op &= 15
-            if op.nonzero?
+            if op != 0
                 if (bits < op)
                     _in += 1
                     hold += _in.get << bits
@@ -3666,7 +3666,7 @@ module Rbzlib
             hold >>= op
             bits -= op
             op = this.op
-            if (op & 16).nonzero?
+            if (op & 16) != 0
                 dist = this.val
                 op &= 15
                 if (bits < op)
@@ -3691,7 +3691,7 @@ module Rbzlib
                         break
                     end
                     from = Bytef.new(window,-1)
-                    if write.zero?
+                    if write == 0
                         from += wsize - op
                         if (op < len)
                             len -= op
@@ -3700,7 +3700,7 @@ module Rbzlib
                                 from += 1
                                 out.set(from.get)
                                 op -= 1
-                                break if op.zero?
+                                break if op == 0
                             end
                             from = Bytef.new(out,out.offset - dist)
                         end
@@ -3714,7 +3714,7 @@ module Rbzlib
                                 from += 1
                                 out.set(from.get)
                                 op -= 1
-                                break if op.zero?
+                                break if op == 0
                             end
                             from = Bytef.new(window,-1)
                             if (write < len)
@@ -3725,7 +3725,7 @@ module Rbzlib
                                     from += 1
                                     out.set(from.get)
                                     op -= 1
-                                    break if op.zero?
+                                    break if op == 0
                                 end
                                 from = Bytef.new(out,out.offset - dist)
                             end
@@ -3739,7 +3739,7 @@ module Rbzlib
                                 from += 1
                                 out.set(from.get)
                                 op -= 1
-                                break if op.zero?
+                                break if op == 0
                             end
                             from = Bytef.new(out,out.offset - dist)
                         end
@@ -3756,7 +3756,7 @@ module Rbzlib
                         out.set(from.get)
                         len -= 3
                     end
-                    if len.nonzero?
+                    if len != 0
                         out += 1
                         from += 1
                         out.set(from.get)
@@ -3781,7 +3781,7 @@ module Rbzlib
                         len -= 3
                         break if (len <= 2)
                     end
-                    if len.nonzero?
+                    if len != 0
                         out += 1
                         from += 1
                         out.set(from.get)
@@ -3792,7 +3792,7 @@ module Rbzlib
                         end
                     end
                 end
-            elsif (op & 64).zero?
+            elsif (op & 64) == 0
                 this = dcode[this.val + (hold & ((1 << op) - 1))]
                 status = :dodist
                 redo
@@ -3801,11 +3801,11 @@ module Rbzlib
                 state.mode = BAD
                 break
             end
-      elsif (op & 64).zero?
+      elsif (op & 64) == 0
           this = lcode[this.val + (hold & ((1 << op) - 1))]
           status = :dolen
           redo
-      elsif (op & 32).nonzero?
+      elsif (op & 32) != 0
           state.mode = TYPE
           break
       else
@@ -4068,7 +4068,7 @@ module Rbzlib
         return true if state.window.nil?
     end
 
-    if state.wsize.zero?
+    if state.wsize == 0
         state.wsize = 1 << state.wbits
         state.write = 0
         state.whave = 0
@@ -4086,7 +4086,7 @@ module Rbzlib
         state.window[state.write,dist] =
           strm.next_out.buffer[strm.next_out.offset-copy,dist]
         copy -= dist
-        if copy.nonzero?
+        if copy != 0
             state.window[0,copy] =
               strm.next_out.buffer[strm.next_out.offset-copy,copy]
             state.write = copy
@@ -4102,7 +4102,7 @@ module Rbzlib
 
   # check function to use adler32() for zlib or crc32() for gzip
   def UPDATE(state, check, buf)
-    state.flags.nonzero? ? crc32(check, buf) : adler32(check, buf)
+    state.flags != 0 ? crc32(check, buf) : adler32(check, buf)
   end
 
   # compute crc
@@ -4152,7 +4152,7 @@ module Rbzlib
   # Get a byte of input into the bit accumulator, or return from inflate()
   # if there is no input available.
   def PULLBYTE()
-    throw :inf_leave if @@have.zero?
+    throw :inf_leave if @@have == 0
     @@have -= 1
     @@next.get
     @@hold += (@@next.get) << @@bits
@@ -4275,7 +4275,7 @@ module Rbzlib
         16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15]
 
     if strm.nil? || strm.state.nil? || strm.next_out.nil? ||
-        (strm.next_in.nil? && strm.avail_in.nonzero?)
+        (strm.next_in.nil? && strm.avail_in != 0)
         return Z_STREAM_ERROR
     end
 
@@ -4289,12 +4289,12 @@ module Rbzlib
     catch :inf_leave do
       loop do
         if(state.mode==HEAD)
-            if state.wrap.zero?
+            if state.wrap == 0
                 state.mode = TYPEDO
                 next
             end
             NEEDBITS(16)
-            if ((state.wrap & 2).nonzero? && @@hold == 0x8b1f)
+            if ((state.wrap & 2) != 0 && @@hold == 0x8b1f)
                 state.check = crc32(0, nil)
                 state.check = CRC2(state.check, @@hold)
                 INITBITS()
@@ -4305,8 +4305,8 @@ module Rbzlib
             if state.head
                 state.head.done = -1
             end
-            if ((state.wrap & 1).zero? ||
-                ((BITS(8) << 8) + (@@hold >> 8)) % 31).nonzero?
+            if ((state.wrap & 1) == 0 ||
+                ((BITS(8) << 8) + (@@hold >> 8)) % 31) != 0
                 strm.msg = "incorrect header check"
                 state.mode = BAD
                 next
@@ -4325,7 +4325,7 @@ module Rbzlib
             end
             state.dmax = 1 << len
             strm.adler = state.check = adler32(0, nil)
-            state.mode = (@@hold & 0x200).nonzero? ? DICTID : TYPE
+            state.mode = (@@hold & 0x200) != 0 ? DICTID : TYPE
             INITBITS()
         end
         if(state.mode==FLAGS)
@@ -4336,7 +4336,7 @@ module Rbzlib
                 state.mode = BAD
                 next
             end
-            if (state.flags & 0xe000).nonzero?
+            if (state.flags & 0xe000) != 0
                 strm.msg = "unknown header flags set"
                 state.mode = BAD
                 next
@@ -4344,7 +4344,7 @@ module Rbzlib
             if state.head
                 state.head.text = ((@@hold >> 8) & 1)
             end
-            state.check = CRC2(state.check, @@hold) if (state.flags & 0x0200).nonzero?
+            state.check = CRC2(state.check, @@hold) if (state.flags & 0x0200) != 0
             INITBITS()
             state.mode = TIME
         end
@@ -4353,7 +4353,7 @@ module Rbzlib
             if state.head
                 state.head.time = @@hold
             end
-            state.check = CRC4(state.check, @@hold) if (state.flags & 0x0200).nonzero?
+            state.check = CRC4(state.check, @@hold) if (state.flags & 0x0200) != 0
             INITBITS()
             state.mode = OS
         end
@@ -4363,18 +4363,18 @@ module Rbzlib
                 state.head.xflags = (@@hold & 0xff)
                 state.head.os = (@@hold >> 8)
             end
-            state.check = CRC2(state.check, @@hold) if (state.flags & 0x0200).nonzero?
+            state.check = CRC2(state.check, @@hold) if (state.flags & 0x0200) != 0
             INITBITS()
             state.mode = EXLEN
         end
         if(state.mode==EXLEN)
-            if (state.flags & 0x0400).nonzero?
+            if (state.flags & 0x0400) != 0
                 NEEDBITS(16)
                 state.length = @@hold
                 if state.head
                     state.head.extra_len = @@hold
                 end
-                state.check = CRC2(state.check, @@hold) if (state.flags & 0x0200).nonzero?
+                state.check = CRC2(state.check, @@hold) if (state.flags & 0x0200) != 0
                 INITBITS()
             elsif state.head
                 state.head.extra = nil
@@ -4382,31 +4382,31 @@ module Rbzlib
             state.mode = EXTRA
         end
         if(state.mode==EXTRA)
-            if (state.flags & 0x0400).nonzero?
+            if (state.flags & 0x0400) != 0
                 copy = state.length
                 copy = @@have if (copy > @@have)
-                if copy.nonzero?
+                if copy != 0
                     if state.head && state.head.extra
                         len = state.head.extra_len - state.length
                         l = len + copy > state.head.extra_max ?
                                 state.head.extra_max - len : copy
                         state.head.extra[len,l] = @@next.current[0,l]
                     end
-                    if (state.flags & 0x0200).nonzero?
+                    if (state.flags & 0x0200) != 0
                         state.check = crc32(state.check, @@next.current,copy)
                     end
                     @@have -= copy
                     @@next += copy
                     state.length -= copy
                 end
-                throw :inf_leave if state.length.nonzero?
+                throw :inf_leave if state.length != 0
             end
             state.length = 0
             state.mode = NAME
         end
         if(state.mode==NAME)
-            if (state.flags & 0x0800).nonzero?
-                throw :inf_leave if @@have.zero?
+            if (state.flags & 0x0800) != 0
+                throw :inf_leave if @@have == 0
                 copy = 0
                 loop do
                     len = (@@next[copy])
@@ -4416,14 +4416,14 @@ module Rbzlib
                         state.head.name[state.length] = len
                         state.length+=1
                     end
-                    break unless (len.nonzero? && copy < @@have)
+                    break unless (len != 0 && copy < @@have)
                 end
-                if (state.flags & 0x0200).nonzero?
+                if (state.flags & 0x0200) != 0
                     state.check = crc32(state.check, @@next.current,copy)
                 end
                 @@have -= copy
                 @@next += copy
-                throw :inf_leave if len.nonzero?
+                throw :inf_leave if len != 0
             elsif state.head
                 state.head.name = nil
             end
@@ -4431,8 +4431,8 @@ module Rbzlib
             state.mode = COMMENT
         end
         if(state.mode==COMMENT)
-            if (state.flags & 0x1000).nonzero?
-                throw :inf_leave if @@have.zero?
+            if (state.flags & 0x1000) != 0
+                throw :inf_leave if @@have == 0
                 copy = 0
                 loop do
                     len = (@@next[copy])
@@ -4442,21 +4442,21 @@ module Rbzlib
                         state.head.comment[state.length] = len
                         state.length+=1
                     end
-                    break unless (len.nonzero? && copy < have)
+                    break unless (len != 0 && copy < have)
                 end
-                if (state.flags & 0x0200).nonzero?
+                if (state.flags & 0x0200) != 0
                     state.check = crc32(state.check, @@next.current, copy)
                 end
                 @@have -= copy
                 @@next += copy
-                throw :inf_leave if len.nonzero?
+                throw :inf_leave if len != 0
             elsif state.head
                 state.head.comment = nil
             end
             state.mode = HCRC
         end
         if(state.mode==HCRC)
-            if (state.flags & 0x0200).nonzero?
+            if (state.flags & 0x0200) != 0
                 NEEDBITS(16)
                 if (@@hold != (state.check & 0xffff))
                     strm.msg = "header crc mismatch"
@@ -4479,7 +4479,7 @@ module Rbzlib
             state.mode = DICT
         end
         if(state.mode==DICT)
-            if state.havedict.zero?
+            if state.havedict == 0
                 RESTORE(strm,state)
                 return Z_NEED_DICT
             end
@@ -4490,7 +4490,7 @@ module Rbzlib
             throw :inf_leave if (flush == Z_BLOCK)
         end
         if([TYPE,TYPEDO].include?(state.mode))
-            if state.last.nonzero?
+            if state.last != 0
                 BYTEBITS()
                 state.mode = CHECK
                 next
@@ -4526,10 +4526,10 @@ module Rbzlib
         end
         if(state.mode==COPY)
             copy = state.length
-            if copy.nonzero?
+            if copy != 0
                 copy = @@have if (copy > @@have)
                 copy = @@left if (copy > @@left)
-                throw :inf_leave if copy.zero?
+                throw :inf_leave if copy == 0
                 @@put.buffer[@@put.offset,copy] = @@next.current[0,copy]
                 @@have -= copy
                 @@next += copy
@@ -4573,7 +4573,7 @@ module Rbzlib
             ret,state.lenbits,state.next.offset = inflate_table(CODES, state.lens, 19, state.codes,
               state.next.offset,state.lenbits, state.work)
 
-            if ret.nonzero?
+            if ret != 0
                 strm.msg = "invalid code lengths set"
                 state.mode = BAD
                 next
@@ -4598,7 +4598,7 @@ module Rbzlib
                     if (this.val == 16)
                         NEEDBITS(this.bits + 2)
                         DROPBITS(this.bits)
-                        if state.have.zero?
+                        if state.have == 0
                             strm.msg = "invalid bit length repeat"
                             state.mode = BAD
                             break
@@ -4624,7 +4624,7 @@ module Rbzlib
                         state.mode = BAD
                         break
                     end
-                    while copy.nonzero?
+                    while copy != 0
                         copy -= 1
                         state.lens[state.have] = len
                         state.have+=1
@@ -4639,7 +4639,7 @@ module Rbzlib
             state.lenbits = 9
             ret,state.lenbits,state.next.offset = inflate_table(LENS, state.lens, state.nlen,
               state.codes,state.next.offset,state.lenbits, state.work)
-            if ret.nonzero?
+            if ret != 0
                 strm.msg = "invalid literal/lengths set"
                 state.mode = BAD
                 next
@@ -4648,7 +4648,7 @@ module Rbzlib
             state.distbits = 6
             ret,state.distbits,state.next.offset = inflate_table(DISTS, state.lens+state.nlen, state.ndist,
                             state.codes,state.next.offset, state.distbits, state.work)
-            if ret.nonzero?
+            if ret != 0
                 strm.msg = "invalid distances set"
                 state.mode = BAD
                 next
@@ -4668,7 +4668,7 @@ module Rbzlib
                 break if ((this.bits) <= @@bits)
                 PULLBYTE()
             end
-            if (this.op.nonzero? && (this.op & 0xf0).zero?)
+            if (this.op != 0 && (this.op & 0xf0) == 0)
                 last = this
                 loop do
                     this = state.lencode[last.val +
@@ -4680,15 +4680,15 @@ module Rbzlib
             end
             DROPBITS(this.bits)
             state.length = this.val
-            if this.op.zero?
+            if this.op == 0
                 state.mode = LIT
                 next
             end
-            if (this.op & 32).nonzero?
+            if (this.op & 32) != 0
                 state.mode = TYPE
                 next
             end
-            if (this.op & 64).nonzero?
+            if (this.op & 64) != 0
                 strm.msg = "invalid literal/length code"
                 state.mode = BAD
                 next
@@ -4697,7 +4697,7 @@ module Rbzlib
             state.mode = LENEXT
         end
         if(state.mode==LENEXT)
-            if state.extra.nonzero?
+            if state.extra != 0
                 NEEDBITS(state.extra)
                 state.length += BITS(state.extra)
                 DROPBITS(state.extra)
@@ -4710,7 +4710,7 @@ module Rbzlib
                 break if ((this.bits) <= @@bits)
                 PULLBYTE()
             end
-            if (this.op & 0xf0).zero?
+            if (this.op & 0xf0) == 0
                 last = this
                 loop do
                     this = state.distcode[last.val +
@@ -4721,7 +4721,7 @@ module Rbzlib
                 DROPBITS(last.bits)
             end
             DROPBITS(this.bits)
-            if (this.op & 64).nonzero?
+            if (this.op & 64) != 0
                 strm.msg = "invalid distance code"
                 state.mode = BAD
                 next
@@ -4731,7 +4731,7 @@ module Rbzlib
             state.mode = DISTEXT
         end
         if(state.mode==DISTEXT)
-            if state.extra.nonzero?
+            if state.extra != 0
                 NEEDBITS(state.extra)
                 state.offset += BITS(state.extra)
                 DROPBITS(state.extra)
@@ -4744,7 +4744,7 @@ module Rbzlib
             state.mode = MATCH
         end
         if(state.mode==MATCH)
-            throw :inf_leave if @@left.zero?
+            throw :inf_leave if @@left == 0
             copy = out - @@left
             if (state.offset > copy)
                 copy = state.offset - copy
@@ -4767,29 +4767,29 @@ module Rbzlib
                 @@put += 1
                 from += 1
                 copy-=1
-                break if copy.zero?
+                break if copy == 0
             end
-            state.mode = LEN if state.length.zero?
+            state.mode = LEN if state.length == 0
         end
         if(state.mode==LIT)
-            throw :inf_leave if @@left.zero?
+            throw :inf_leave if @@left == 0
             @@put.set(state.length)
             @@put += 1
             @@left-=1
             state.mode = LEN
         end
         if(state.mode==CHECK)
-            if state.wrap.nonzero?
+            if state.wrap != 0
                 NEEDBITS(32)
                 out -= @@left
                 strm.total_out += out
                 state.total += out
-                if out.nonzero?
+                if out != 0
                     strm.adler = state.check =
                         UPDATE(state, state.check, @@put.buffer[@@put.offset - out, out])
                 end
                 out = @@left
-                if ((state.flags.nonzero? ? @@hold : REVERSE(@@hold)) != state.check)
+                if ((state.flags != 0 ? @@hold : REVERSE(@@hold)) != state.check)
                     strm.msg = "incorrect data check"
                     state.mode = BAD
                     next
@@ -4799,7 +4799,7 @@ module Rbzlib
             state.mode = LENGTH
         end
         if(state.mode==LENGTH)
-            if (state.wrap.nonzero? && state.flags.nonzero?)
+            if (state.wrap != 0 && state.flags != 0)
                 NEEDBITS(32)
                 if (@@hold != (state.total & 0xffffffff))
                     strm.msg = "incorrect length check"
@@ -4827,7 +4827,7 @@ module Rbzlib
 
     RESTORE(strm,state)
 
-    if (state.wsize.nonzero? || (state.mode < CHECK && out != strm.avail_out))
+    if (state.wsize != 0 || (state.mode < CHECK && out != strm.avail_out))
         if (updatewindow(strm, out))
             state.mode = MEM
             return Z_MEM_ERROR
@@ -4840,13 +4840,13 @@ module Rbzlib
     strm.total_out += out
     state.total += out
 
-    if (state.wrap.nonzero? && out.nonzero?)
+    if (state.wrap != 0 && out != 0)
         strm.adler = state.check =
             UPDATE(state, state.check, strm.next_out.buffer[strm.next_out.offset - out, out])
     end
-    strm.data_type = state.bits + (state.last.nonzero? ? 64 : 0) +
+    strm.data_type = state.bits + (state.last != 0 ? 64 : 0) +
                       (state.mode == TYPE ? 128 : 0)
-    if (((_in.zero? && out.zero?) || flush == Z_FINISH) && ret == Z_OK)
+    if (((_in == 0 && out == 0) || flush == Z_FINISH) && ret == Z_OK)
         ret = Z_BUF_ERROR
     end
     return ret
@@ -4867,7 +4867,7 @@ module Rbzlib
   def inflateSetDictionary(strm, dictionary, dictLength)
     return Z_STREAM_ERROR if (strm.nil? || strm.state.nil?)
     state = strm.state
-    if (state.wrap.nonzero? && state.mode != DICT)
+    if (state.wrap != 0 && state.mode != DICT)
         return Z_STREAM_ERROR
     end
 
@@ -4900,7 +4900,7 @@ module Rbzlib
   def inflateGetHeader(strm, head)
     return Z_STREAM_ERROR if (strm.nil? || strm.state.nil?)
     state = strm.state
-    return Z_STREAM_ERROR if (state.wrap & 2).zero?
+    return Z_STREAM_ERROR if (state.wrap & 2) == 0
 
     state.head = head
     head.done = 0
@@ -4922,7 +4922,7 @@ module Rbzlib
     while (_next < len && got < 4)
         if ((buf[_next]) == (got < 2 ? 0 : 0xff))
             got+=1
-        elsif buf[_next].nonzero?
+        elsif buf[_next] != 0
             got = 0
         else
             got = 4 - got
@@ -4937,7 +4937,7 @@ module Rbzlib
   def inflateSync(strm)
     return Z_STREAM_ERROR if (strm.nil? || strm.state.nil?)
     state = strm.state
-    return Z_BUF_ERROR if (strm.avail_in.zero? && state.bits < 8)
+    return Z_BUF_ERROR if (strm.avail_in == 0 && state.bits < 8)
 
     buf = 0.chr * 4
     if (state.mode != SYNC)
@@ -4978,7 +4978,7 @@ module Rbzlib
   def inflateSyncPoint(strm)
     return Z_STREAM_ERROR if (strm.nil? || strm.state.nil?)
     state = strm.state
-    return state.mode == STORED && state.bits.zero?
+    return state.mode == STORED && state.bits == 0
   end
 
   #
@@ -5045,7 +5045,7 @@ module Rbzlib
     err = inflate(stream, Z_FINISH)
     if (err != Z_STREAM_END)
         inflateEnd(stream)
-        if (err == Z_NEED_DICT || (err == Z_BUF_ERROR && stream.avail_in.zero?))
+        if (err == Z_NEED_DICT || (err == Z_BUF_ERROR && stream.avail_in == 0))
             return [Z_DATA_ERROR,destLen]
         end
         return [err,destLen]
