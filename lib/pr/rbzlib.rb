@@ -2059,28 +2059,29 @@ module Rbzlib
         scan += 2
         match += 1
 
+        # Seems redundant, but mimics the C code
         loop do
-          break if (s.window[scan+=1] != s.window[match+=1])
-          break if (s.window[scan+=1] != s.window[match+=1])
-          break if (s.window[scan+=1] != s.window[match+=1])
-          break if (s.window[scan+=1] != s.window[match+=1])
-          break if (s.window[scan+=1] != s.window[match+=1])
-          break if (s.window[scan+=1] != s.window[match+=1])
-          break if (s.window[scan+=1] != s.window[match+=1])
-          break if (s.window[scan+=1] != s.window[match+=1])
-          break if (scan >= strend)
+          break if s.window[scan+=1] != s.window[match+=1]
+          break if s.window[scan+=1] != s.window[match+=1]
+          break if s.window[scan+=1] != s.window[match+=1]
+          break if s.window[scan+=1] != s.window[match+=1]
+          break if s.window[scan+=1] != s.window[match+=1]
+          break if s.window[scan+=1] != s.window[match+=1]
+          break if s.window[scan+=1] != s.window[match+=1]
+          break if s.window[scan+=1] != s.window[match+=1]
+          break if scan >= strend
         end
 
         len = MAX_MATCH - (strend - scan)
         scan = strend
         scan -= MAX_MATCH
 
-        if (len > best_len)
-            s.match_start = cur_match
-            best_len = len
-            break if (len >= nice_match)
-            scan_end1 = s.window[scan+best_len-1]
-            scan_end  = s.window[scan+best_len]
+        if len > best_len
+          s.match_start = cur_match
+          best_len = len
+          break if (len >= nice_match)
+          scan_end1 = s.window[scan+best_len-1]
+          scan_end  = s.window[scan+best_len]
         end
 
         cur_match = prev[cur_match & wmask]
