@@ -1292,8 +1292,7 @@ module Rbzlib
   #    input characters and the first MIN_MATCH bytes of str are valid
   #    (except for the last MIN_MATCH-1 bytes of the input file).
   def INSERT_STRING(s,str,match_head)
-    s.ins_h = ((s.ins_h << s.hash_shift) ^
-                 (s.window[(str) + (MIN_MATCH-1)].ord)) & s.hash_mask
+    s.ins_h = ((s.ins_h << s.hash_shift) ^ (s.window[str + 2].ord)) & s.hash_mask
 
     match_head = s.head[s.ins_h]
     s.prev[(str) & s.w_mask] = match_head
