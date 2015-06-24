@@ -9,7 +9,7 @@ include Rbzlib
 module Zlib
 
   RUBY_ZLIB_VERSION = '0.6.0'
-  PR_ZLIB_VERSION   = '1.0.1'
+  PR_ZLIB_VERSION   = '1.0.2'
 
   class Error < StandardError
   end
