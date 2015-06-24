@@ -1,3 +1,6 @@
+= 1.0.2 - 24-Jun-2015
+* Fixed a marshalling issue.
+
 = 1.0.1 - 16-Oct-2014
 * Added benchmark and profiler scripts and rake tasks.
 * Switched profiling scripts to use ruby-prof.
