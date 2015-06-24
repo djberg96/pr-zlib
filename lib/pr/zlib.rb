@@ -656,7 +656,11 @@ module Zlib
          @z.zstream_passthrough_input()
        end
       end
-      dst
+      if block_given?
+	      yield dst
+      else
+        dst
+      end
     end
 
     def <<(src)
