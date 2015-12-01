@@ -3,7 +3,7 @@
 #
 # Ruby translation by Park Heesob
 
-require 'pr/rbzlib'
+require_relative 'rbzlib'
 include Rbzlib
 
 module Zlib
