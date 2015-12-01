@@ -1072,7 +1072,10 @@ module Zlib
       GzipWriter.gzfile_s_open(filename, 'wb', level, strategy, &blk)
     end
 
-    def initialize(io, level=Z_DEFAULT_COMPRESSION, strategy=Z_DEFAULT_STRATEGY)
+    def initialize(io, level=nil, strategy=nil)
+      level = Z_DEFAULT_COMPRESSION if level.nil?
+      strategy = Z_DEFAULT_STRATEGY if strategy.nil?
+
       gzfile_new(DeflateFuncs, :gzfile_writer_end)
       @gz.level = level
 

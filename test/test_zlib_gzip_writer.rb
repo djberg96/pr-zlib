@@ -19,6 +19,8 @@ class TC_Zlib_GzipWriter < Test::Unit::TestCase
 
   def test_constructor
     assert_nothing_raised{ @writer = Zlib::GzipWriter.new(@handle) }
+    assert_nothing_raised{ @writer = Zlib::GzipWriter.new(@handle, nil) }
+    assert_nothing_raised{ @writer = Zlib::GzipWriter.new(@handle, nil, nil) }
   end
 
   def test_constructor_expected_errors
