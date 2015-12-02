@@ -1,16 +1,18 @@
 require 'rubygems'
 
 Gem::Specification.new do |spec|
-  spec.name              = 'pr-zlib'
-  spec.version           = '1.0.2'
-  spec.authors           = ['Park Heesob', 'Daniel Berger']
-  spec.email             = 'phasis@gmail.com'
-  spec.homepage          = 'https://github.com/djberg96/pr-zlib'
-  spec.summary           = 'Pure Ruby version of the zlib library'
-  spec.test_files        = Dir['test/*.rb']
-  spec.files             = Dir["**/*"].reject{ |f| f.include?('git') }
-  spec.extra_rdoc_files  = ['README', 'CHANGES', 'MANIFEST']
-   
+  spec.name             = 'pr-zlib'
+  spec.version          = '1.0.3'
+  spec.authors          = ['Park Heesob', 'Daniel Berger']
+  spec.email            = 'phasis@gmail.com'
+  spec.homepage         = 'https://github.com/djberg96/pr-zlib'
+  spec.license          = 'zlib'
+  spec.summary          = 'Pure Ruby version of the zlib library'
+  spec.test_files       = Dir['test/*.rb']
+  spec.files            = Dir["**/*"].reject{ |f| f.include?('git') }
+  spec.extra_rdoc_files = ['README', 'CHANGES', 'MANIFEST']
+  spec.cert_chain       = Dir['certs/*']
+
   spec.add_development_dependency('test-unit', '>= 2.4.0')
   spec.add_development_dependency('ruby-prof')
    
