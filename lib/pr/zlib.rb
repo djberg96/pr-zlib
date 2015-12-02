@@ -1553,8 +1553,12 @@ module Zlib
 
   private
 
+  LONG_MAX = 2**64 - 1
+  LONG_MIN = -2**63
+
   def self.check_long_range(num)
-    raise RangeError, 'bignum too big to convert into `unsigned long\'' if num.is_a? Bignum
+    # the error says 'unsigned', but this seems to be the range actually accepted
+    raise RangeError, 'bignum too big to convert into `unsigned long\'' if num < LONG_MIN || num > LONG_MAX
   end
 
 end
