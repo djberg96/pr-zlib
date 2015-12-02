@@ -36,6 +36,11 @@ interface as they see fit.
 
 More tests, and better tests, are needed for both Rbzlib and Zlib.
 
+= License
+
+This library is covered under the same license as zlib itself. For the text
+of the zlib license, please see http://zlib.net/zlib_license.html.
+
 = Authors
 
 * Park Heesob (C translation)
