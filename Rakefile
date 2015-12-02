@@ -17,13 +17,10 @@ end
 namespace :gem do
   desc 'Create the pr-zlib gem'
   task :create do
+    require 'rubygems/package'
     spec = eval(IO.read('pr-zlib.gemspec'))
-    if Gem::VERSION < "2.0"
-      Gem::Builder.new(spec).build
-    else
-      require 'rubygems/package'
-      Gem::Package.build(spec)
-    end
+    spec.signing_key = File.join(Dir.home, '.ssh', 'gem-private_key.pem')
+    Gem::Package.build(spec, true)
   end
 
   desc 'Install the pr-zlib gem'
