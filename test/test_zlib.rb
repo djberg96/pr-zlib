@@ -92,6 +92,10 @@ class TC_Zlib < Test::Unit::TestCase
       assert_equal(73728451, Zlib.adler32('test', 3))
    end
 
+  def test_adler32_module_function_expected_errors
+    assert_raise(RangeError){ Zlib.adler32('test', 2**128) }
+  end
+
    def test_crc32_module_function_basic
       assert_respond_to(Zlib, :crc32)
       assert_nothing_raised{ Zlib.crc32 }
@@ -103,6 +107,10 @@ class TC_Zlib < Test::Unit::TestCase
       assert_equal(0, Zlib.crc32(nil, 3))
       assert_equal(3402289634, Zlib.crc32('test', 3))
    end
+
+  def test_crc32_module_function_expected_errors
+    assert_raise(RangeError){ Zlib.crc32('test', 2**128) }
+  end
 
    def test_crc_table_module_function_basic
       assert_respond_to(Zlib, :crc_table)

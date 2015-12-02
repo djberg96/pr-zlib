@@ -1516,7 +1516,7 @@ module Zlib
 
   def adler32(string=nil, adler=nil)
     if adler
-      [adler].pack('L')  # check range
+      check_long_range adler
       sum = adler
     elsif string.nil?
       sum = 0
@@ -1532,10 +1532,10 @@ module Zlib
     sum
   end
 
-  def crc32(string=nil, adler=nil)
-    if adler
-      [adler].pack('L') # check range
-      sum = adler
+  def crc32(string=nil, crc=nil)
+    if crc
+      check_long_range crc
+      sum = crc
     elsif string.nil?
       sum = 0
     else
@@ -1552,6 +1552,16 @@ module Zlib
 
   def crc_table
     get_crc_table
+  end
+
+  private
+
+  LONG_MAX = 2**64 - 1
+  LONG_MIN = -2**63
+
+  def self.check_long_range(num)
+    # the error says 'unsigned', but this seems to be the range actually accepted
+    raise RangeError, 'bignum too big to convert into `unsigned long\'' if num < LONG_MIN || num > LONG_MAX
   end
 
 end
