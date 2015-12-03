@@ -36,6 +36,11 @@ interface as they see fit.
 
 More tests, and better tests, are needed for both Rbzlib and Zlib.
 
+= Caveats
+You cannot use both this library and the zlib standard library at the same
+time. If you try to use both there is a good chance you will get an allocation
+error of some sort. If you already have zlib, you do not need this library.
+
 = License
 
 This library is covered under the same license as zlib itself. For the text
