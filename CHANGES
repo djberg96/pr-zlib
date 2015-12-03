@@ -3,6 +3,7 @@
 * Some performance tuning. Reads are 2-3 times faster, while writes are
   about twenty percent faster.
 * This gem is now signed.
+* Added a pr-zlib.rb file for convenience.
 * Use require_relative internally where appropriate.
 * More stringent value and limit checking added. Thanks go to
   Chris Seaton for the patches.
