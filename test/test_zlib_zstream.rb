@@ -96,7 +96,7 @@ class TC_Zlib_Zstream < Test::Unit::TestCase
    def test_zstream_expand_buffer
       assert_nil(@zstream.buf)
       assert_nil(@zstream.zstream_expand_buffer)
-      assert_kind_of(Bytef, @zstream.buf)
+      assert_kind_of(Bytef_str, @zstream.buf)
    end
 
    def test_zstream_expand_buffer_expected_errors
@@ -113,7 +113,7 @@ class TC_Zlib_Zstream < Test::Unit::TestCase
    def test_zstream_append_buffer
       assert_nil(@zstream.buf)
       assert_nil(@zstream.zstream_append_buffer(@src, @src.length))
-      assert_kind_of(Bytef, @zstream.buf)
+      assert_kind_of(Bytef_arr, @zstream.buf)
    end
 
    def test_zstream_append_buffer_expected_errors
