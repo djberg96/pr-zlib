@@ -147,12 +147,23 @@ module Rbzlib
   end
 
   class Bytef
+    def self.new(buffer, offset=0)
+      if(buffer.class == Array)
+        Bytef_arr.new(buffer,offset)
+      else
+        Bytef_str.new(buffer,offset)
+      end
+    end
+  end
+
+  class Bytef_str
     attr_accessor :buffer, :offset
 
     def initialize(buffer, offset=0)
-      if [String, Array].include?(buffer.class)
+      if buffer.class == String
         @buffer = buffer
         @offset = offset
+        @buffer.force_encoding('ASCII-8BIT')
       else
         @buffer = buffer.buffer
         @offset = offset
@@ -174,35 +185,19 @@ module Rbzlib
     end
 
     def [](idx)
-      if @buffer.is_a?(String)
-        @buffer[idx + @offset].ord
-      else
-        @buffer[idx + @offset]
-      end
+      @buffer.getbyte(idx + @offset)
     end
 
     def []=(idx, val)
-      if @buffer.is_a?(String) && val.is_a?(Fixnum)
-        @buffer[idx + @offset] = val.chr
-      else
-        @buffer[idx + @offset] = val
-      end
+      @buffer.setbyte(idx + @offset,val.ord)
     end
 
     def get()
-      if @buffer.is_a?(String)
-        @buffer[@offset].ord
-      else
-        @buffer[@offset]
-      end
+      @buffer.getbyte(@offset)
     end
 
     def set(val)
-      if @buffer.is_a?(String) && val.is_a?(Fixnum)
-        @buffer[@offset] = val.chr
-      else
-        @buffer[@offset] = val
-      end
+      @buffer.setbyte(@offset,val.ord)
     end
 
     def current
@@ -210,7 +205,31 @@ module Rbzlib
     end
   end
 
-  class Posf < Bytef
+  class Bytef_arr < Bytef_str
+
+    def initialize(buffer, offset=0)
+        @buffer = buffer
+        @offset = offset
+    end
+
+    def [](idx)
+      @buffer[idx + @offset]
+    end
+
+    def []=(idx, val)
+      @buffer[idx + @offset] = val
+    end
+
+    def get()
+      @buffer[@offset]
+    end
+
+    def set(val)
+      @buffer[@offset] = val
+    end
+  end
+
+  class Posf < Bytef_str
     def +(inc)
       @offset += inc * 2
       self
