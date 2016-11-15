@@ -8,8 +8,8 @@ include Rbzlib
 
 module Zlib
 
-  RUBY_ZLIB_VERSION = '0.6.0'
-  PR_ZLIB_VERSION   = '1.0.2'
+  RUBY_ZLIB_VERSION = '0.6.0'.freeze
+  PR_ZLIB_VERSION   = '1.0.4'.freeze
 
   class Error < StandardError
   end
