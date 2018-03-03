@@ -23,7 +23,7 @@ end
 
 Benchmark.bm do |x|
   x.report("write") do
-    5.times{
+    500.times{
       Zlib::GzipWriter.open(GZ_FILE_NAME) do |gz|
         gz.write(File.read(FILE_NAME))
       end
@@ -31,7 +31,7 @@ Benchmark.bm do |x|
   end
 
   x.report("read") do
-    5.times{
+    500.times{
       Zlib::GzipReader.open(GZ_FILE_NAME) do |gz|
         gz.read
       end
