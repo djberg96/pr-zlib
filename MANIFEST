@@ -2,7 +2,7 @@ CHANGES
 MANIFEST
 README
 pr-zlib.gemspec
-bin/minizip.rb
+bin/minirbgzip
 certs/djberg96_pub.pem
 examples/example_rbzlib.rb
 lib/pr-zlib.rb
