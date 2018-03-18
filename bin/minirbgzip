@@ -1,5 +1,3 @@
-#!/bin/sh
-
 # minigzip -- simulate gzip using the zlib compression library
 # Copyright (C) 1995-2005 Jean-loup Gailly.
 # For conditions of distribution and use, see copyright notice in rbzlib.rb
@@ -12,7 +10,7 @@
 # real thing. On MSDOS, use only on file names without extension
 # or in pipe mode.
 #
-# minirbgzip Ruby translation By Park Heesob.
+# minigzip to minirbgzip Ruby translation By Park Heesob.
 
 require 'pr-zlib'
 include Rbzlib
