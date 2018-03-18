@@ -16,7 +16,7 @@ end
 
 namespace :gem do
   desc 'Create the pr-zlib gem'
-  task :create do
+  task :create => :clean do
     require 'rubygems/package'
     spec = eval(IO.read('pr-zlib.gemspec'))
     spec.signing_key = File.join(Dir.home, '.ssh', 'gem-private_key.pem')
