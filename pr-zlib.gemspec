@@ -2,7 +2,7 @@ require 'rubygems'
 
 Gem::Specification.new do |spec|
   spec.name             = 'pr-zlib'
-  spec.version          = '1.0.5'
+  spec.version          = '1.0.6'
   spec.authors          = ['Park Heesob', 'Daniel Berger']
   spec.email            = ['phasis@gmail.com', 'djberg96@gmail.com'],
   spec.homepage         = 'https://github.com/djberg96/pr-zlib'
@@ -12,6 +12,7 @@ Gem::Specification.new do |spec|
   spec.files            = Dir["**/*"].reject{ |f| f.include?('git') }
   spec.extra_rdoc_files = ['README', 'CHANGES', 'MANIFEST']
   spec.cert_chain       = Dir['certs/*']
+  spec.executables      = 'minirbgzip'
 
   spec.add_development_dependency('test-unit', '>= 2.4.0')
   spec.add_development_dependency('ruby-prof')
@@ -21,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.metadata = {
     'homepage_uri'      => 'https://github.com/djberg96/pr-zlib',
     'bug_tracker_uri'   => 'https://github.com/djberg96/pr-zlib/issues',
-    'changelog_uri'     => 'https://github.com/djberg96/pr-zlib/CHANGES',
+    'changelog_uri'     => 'https://github.com/djberg96/pr-zlib/blob/master/CHANGES',
     'documentation_uri' => 'https://github.com/djberg96/pr-zlib/wiki',
     'source_code_uri'   => 'https://github.com/djberg96/pr-zlib',
     'wiki_uri'          => 'https://github.com/djberg96/pr-zlib/wiki'
