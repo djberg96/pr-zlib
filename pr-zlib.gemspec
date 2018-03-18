@@ -4,7 +4,7 @@ Gem::Specification.new do |spec|
   spec.name             = 'pr-zlib'
   spec.version          = '1.0.4'
   spec.authors          = ['Park Heesob', 'Daniel Berger']
-  spec.email            = 'phasis@gmail.com'
+  spec.email            = ['phasis@gmail.com', 'djberg96@gmail.com'],
   spec.homepage         = 'https://github.com/djberg96/pr-zlib'
   spec.license          = 'zlib'
   spec.summary          = 'Pure Ruby version of the zlib library'
@@ -15,6 +15,17 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency('test-unit', '>= 2.4.0')
   spec.add_development_dependency('ruby-prof')
+
+  spec.required_ruby_version = '>= 2.2.0'
+
+  spec.metadata = {
+    'homepage_uri'      => 'https://github.com/djberg96/pr-zlib',
+    'bug_tracker_uri'   => 'https://github.com/djberg96/pr-zlib/issues',
+    'changelog_uri'     => 'https://github.com/djberg96/pr-zlib/CHANGES',
+    'documentation_uri' => 'https://github.com/djberg96/pr-zlib/wiki',
+    'source_code_uri'   => 'https://github.com/djberg96/pr-zlib',
+    'wiki_uri'          => 'https://github.com/djberg96/pr-zlib/wiki'
+  }
    
   spec.description = <<-EOF
     The pr-zlib library is a pure Ruby implementation of both the zlib C
