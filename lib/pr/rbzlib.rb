@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #  rbrzlib -- pure ruby version of 'zlib' general purpose compression library
 #  version 1.2.3, July 18th, 2005
 #
@@ -29,12 +31,6 @@
 #  Ruby translation
 #  Copyright (C) 2009 by Park Heesob phasis@gmail.com
 #
-
-class Fixnum
-  def ord
-    self
-  end
-end
 
 module Rbzlib
   MAX_MEM_LEVEL = 9

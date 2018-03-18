@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # zlib.rb -- An interface for rbzlib
 # Copyright (C) UENO Katsuhiro 2000-2003
 #
