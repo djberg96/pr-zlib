@@ -31,7 +31,7 @@ class TC_GzipReader < Test::Unit::TestCase
   end
 
   def test_lineno_get
-    assert_kind_of(Fixnum, @gz_reader.lineno)
+    assert_kind_of(Integer, @gz_reader.lineno)
     assert_equal(0, @gz_reader.lineno)
   end
 
@@ -41,7 +41,7 @@ class TC_GzipReader < Test::Unit::TestCase
   end
 
   def test_lineno_set
-    assert_kind_of(Fixnum, @gz_reader.lineno = 0)
+    assert_kind_of(Integer, @gz_reader.lineno = 0)
     assert_equal(0, @gz_reader.lineno = 0)
   end
 
@@ -56,7 +56,7 @@ class TC_GzipReader < Test::Unit::TestCase
   end
 
   def test_pos
-    assert_kind_of(Fixnum, @gz_reader.pos)
+    assert_kind_of(Integer, @gz_reader.pos)
   end
 
   def test_rewind_basic

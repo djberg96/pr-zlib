@@ -92,7 +92,7 @@ class TC_Zlib_GzipWriter < Test::Unit::TestCase
   def test_pos_basic
     assert_respond_to(@writer, :pos)
     assert_nothing_raised{ @writer.pos }
-    assert_kind_of(Fixnum, @writer.pos)
+    assert_kind_of(Integer, @writer.pos)
   end
 
   def test_pos
