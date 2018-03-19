@@ -1,3 +1,10 @@
+= 1.0.6 - 19-Mar-2018
+* Added the minirbgzip executable, a Ruby implementation of minigzip.
+  Formerly minigzip.rb, this had been part of the repo but had never been
+  released with the gem.
+* Some minor updates and fixes to the minirbgzip executable.
+* Metadata fix for changelog_uri.
+
 = 1.0.5 - 18-Mar-2018
 * Set the frozen_string_literal pragma, which gives us a small performance
   boost for reads.
