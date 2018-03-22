@@ -100,8 +100,7 @@ class TC_GzipReader < Test::Unit::TestCase
   end
 
   def test_getc
-    expected = RUBY_VERSION.to_f >= 1.9 ? 'T' : 84
-    assert_equal(expected, @gz_reader.getc)
+    assert_equal('T', @gz_reader.getc)
   end
 
   def test_readchar_basic
@@ -110,8 +109,7 @@ class TC_GzipReader < Test::Unit::TestCase
   end
 
   def test_readchar
-    expected = RUBY_VERSION.to_f >= 1.9 ? 'T' : 84
-    assert_equal(expected, @gz_reader.readchar)
+    assert_equal('T', @gz_reader.readchar)
   end
 
   def test_each_byte_basic
