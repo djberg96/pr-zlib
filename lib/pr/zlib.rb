@@ -11,7 +11,7 @@ include Rbzlib
 module Zlib
 
   RUBY_ZLIB_VERSION = '0.6.0'.freeze
-  PR_ZLIB_VERSION   = '1.0.6'.freeze
+  PR_ZLIB_VERSION   = '1.0.7'.freeze
 
   class Error < StandardError
   end
@@ -1424,6 +1424,10 @@ module Zlib
 
       if len.zero?
         return ""
+      end
+
+      if @gz.z.buf.nil?
+        @gz.z.buf = Bytef.new(0.chr * len)
       end
 
       while (!@gz.z.ZSTREAM_IS_FINISHED() && @gz.z.buf.offset < len)
