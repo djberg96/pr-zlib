@@ -108,7 +108,7 @@ module Zlib
       when Z_ERRNO
         raise SystemCallError, msg
       else
-        raise Error, 'unknown zlib error #errend: #msgend'
+        raise Error, "unknown zlib error #err: #msg"
       end
     end
 
@@ -126,12 +126,9 @@ module Zlib
         inc = @buf.offset / 2
         inc = ZSTREAM_AVAIL_OUT_STEP_MIN if inc < ZSTREAM_AVAIL_OUT_STEP_MIN
         @buf.buffer << 0.chr * (@buf.offset + inc - @buf.length) if @buf.length < @buf.offset + inc
-        @stream.avail_out = if inc < ZSTREAM_AVAIL_OUT_STEP_MAX
-                              inc
-                            else
-                              ZSTREAM_AVAIL_OUT_STEP_MAX
-end
+        @stream.avail_out = inc < ZSTREAM_AVAIL_OUT_STEP_MAX ? inc : ZSTREAM_AVAIL_OUT_STEP_MAX
       end
+
       @stream.next_out = Bytef.new(@buf, @buf.offset)
     end
 
@@ -158,11 +155,7 @@ end
     end
 
     def zstream_detach_buffer
-      dst = if @buf.nil?
-              ''
-            else
-              @buf.buffer[0, @buf.offset]
-            end
+      dst = @buf.nil? ? '' : @buf.buffer[0, @buf.offset]
 
       @buf = Bytef.new(0.chr * ZSTREAM_INITIAL_BUFSIZE)
       @stream.next_out = Bytef.new(@buf)
@@ -225,11 +218,7 @@ end
     end
 
     def zstream_detach_input
-      dst = if @input.nil?
-              ''
-            else
-              @input
-            end
+      dst = @input.nil? ? '' : @input
       @input = nil
       dst
     end
@@ -250,6 +239,7 @@ end
         warn('attempt to close uninitialized zstream; ignored.')
         return nil
       end
+
       if (@flags & ZSTREAM_FLAG_IN_STREAM).nonzero?
         warn('attempt to close unfinished zstream; reset forced.')
         zstream_reset
