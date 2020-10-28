@@ -108,7 +108,7 @@ module Zlib
       when Z_ERRNO
         raise SystemCallError, msg
       else
-        raise Error, "unknown zlib error #err: #msg"
+        raise Error, 'unknown zlib error #err: #msg'
       end
     end
 
@@ -1069,7 +1069,7 @@ module Zlib
                                       Z_SYNC_FLUSH
                                     else
                                       Z_NO_FLUSH
-end)
+                                    end)
       end
       gzfile_write_raw
     end
@@ -1411,12 +1411,11 @@ end)
       sum = Rbzlib.adler32(0, nil)
     end
 
-    sum = if string.nil?
-            Rbzlib.adler32(sum, nil)
-          else
-            Rbzlib.adler32(sum, string, string.length)
-          end
-    sum
+    if string.nil?
+      Rbzlib.adler32(sum, nil)
+    else
+      Rbzlib.adler32(sum, string, string.length)
+    end
   end
 
   def crc32(string = nil, crc = nil)
@@ -1429,12 +1428,11 @@ end)
       sum = Rbzlib.crc32(0, nil)
     end
 
-    sum = if string.nil?
-            Rbzlib.crc32(sum, nil)
-          else
-            Rbzlib.crc32(sum, string, string.length)
-          end
-    sum
+    if string.nil?
+      Rbzlib.crc32(sum, nil)
+    else
+      Rbzlib.crc32(sum, string, string.length)
+    end
   end
 
   def crc_table
