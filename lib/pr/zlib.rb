@@ -1446,6 +1446,6 @@ end)
 
   def self.check_long_range(num)
     # the error says 'unsigned', but this seems to be the range actually accepted
-    raise RangeError, 'bignum too big to convert into `unsigned long\'' if num < LONG_MIN || num > LONG_MAX
+    raise RangeError, 'bignum too big to convert into unsigned long' if num < LONG_MIN || num > LONG_MAX
   end
 end
