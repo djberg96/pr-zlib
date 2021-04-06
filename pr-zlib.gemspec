@@ -14,10 +14,9 @@ Gem::Specification.new do |spec|
   spec.cert_chain       = Dir['certs/*']
   spec.executables      = 'minirbgzip'
 
-  spec.add_development_dependency('test-unit', '>= 2.4.0')
-  spec.add_development_dependency('ruby-prof')
-
-  spec.required_ruby_version = '>= 2.2.0'
+  spec.add_development_dependency('rake')
+  spec.add_development_dependency('ruby-prof', '~> 1.4')
+  spec.add_development_dependency('test-unit', '~> 3.4')
 
   spec.metadata = {
     'homepage_uri'      => 'https://github.com/djberg96/pr-zlib',

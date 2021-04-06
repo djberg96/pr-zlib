@@ -3,7 +3,7 @@ require 'rake/clean'
 require 'rake/testtask'
 require 'rbconfig'
 
-CLEAN.include("**/*.rbc", "**/*.gem", "**/*.txt", "**/*.gz")
+CLEAN.include("**/*.rbc", "**/*.gem", "**/*.txt", "**/*.gz", "**/*.lock")
 
 desc 'Install the pr-zlib library as zlib'
 task :install_as_zlib do
