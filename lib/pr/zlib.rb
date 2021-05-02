@@ -126,7 +126,7 @@ module Zlib
       else
         inc = @buf.offset / 2
         if inc < ZSTREAM_AVAIL_OUT_STEP_MIN
-            inc = ZSTREAM_AVAIL_OUT_STEP_MIN
+          inc = ZSTREAM_AVAIL_OUT_STEP_MIN
         end
         if @buf.length < @buf.offset + inc
           @buf.buffer << 0.chr * (@buf.offset + inc - @buf.length)
@@ -149,9 +149,9 @@ module Zlib
         @stream.avail_out = 0
       else
         if @stream.avail_out >= len
-           @stream.avail_out -= len
+          @stream.avail_out -= len
         else
-           @stream.avail_out = 0
+          @stream.avail_out = 0
         end
       end
       @buf.buffer[@buf.offset, len] = src[0, len]
@@ -161,9 +161,9 @@ module Zlib
 
     def zstream_detach_buffer
       if @buf.nil?
-       dst = ''
+        dst = ''
       else
-       dst = @buf.buffer[0, @buf.offset]
+        dst = @buf.buffer[0, @buf.offset]
       end
 
       @buf = Bytef.new(0.chr * ZSTREAM_INITIAL_BUFSIZE)
@@ -185,19 +185,19 @@ module Zlib
       @stream.next_out = Bytef.new(@buf, @buf.offset)
       @stream.avail_out = @buf.length - @buf.offset
       if @stream.avail_out > ZSTREAM_AVAIL_OUT_STEP_MAX
-       @stream.avail_out = ZSTREAM_AVAIL_OUT_STEP_MAX
+        @stream.avail_out = ZSTREAM_AVAIL_OUT_STEP_MAX
       end
       return dst
     end
 
     def zstream_buffer_ungetc(c)
       if @buf.nil? || (@buf.length - @buf.offset).zero?
-       zstream_expand_buffer()
+        zstream_expand_buffer()
       end
       @buf.buffer[0, 0] = c.chr
       @buf += 1
       if @stream.avail_out > 0
-       @stream.next_out += 1
+        @stream.next_out += 1
        @stream.avail_out -= 1
       end
     end
@@ -226,16 +226,16 @@ module Zlib
 
     def zstream_passthrough_input
       if @input
-       zstream_append_buffer(@input, @input.length)
+        zstream_append_buffer(@input, @input.length)
        @input = nil
       end
     end
 
     def zstream_detach_input
       if @input.nil?
-       dst = ''
+        dst = ''
       else
-       dst = @input
+        dst = @input
       end
       @input = nil
       return dst
@@ -275,17 +275,17 @@ module Zlib
 
     def zstream_sync(src, len)
       if @input
-       @stream.next_in = Bytef.new(@input)
+        @stream.next_in = Bytef.new(@input)
        @stream.avail_in = @input.length
        err = inflateSync(@stream)
        if err == Z_OK
-           zstream_discard_input(@input.length - @stream.avail_in)
+         zstream_discard_input(@input.length - @stream.avail_in)
            zstream_append_input(src, len)
            return true
        end
        zstream_reset_input()
        if err != Z_DATA_ERROR
-           rest = @stream.next_in.buffer[0, @stream.avail_in]
+         rest = @stream.next_in.buffer[0, @stream.avail_in]
            raise_zlib_error(err, @stream.msg)
        end
       end
@@ -296,11 +296,11 @@ module Zlib
       @stream.avail_in = len
       err = inflateSync(@stream)
       if err == Z_OK
-       zstream_append_input(@stream.next_in, @stream.avail_in)
+        zstream_append_input(@stream.next_in, @stream.avail_in)
        return true
       end
       if err != Z_DATA_ERROR
-       rest = @stream.next_in.buffer[0, @stream.avail_in]
+        rest = @stream.next_in.buffer[0, @stream.avail_in]
        raise_zlib_error(err, @stream.msg)
       end
       return false
@@ -454,18 +454,18 @@ module Zlib
 
     def close
       if !@z.ZSTREAM_IS_READY()
-         warn('attempt to close uninitialized zstream ignored.')
+        warn('attempt to close uninitialized zstream ignored.')
          return nil
       end
       if (@z.flags & ZSTREAM_FLAG_IN_STREAM).nonzero?
-         warn('attempt to close unfinished zstream reset forced.')
+        warn('attempt to close unfinished zstream reset forced.')
          @z.input = nil
       end
 
       @z.input = nil
       err = send(@z.func.end, @z.stream)
       if err != Z_OK
-         raise_zlib_error(err, @z.stream.msg)
+        raise_zlib_error(err, @z.stream.msg)
       end
       @z.flags = 0
     end
@@ -515,7 +515,7 @@ module Zlib
       @z.zstream_init(DeflateFuncs)
       err = deflateInit(@z.stream, level)
       if err != Z_OK
-       raise_zlib_error(err, @z.stream.msg)
+        raise_zlib_error(err, @z.stream.msg)
       end
       @z.ZSTREAM_READY()
 
@@ -532,7 +532,7 @@ module Zlib
       @z.zstream_init(DeflateFuncs)
       err = deflateInit2(@z.stream, level, Z_DEFLATED, wbits, memlevel, strategy)
       if err != Z_OK
-       raise_zlib_error(err, @z.stream.msg)
+        raise_zlib_error(err, @z.stream.msg)
       end
       @z.ZSTREAM_READY()
     end
@@ -583,7 +583,7 @@ module Zlib
          err = deflateParams(@z.stream, level, strategy)
       end
       if err != Z_OK
-         raise_zlib_error(err, @z.stream.msg)
+        raise_zlib_error(err, @z.stream.msg)
       end
 
       nil
@@ -611,7 +611,7 @@ module Zlib
       @z.zstream_init(InflateFuncs)
       err = inflateInit(@z.stream)
       if err != Z_OK
-       raise_zlib_error(err, @z.stream.msg)
+        raise_zlib_error(err, @z.stream.msg)
       end
       @z.ZSTREAM_READY()
       begin
@@ -638,28 +638,28 @@ module Zlib
       @z.zstream_init(InflateFuncs)
       err = inflateInit2(@z.stream, wbits)
       if err != Z_OK
-       raise_zlib_error(err, @z.stream.msg)
+        raise_zlib_error(err, @z.stream.msg)
       end
       @z.ZSTREAM_READY()
     end
 
     def inflate(src)
       if @z.ZSTREAM_IS_FINISHED()
-       if src.nil?
-         dst = @z.zstream_detach_buffer()
-        else
-          @z.zstream_append_buffer(src, src.lenth)
-          dst = ''
-       end
+        if src.nil?
+          dst = @z.zstream_detach_buffer()
+         else
+           @z.zstream_append_buffer(src, src.lenth)
+           dst = ''
+        end
       else
-       do_inflate(src)
+        do_inflate(src)
        dst = @z.zstream_detach_buffer()
        if @z.ZSTREAM_IS_FINISHED()
          @z.zstream_passthrough_input()
        end
       end
       if block_given?
-	      yield dst
+	       yield dst
       else
         dst
       end
@@ -939,33 +939,33 @@ module Zlib
 
     def gzfile_read_header
       if !gzfile_read_raw_ensure(10)
-       raise GzipFile::Error, 'not in gzip format'
+        raise GzipFile::Error, 'not in gzip format'
       end
 
       head = @gz.z.input
 
       if head[0].ord != GZ_MAGIC1 || head[1].ord != GZ_MAGIC2
-         raise GzipFile::Error, 'not in gzip format'
+        raise GzipFile::Error, 'not in gzip format'
       end
       if head[2].ord != GZ_METHOD_DEFLATE
-         raise GzipFile::Error, "unsupported compression method #{head[2].ord}"
+        raise GzipFile::Error, "unsupported compression method #{head[2].ord}"
       end
 
       flags = head[3].ord
       if (flags & GZ_FLAG_MULTIPART).nonzero?
-         raise GzipFile::Error, 'multi-part gzip file is not supported'
+        raise GzipFile::Error, 'multi-part gzip file is not supported'
       elsif (flags & GZ_FLAG_ENCRYPT).nonzero?
-         raise GzipFile::Error, 'encrypted gzip file is not supported'
+        raise GzipFile::Error, 'encrypted gzip file is not supported'
       elsif (flags & GZ_FLAG_UNKNOWN_MASK).nonzero?
-         raise GzipFile::Error, 'unknown flags 0x%02x' % flags
+        raise GzipFile::Error, 'unknown flags 0x%02x' % flags
       end
 
       if (head[8].ord & GZ_EXTRAFLAG_FAST).nonzero?
-         @gz.level = Z_BEST_SPEED
+        @gz.level = Z_BEST_SPEED
       elsif (head[8].ord & GZ_EXTRAFLAG_SLOW).nonzero?
-         @gz.level = Z_BEST_COMPRESSION
+        @gz.level = Z_BEST_COMPRESSION
       else
-         @gz.level = Z_DEFAULT_COMPRESSION
+        @gz.level = Z_DEFAULT_COMPRESSION
       end
 
       @gz.mtime = gzfile_get32(head[4, 4])
@@ -973,9 +973,9 @@ module Zlib
       @gz.z.zstream_discard_input(10)
 
       if (flags & GZ_FLAG_EXTRA).nonzero?
-         if !gzfile_read_raw_ensure(2)
-           raise GzipFile::Error, 'unexpected end of file'
-         end
+        if !gzfile_read_raw_ensure(2)
+          raise GzipFile::Error, 'unexpected end of file'
+        end
          len = gzfile_get16(@gz.z.input)
          if !gzfile_read_raw_ensure(2 + len)
            raise GzipFile::Error, 'unexpected end of file'
@@ -983,13 +983,13 @@ module Zlib
          @gz.z.zstream_discard_input(2 + len)
       end
       if (flags & GZ_FLAG_ORIG_NAME).nonzero?
-         ap = gzfile_read_raw_until_zero(0)
+        ap = gzfile_read_raw_until_zero(0)
          len = ap
          @gz.orig_name = @gz.z.input[0, len]
          @gz.z.zstream_discard_input(len + 1)
       end
       if (flags & GZ_FLAG_COMMENT).nonzero?
-         ap = gzfile_read_raw_until_zero(0)
+        ap = gzfile_read_raw_until_zero(0)
          len = ap
          @gz.comment = @gz.z.input[0, len]
          @gz.z.zstream_discard_input(len + 1)
