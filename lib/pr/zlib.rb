@@ -77,9 +77,9 @@ module Zlib
   ZSTREAM_FLAG_CLOSING   = 0x8
   ZSTREAM_FLAG_UNUSED    = 0x10
 
-  ZSTREAM_INITIAL_BUFSIZE     =  1024
-  ZSTREAM_AVAIL_OUT_STEP_MAX  = 16384
-  ZSTREAM_AVAIL_OUT_STEP_MIN  =  2048
+  ZSTREAM_INITIAL_BUFSIZE = 1024
+  ZSTREAM_AVAIL_OUT_STEP_MAX = 16384
+  ZSTREAM_AVAIL_OUT_STEP_MIN = 2048
 
   ZStreamFuncs = Struct.new(:reset, :end, :run)
   DeflateFuncs = ZStreamFuncs.new(:deflateReset, :deflateEnd, :deflate)
@@ -89,7 +89,7 @@ module Zlib
     attr_accessor :flags, :buf, :input, :stream, :func
 
     def raise_zlib_error(err, msg)
-      msg = zError(err) if msg.nil? || msg==''
+      msg = zError(err) if msg.nil? || msg == ''
 
       case err
         when Z_STREAM_END
@@ -197,8 +197,8 @@ module Zlib
       @buf.buffer[0, 0] = c.chr
       @buf += 1
       if @stream.avail_out > 0
-       @stream.next_out+=1
-       @stream.avail_out-=1
+       @stream.next_out += 1
+       @stream.avail_out -= 1
       end
     end
 
@@ -320,7 +320,7 @@ module Zlib
     end
 
     def zstream_run(src, len, flush)
-      if(@input.nil? && len==0)
+      if(@input.nil? && len == 0)
         @stream.next_in = ''
         @stream.avail_in = 0
       else
@@ -552,7 +552,7 @@ module Zlib
         @z.zstream_run('', 0, Z_FINISH)
         return
       end
-      if flush != Z_NO_FLUSH || (src && src.length>0)
+      if flush != Z_NO_FLUSH || (src && src.length > 0)
         @z.zstream_run(src, src.length, flush)
       end
     end
@@ -627,7 +627,7 @@ module Zlib
         @z.zstream_run("", 0, Z_FINISH)
         return
       end
-      if src.length>0
+      if src.length > 0
         @z.zstream_run(src, src.length, Z_SYNC_FLUSH)
       end
     end
@@ -732,7 +732,7 @@ module Zlib
       gz.z.ZSTREAM_IS_FINISHED() && (gz.z.buf.nil? || gz.z.buf.offset.zero?)
     end
 
-    GZFILE_READ_SIZE  = 2048
+    GZFILE_READ_SIZE = 2048
 
     class Error < Zlib::Error
     end
@@ -1221,7 +1221,7 @@ module Zlib
     alias tell :pos
 
     def self.open(filename, level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY, &blk)
-      GzipReader.gzfile_s_open(filename, "rb", level=Z_DEFAULT_COMPRESSION, strategy=Z_DEFAULT_STRATEGY, &blk)
+      GzipReader.gzfile_s_open(filename, "rb", level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY, &blk)
     end
 
     def initialize(io, level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY)
@@ -1331,7 +1331,7 @@ module Zlib
 
     def gzfile_ungetc(c)
       @gz.z.zstream_buffer_ungetc(c)
-      @gz.ungetc+=1
+      @gz.ungetc += 1
     end
 
     def gzfile_reader_rewind
@@ -1380,7 +1380,7 @@ module Zlib
       end
       while @gz.z.buf.offset < rslen
         if @gz.z.ZSTREAM_IS_FINISHED()
-          @gz.lineno+=1 if @gz.z.buf.offset > 0
+          @gz.lineno += 1 if @gz.z.buf.offset > 0
           return gzfile_read(rslen)
         end
         gzfile_read_more()
@@ -1403,13 +1403,13 @@ module Zlib
         else
           n += (res - ap)
           ap = res
-          break if rslen == 1 || @gz.z.buf.buffer[ap, rslen]==rsptr
-          ap+=1
-          n+=1
+          break if rslen == 1 || @gz.z.buf.buffer[ap, rslen] == rsptr
+          ap += 1
+          n += 1
         end
       end
 
-      @gz.lineno+=1
+      @gz.lineno += 1
       dst = gzfile_read(n)
       if rspara
         gzreader_skip_linebreaks()
@@ -1483,7 +1483,7 @@ module Zlib
       ap = nil
 
       loop do
-        ap = @gz.z.input[offset, @gz.z.input.length-offset].index(0.chr)
+        ap = @gz.z.input[offset, @gz.z.input.length - offset].index(0.chr)
         break if ap
         str = gzfile_read_raw()
 
