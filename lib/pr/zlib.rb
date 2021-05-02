@@ -1221,7 +1221,7 @@ module Zlib
     alias tell :pos
 
     def self.open(filename, level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY, &blk)
-      GzipReader.gzfile_s_open(filename, 'rb', level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY, &blk)
+      GzipReader.gzfile_s_open(filename, 'rb', Z_DEFAULT_COMPRESSION, Z_DEFAULT_STRATEGY, &blk)
     end
 
     def initialize(io, level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY)
