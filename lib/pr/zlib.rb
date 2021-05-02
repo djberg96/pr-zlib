@@ -198,7 +198,7 @@ module Zlib
       @buf += 1
       if @stream.avail_out > 0
         @stream.next_out += 1
-       @stream.avail_out -= 1
+        @stream.avail_out -= 1
       end
     end
 
@@ -227,7 +227,7 @@ module Zlib
     def zstream_passthrough_input
       if @input
         zstream_append_buffer(@input, @input.length)
-       @input = nil
+        @input = nil
       end
     end
 
@@ -276,18 +276,18 @@ module Zlib
     def zstream_sync(src, len)
       if @input
         @stream.next_in = Bytef.new(@input)
-       @stream.avail_in = @input.length
-       err = inflateSync(@stream)
-       if err == Z_OK
-         zstream_discard_input(@input.length - @stream.avail_in)
-           zstream_append_input(src, len)
-           return true
-       end
-       zstream_reset_input()
-       if err != Z_DATA_ERROR
-         rest = @stream.next_in.buffer[0, @stream.avail_in]
-           raise_zlib_error(err, @stream.msg)
-       end
+        @stream.avail_in = @input.length
+        err = inflateSync(@stream)
+        if err == Z_OK
+          zstream_discard_input(@input.length - @stream.avail_in)
+          zstream_append_input(src, len)
+          return true
+        end
+        zstream_reset_input()
+        if err != Z_DATA_ERROR
+          rest = @stream.next_in.buffer[0, @stream.avail_in]
+          raise_zlib_error(err, @stream.msg)
+        end
       end
 
       return false if len <= 0
@@ -297,11 +297,11 @@ module Zlib
       err = inflateSync(@stream)
       if err == Z_OK
         zstream_append_input(@stream.next_in, @stream.avail_in)
-       return true
+        return true
       end
       if err != Z_DATA_ERROR
         rest = @stream.next_in.buffer[0, @stream.avail_in]
-       raise_zlib_error(err, @stream.msg)
+        raise_zlib_error(err, @stream.msg)
       end
       return false
     end
@@ -455,11 +455,11 @@ module Zlib
     def close
       if !@z.ZSTREAM_IS_READY()
         warn('attempt to close uninitialized zstream ignored.')
-         return nil
+        return nil
       end
       if (@z.flags & ZSTREAM_FLAG_IN_STREAM).nonzero?
         warn('attempt to close unfinished zstream reset forced.')
-         @z.input = nil
+        @z.input = nil
       end
 
       @z.input = nil
@@ -579,8 +579,8 @@ module Zlib
       err = deflateParams(@z.stream, level, strategy)
       while err == Z_BUF_ERROR
         warn('deflateParams() returned Z_BUF_ERROR')
-         @z.zstream_expand_buffer()
-         err = deflateParams(@z.stream, level, strategy)
+        @z.zstream_expand_buffer()
+        err = deflateParams(@z.stream, level, strategy)
       end
       if err != Z_OK
         raise_zlib_error(err, @z.stream.msg)
@@ -647,19 +647,19 @@ module Zlib
       if @z.ZSTREAM_IS_FINISHED()
         if src.nil?
           dst = @z.zstream_detach_buffer()
-         else
-           @z.zstream_append_buffer(src, src.lenth)
-           dst = ''
+        else
+          @z.zstream_append_buffer(src, src.lenth)
+          dst = ''
         end
       else
         do_inflate(src)
-       dst = @z.zstream_detach_buffer()
-       if @z.ZSTREAM_IS_FINISHED()
-         @z.zstream_passthrough_input()
-       end
+        dst = @z.zstream_detach_buffer()
+        if @z.ZSTREAM_IS_FINISHED()
+          @z.zstream_passthrough_input()
+        end
       end
       if block_given?
-	       yield dst
+	      yield dst
       else
         dst
       end
@@ -976,23 +976,23 @@ module Zlib
         if !gzfile_read_raw_ensure(2)
           raise GzipFile::Error, 'unexpected end of file'
         end
-         len = gzfile_get16(@gz.z.input)
-         if !gzfile_read_raw_ensure(2 + len)
-           raise GzipFile::Error, 'unexpected end of file'
-         end
-         @gz.z.zstream_discard_input(2 + len)
+        len = gzfile_get16(@gz.z.input)
+        if !gzfile_read_raw_ensure(2 + len)
+          raise GzipFile::Error, 'unexpected end of file'
+        end
+        @gz.z.zstream_discard_input(2 + len)
       end
       if (flags & GZ_FLAG_ORIG_NAME).nonzero?
         ap = gzfile_read_raw_until_zero(0)
-         len = ap
-         @gz.orig_name = @gz.z.input[0, len]
-         @gz.z.zstream_discard_input(len + 1)
+        len = ap
+        @gz.orig_name = @gz.z.input[0, len]
+        @gz.z.zstream_discard_input(len + 1)
       end
       if (flags & GZ_FLAG_COMMENT).nonzero?
         ap = gzfile_read_raw_until_zero(0)
-         len = ap
-         @gz.comment = @gz.z.input[0, len]
-         @gz.z.zstream_discard_input(len + 1)
+        len = ap
+        @gz.comment = @gz.z.input[0, len]
+        @gz.z.zstream_discard_input(len + 1)
       end
 
       if @gz.z.input && @gz.z.input.length > 0
