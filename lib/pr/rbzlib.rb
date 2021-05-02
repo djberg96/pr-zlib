@@ -205,7 +205,7 @@ module Rbzlib
 
     def initialize(buffer, offset = 0)
       @buffer = buffer
-        @offset = offset
+      @offset = offset
     end
 
     def [](idx)
@@ -633,16 +633,16 @@ module Rbzlib
       begin
         s.inbuf = s.file.read(Z_BUFSIZE)
         s.stream.avail_in = s.inbuf.length if s.inbuf
-     rescue
-       s.inbuf = nil
+      rescue
+        s.inbuf = nil
         s.z_err = Z_ERRNO
       end
 
-       if s.inbuf.nil?
-         s.z_eof = true
-          return Z_EOF
-       end
-       s.stream.next_in = Bytef.new(s.inbuf)
+      if s.inbuf.nil?
+        s.z_eof = true
+        return Z_EOF
+      end
+      s.stream.next_in = Bytef.new(s.inbuf)
     end
 
     s.stream.avail_in -= 1
@@ -1225,21 +1225,21 @@ module Rbzlib
   def gzclose(file)
     s = file
 
-     if s.nil?
-       return Z_STREAM_ERROR
-     end
+    if s.nil?
+      return Z_STREAM_ERROR
+    end
 
-     if s.mode == 'w'
-       err = do_flush(file, Z_FINISH)
-        if err != Z_OK
-          return destroy(f)
-        end
+    if s.mode == 'w'
+      err = do_flush(file, Z_FINISH)
+      if err != Z_OK
+        return destroy(f)
+      end
 
-        putLong(s.file, s.crc)
-        putLong(s.file, s.in & 0xffffffff)
-     end
+      putLong(s.file, s.crc)
+      putLong(s.file, s.in & 0xffffffff)
+    end
 
-     return destroy(file)
+    return destroy(file)
   end
 
   #   Returns the error message for the last error which occurred on the
@@ -2054,53 +2054,53 @@ module Rbzlib
     begin
       match = cur_match
 
-        if (s.window[match + best_len] != scan_end) ||
-           (s.window[match + best_len - 1] != scan_end1) ||
-           (s.window[match] != s.window[scan])
-        then
-          cur_match = prev[cur_match & wmask]
-           chain_length -= 1
-           next
-        end
-
-        match += 1
-
-        if s.window[match] != s.window[scan + 1]
-          cur_match = prev[cur_match & wmask]
-           chain_length -= 1
-           next
-        end
-
-        scan += 2
-        match += 1
-
-        # Seems redundant, but mimics the C code
-        loop do
-          break if s.window[scan += 1] != s.window[match += 1]
-          break if s.window[scan += 1] != s.window[match += 1]
-          break if s.window[scan += 1] != s.window[match += 1]
-          break if s.window[scan += 1] != s.window[match += 1]
-          break if s.window[scan += 1] != s.window[match += 1]
-          break if s.window[scan += 1] != s.window[match += 1]
-          break if s.window[scan += 1] != s.window[match += 1]
-          break if s.window[scan += 1] != s.window[match += 1]
-          break if scan >= strend
-        end
-
-        len = MAX_MATCH - (strend - scan)
-        scan = strend
-        scan -= MAX_MATCH
-
-        if len > best_len
-          s.match_start = cur_match
-          best_len = len
-          break if len >= nice_match
-          scan_end1 = s.window[scan + best_len - 1]
-          scan_end  = s.window[scan + best_len]
-        end
-
+      if (s.window[match + best_len] != scan_end) ||
+         (s.window[match + best_len - 1] != scan_end1) ||
+         (s.window[match] != s.window[scan])
+      then
         cur_match = prev[cur_match & wmask]
         chain_length -= 1
+        next
+      end
+
+      match += 1
+
+      if s.window[match] != s.window[scan + 1]
+        cur_match = prev[cur_match & wmask]
+        chain_length -= 1
+        next
+      end
+
+      scan += 2
+      match += 1
+
+        # Seems redundant, but mimics the C code
+      loop do
+        break if s.window[scan += 1] != s.window[match += 1]
+        break if s.window[scan += 1] != s.window[match += 1]
+        break if s.window[scan += 1] != s.window[match += 1]
+        break if s.window[scan += 1] != s.window[match += 1]
+        break if s.window[scan += 1] != s.window[match += 1]
+        break if s.window[scan += 1] != s.window[match += 1]
+        break if s.window[scan += 1] != s.window[match += 1]
+        break if s.window[scan += 1] != s.window[match += 1]
+        break if scan >= strend
+      end
+
+      len = MAX_MATCH - (strend - scan)
+      scan = strend
+      scan -= MAX_MATCH
+
+      if len > best_len
+        s.match_start = cur_match
+        best_len = len
+        break if len >= nice_match
+        scan_end1 = s.window[scan + best_len - 1]
+        scan_end  = s.window[scan + best_len]
+      end
+
+      cur_match = prev[cur_match & wmask]
+      chain_length -= 1
     end until (cur_match <= limit) || chain_length == 0
 
     if best_len <= s.lookahead
@@ -2448,18 +2448,18 @@ module Rbzlib
         end
       elsif s.match_available
         bflush = _tr_tally(s, 0, s.window[s.strstart - 1].ord)
-          if bflush
-            FLUSH_BLOCK_ONLY(s, false)
-          end
-          s.strstart += 1
-          s.lookahead -= 1
-          if s.strm.avail_out == 0
-            return :need_more
-          end
+        if bflush
+          FLUSH_BLOCK_ONLY(s, false)
+        end
+        s.strstart += 1
+        s.lookahead -= 1
+        if s.strm.avail_out == 0
+          return :need_more
+        end
       else
         s.match_available = true
-          s.strstart += 1
-          s.lookahead -= 1
+        s.strstart += 1
+        s.lookahead -= 1
       end
     end
     if s.match_available
@@ -2811,7 +2811,7 @@ module Rbzlib
       end
       break if  (tree[v].fc < tree[s.heap[j]].fc) ||
          ((tree[v].fc == tree[s.heap[j]].fc) &&
-          (s.depth[v] <= s.depth[s.heap[j]])) 
+          (s.depth[v] <= s.depth[s.heap[j]]))
 
       s.heap[k] = s.heap[j]
       k = j
@@ -3409,20 +3409,20 @@ module Rbzlib
     max = 0
     MAXBITS.downto(1) do |i|
       max = i
-        break if count[max] != 0
+      break if count[max] != 0
     end
 
     root = max if root > max
     if max == 0
       this.op = 64
-        this.bits = 1
-        this.val = 0
-        table[offset] = this.dup
-        offset += 1
-        table[offset] = this.dup
-        offset += 1
-        bits = 1
-        return [0, bits, offset]
+      this.bits = 1
+      this.val = 0
+      table[offset] = this.dup
+      offset += 1
+      table[offset] = this.dup
+      offset += 1
+      bits = 1
+      return [0, bits, offset]
     end
     for min in 1 .. MAXBITS
       break if count[min] != 0
@@ -3432,8 +3432,8 @@ module Rbzlib
     left = 1
     for len in 1 .. MAXBITS
       left <<= 1
-        left -= count[len]
-        return [-1, bits, offset]  if left < 0
+      left -= count[len]
+      return [-1, bits, offset]  if left < 0
     end
     if left > 0 && (type == CODES || max != 1)
       return [-1, bits, offset]
@@ -3454,18 +3454,18 @@ module Rbzlib
     case (type)
     when CODES
       extra = Bytef.new(work)
-        base = Bytef.new(work)
-        _end = 19
+      base = Bytef.new(work)
+      _end = 19
     when LENS
       base = Bytef.new(lbase)
-        base -= 257
-        extra = Bytef.new(lext)
-        extra -= 257
-        _end = 256
+      base -= 257
+      extra = Bytef.new(lext)
+      extra -= 257
+      _end = 256
     else
       base = Bytef.new(dbase)
-        extra = Bytef.new(dext)
-        _end = -1
+      extra = Bytef.new(dext)
+      _end = -1
     end
 
     huff = 0
@@ -3483,67 +3483,67 @@ module Rbzlib
     end
     loop do
       this.bits = (len - drop)
-        if (work[sym]) < _end
-          this.op = 0
-            this.val = work[sym]
-        elsif (work[sym]) > _end
-          this.op = (extra[work[sym]])
-            this.val = base[work[sym]]
-        else
-          this.op = (32 + 64)
-            this.val = 0
-        end
-        incr = 1 << (len - drop)
-        fill = 1 << curr
-        min = fill
-        loop do
-          fill -= incr
-            _next[((huff >> drop) + fill)] = this.dup
-            break if fill == 0
-        end
-        incr = 1 << (len - 1)
-        while (huff & incr) != 0
-          incr >>= 1
-        end
-        if incr != 0
-          huff &= incr - 1
-            huff += incr
-        else
-          huff = 0
-        end
-        sym += 1
-        count[len] -= 1
-        if count[len] == 0
-          break if len == max
-            len = lens[work[sym]]
+      if (work[sym]) < _end
+        this.op = 0
+        this.val = work[sym]
+      elsif (work[sym]) > _end
+        this.op = (extra[work[sym]])
+        this.val = base[work[sym]]
+      else
+        this.op = (32 + 64)
+        this.val = 0
+      end
+      incr = 1 << (len - drop)
+      fill = 1 << curr
+      min = fill
+      loop do
+        fill -= incr
+        _next[((huff >> drop) + fill)] = this.dup
+        break if fill == 0
+      end
+      incr = 1 << (len - 1)
+      while (huff & incr) != 0
+        incr >>= 1
+      end
+      if incr != 0
+        huff &= incr - 1
+        huff += incr
+      else
+        huff = 0
+      end
+      sym += 1
+      count[len] -= 1
+      if count[len] == 0
+        break if len == max
+        len = lens[work[sym]]
+      end
+
+      if len > root && (huff & mask) != low
+        if drop == 0
+          drop = root
         end
 
-        if len > root && (huff & mask) != low
-          if drop == 0
-            drop = root
-          end
+        _next += min
 
-            _next += min
-
-            curr = len - drop
-            left = (1 << curr)
-            while curr + drop < max
-              left -= count[curr + drop]
-                break if left <= 0
-                curr += 1
-                left <<= 1
-            end
-
-            used += 1 << curr
-            if type == LENS && used >= ENOUGH - MAXD
-              return [1, bits, offset]
-            end
-            low = huff & mask
-            table[offset + low] = Code.new
-            table[offset + low].op = curr
-            table[offset + low].bits = root
-            table[offset + low].val = (_next.offset - offset)
+        curr = len - drop
+        left = (1 << curr)
+        while curr + drop < max
+          left -= count[curr + drop]
+          break if left <= 0
+          curr += 1
+          left <<= 1
         end
+
+        used += 1 << curr
+        if type == LENS && used >= ENOUGH - MAXD
+          return [1, bits, offset]
+        end
+        low = huff & mask
+        table[offset + low] = Code.new
+        table[offset + low].op = curr
+        table[offset + low].bits = root
+        table[offset + low].val = (_next.offset - offset)
+      end
     end
     this.op = 64
     this.bits = (len - drop)
@@ -3551,22 +3551,22 @@ module Rbzlib
     while huff != 0
       if drop != 0 && (huff & mask) != low
         drop = 0
-          len = root
-          _next.offset = offset
-          this.bits = len
+        len = root
+        _next.offset = offset
+        this.bits = len
       end
 
-        _next[(huff >> drop)] = this.dup
-        incr = 1 << (len - 1)
-        while (huff & incr) != 0
-          incr >>= 1
-        end
-        if incr != 0
-          huff &= incr - 1
-            huff += incr
-        else
-          huff = 0
-        end
+      _next[(huff >> drop)] = this.dup
+      incr = 1 << (len - 1)
+      while (huff & incr) != 0
+        incr >>= 1
+      end
+      if incr != 0
+        huff &= incr - 1
+        huff += incr
+      else
+        huff = 0
+      end
     end
 
     offset += used
@@ -3635,24 +3635,24 @@ module Rbzlib
       if status.nil?
         if bits < 15
           _in += 1
-            hold += _in.get << bits
-            bits += 8
-            _in += 1
-            hold += _in.get << bits
-            bits += 8
+          hold += _in.get << bits
+          bits += 8
+          _in += 1
+          hold += _in.get << bits
+          bits += 8
         end
         this = lcode[hold & lmask]
         status = :dolen if status.nil?
       end
       if(status == :dolen)
         op = (this.bits)
-          hold >>= op
-          bits -= op
-          op = (this.op)
+        hold >>= op
+        bits -= op
+        op = (this.op)
       end
       if op == 0
         out += 1
-            out.set(this.val)
+        out.set(this.val)
       elsif (op & 16) != 0 || status == :dodist
         if(status != :dodist && (op & 16) != 0)
           len = (this.val)
@@ -3660,173 +3660,173 @@ module Rbzlib
           if op != 0
             if bits < op
               _in += 1
-                hold += _in.get << bits
-                bits += 8
+              hold += _in.get << bits
+              bits += 8
             end
-              len += hold & ((1 << op) - 1)
-              hold >>= op
-              bits -= op
+            len += hold & ((1 << op) - 1)
+            hold >>= op
+            bits -= op
           end
           if bits < 15
             _in += 1
-              hold += _in.get << bits
-              bits += 8
-              _in += 1
-              hold += _in.get << bits
-              bits += 8
+            hold += _in.get << bits
+            bits += 8
+            _in += 1
+            hold += _in.get << bits
+            bits += 8
           end
           this = dcode[hold & dmask]
         end
-            op = (this.bits)
-            hold >>= op
-            bits -= op
-            op = this.op
-            if (op & 16) != 0
-              dist = this.val
-                op &= 15
-                if bits < op
-                  _in += 1
-                    hold += _in.get << bits
-                    bits += 8
-                    if bits < op
-                      _in += 1
-                        hold += _in.get << bits
-                        bits += 8
-                    end
-                end
-                dist += hold & ((1 << op) - 1)
-                hold >>= op
-                bits -= op
-                op = (out.offset - beg.offset)
-                if dist > op
-                  op = dist - op
-                    if op > whave
-                      strm.msg = 'invalid distance too far back'
-                        state.mode = BAD
-                        break
-                    end
-                    from = Bytef.new(window, -1)
-                    if write == 0
-                      from += wsize - op
-                        if op < len
-                          len -= op
-                            loop do
-                              out += 1
-                                from += 1
-                                out.set(from.get)
-                                op -= 1
-                                break if op == 0
-                            end
-                            from = Bytef.new(out, out.offset - dist)
-                        end
-                    elsif write < op
-                      from += wsize + write - op
-                        op -= write
-                        if op < len
-                          len -= op
-                            loop do
-                              out += 1
-                                from += 1
-                                out.set(from.get)
-                                op -= 1
-                                break if op == 0
-                            end
-                            from = Bytef.new(window, -1)
-                            if write < len
-                              op = write
-                                len -= op
-                                loop do
-                                  out += 1
-                                    from += 1
-                                    out.set(from.get)
-                                    op -= 1
-                                    break if op == 0
-                                end
-                                from = Bytef.new(out, out.offset - dist)
-                            end
-                        end
-                    else
-                      from += write - op
-                        if op < len
-                          len -= op
-                            loop do
-                              out += 1
-                                from += 1
-                                out.set(from.get)
-                                op -= 1
-                                break if op == 0
-                            end
-                            from = Bytef.new(out, out.offset - dist)
-                        end
-                    end
-                    while len > 2
-                      out += 1
-                        from += 1
-                        out.set(from.get)
-                        out += 1
-                        from += 1
-                        out.set(from.get)
-                        out += 1
-                        from += 1
-                        out.set(from.get)
-                        len -= 3
-                    end
-                    if len != 0
-                      out += 1
-                        from += 1
-                        out.set(from.get)
-                        if len > 1
-                          out += 1
-                          from += 1
-                          out.set(from.get)
-                        end
-                    end
-                else
-                  from = Bytef.new(out, out.offset - dist)
-                    loop do
-                      out += 1
-                        from += 1
-                        out.set(from.get)
-                        out += 1
-                        from += 1
-                        out.set(from.get)
-                        out += 1
-                        from += 1
-                        out.set(from.get)
-                        len -= 3
-                        break if len <= 2
-                    end
-                    if len != 0
-                      out += 1
-                        from += 1
-                        out.set(from.get)
-                        if len > 1
-                          out += 1
-                          from += 1
-                          out.set(from.get)
-                        end
-                    end
-                end
-            elsif (op & 64) == 0
-              this = dcode[this.val + (hold & ((1 << op) - 1))]
-                status = :dodist
-                redo
-            else
-              strm.msg = 'invalid distance code'
-                state.mode = BAD
-                break
+        op = (this.bits)
+        hold >>= op
+        bits -= op
+        op = this.op
+        if (op & 16) != 0
+          dist = this.val
+          op &= 15
+          if bits < op
+            _in += 1
+            hold += _in.get << bits
+            bits += 8
+            if bits < op
+              _in += 1
+              hold += _in.get << bits
+              bits += 8
             end
-      elsif (op & 64) == 0
-        this = lcode[this.val + (hold & ((1 << op) - 1))]
-          status = :dolen
+          end
+          dist += hold & ((1 << op) - 1)
+          hold >>= op
+          bits -= op
+          op = (out.offset - beg.offset)
+          if dist > op
+            op = dist - op
+            if op > whave
+              strm.msg = 'invalid distance too far back'
+              state.mode = BAD
+              break
+            end
+            from = Bytef.new(window, -1)
+            if write == 0
+              from += wsize - op
+              if op < len
+                len -= op
+                loop do
+                  out += 1
+                  from += 1
+                  out.set(from.get)
+                  op -= 1
+                  break if op == 0
+                end
+                from = Bytef.new(out, out.offset - dist)
+              end
+            elsif write < op
+              from += wsize + write - op
+              op -= write
+              if op < len
+                len -= op
+                loop do
+                  out += 1
+                  from += 1
+                  out.set(from.get)
+                  op -= 1
+                  break if op == 0
+                end
+                from = Bytef.new(window, -1)
+                if write < len
+                  op = write
+                  len -= op
+                  loop do
+                    out += 1
+                    from += 1
+                    out.set(from.get)
+                    op -= 1
+                    break if op == 0
+                  end
+                  from = Bytef.new(out, out.offset - dist)
+                end
+              end
+            else
+              from += write - op
+              if op < len
+                len -= op
+                loop do
+                  out += 1
+                  from += 1
+                  out.set(from.get)
+                  op -= 1
+                  break if op == 0
+                end
+                from = Bytef.new(out, out.offset - dist)
+              end
+            end
+            while len > 2
+              out += 1
+              from += 1
+              out.set(from.get)
+              out += 1
+              from += 1
+              out.set(from.get)
+              out += 1
+              from += 1
+              out.set(from.get)
+              len -= 3
+            end
+            if len != 0
+              out += 1
+              from += 1
+              out.set(from.get)
+              if len > 1
+                out += 1
+                from += 1
+                out.set(from.get)
+              end
+            end
+          else
+            from = Bytef.new(out, out.offset - dist)
+            loop do
+              out += 1
+              from += 1
+              out.set(from.get)
+              out += 1
+              from += 1
+              out.set(from.get)
+              out += 1
+              from += 1
+              out.set(from.get)
+              len -= 3
+              break if len <= 2
+            end
+            if len != 0
+              out += 1
+              from += 1
+              out.set(from.get)
+              if len > 1
+                out += 1
+                from += 1
+                out.set(from.get)
+              end
+            end
+          end
+        elsif (op & 64) == 0
+          this = dcode[this.val + (hold & ((1 << op) - 1))]
+          status = :dodist
           redo
-      elsif (op & 32) != 0
-        state.mode = TYPE
-          break
-      else
-        strm.msg = 'invalid literal/length code'
+        else
+          strm.msg = 'invalid distance code'
           state.mode = BAD
           break
+        end
+      elsif (op & 64) == 0
+        this = lcode[this.val + (hold & ((1 << op) - 1))]
+        status = :dolen
+        redo
+      elsif (op & 32) != 0
+        state.mode = TYPE
+        break
+      else
+        strm.msg = 'invalid literal/length code'
+        state.mode = BAD
+        break
       end
       status = nil
       break unless _in.offset < last.offset && out.offset < _end.offset
@@ -3944,15 +3944,15 @@ module Rbzlib
     strm.state = state
     if windowBits < 0
       state.wrap = 0
-        windowBits = -windowBits
+      windowBits = -windowBits
     else
       state.wrap = (windowBits >> 4) + 1
-        windowBits &= 15 if windowBits < 48
+      windowBits &= 15 if windowBits < 48
     end
     if windowBits < 8 || windowBits > 15
       ZFREE(strm, state)
-        strm.state = nil
-        return Z_STREAM_ERROR
+      strm.state = nil
+      return Z_STREAM_ERROR
     end
     state.wbits = windowBits
     state.window = nil
@@ -4080,37 +4080,37 @@ module Rbzlib
 
     if state.window.nil?
       state.window = 0.chr * (1 << state.wbits)
-        return true if state.window.nil?
+      return true if state.window.nil?
     end
 
     if state.wsize == 0
       state.wsize = 1 << state.wbits
-        state.write = 0
-        state.whave = 0
+      state.write = 0
+      state.whave = 0
     end
 
     copy = out - strm.avail_out
     if copy >= state.wsize
       state.window[0, state.wsize] =
         strm.next_out.buffer[strm.next_out.offset - state.wsize, state.wsize]
-        state.write = 0
-        state.whave = state.wsize
+      state.write = 0
+      state.whave = state.wsize
     else
       dist = state.wsize - state.write
-        dist = copy if dist > copy
-        state.window[state.write, dist] =
-          strm.next_out.buffer[strm.next_out.offset - copy, dist]
-        copy -= dist
-        if copy != 0
-          state.window[0, copy] =
-            strm.next_out.buffer[strm.next_out.offset - copy, copy]
-            state.write = copy
-            state.whave = state.wsize
-        else
-          state.write += dist
-            state.write = 0 if state.write == state.wsize
-            state.whave += dist if state.whave < state.wsize
-        end
+      dist = copy if dist > copy
+      state.window[state.write, dist] =
+        strm.next_out.buffer[strm.next_out.offset - copy, dist]
+      copy -= dist
+      if copy != 0
+        state.window[0, copy] =
+          strm.next_out.buffer[strm.next_out.offset - copy, copy]
+        state.write = copy
+        state.whave = state.wsize
+      else
+        state.write += dist
+        state.write = 0 if state.write == state.wsize
+        state.whave += dist if state.whave < state.wsize
+      end
     end
     return false
   end
@@ -4123,45 +4123,45 @@ module Rbzlib
   # compute crc
   def CRC2(check, word)
     hbuf = 0.chr * 2
-      hbuf[0] = (word & 0xff).chr
-      hbuf[1] = ((word >> 8) & 0xff).chr
-      check = crc32(check, hbuf)
+    hbuf[0] = (word & 0xff).chr
+    hbuf[1] = ((word >> 8) & 0xff).chr
+    check = crc32(check, hbuf)
   end
 
   # compute crc
   def CRC4(check, word)
     hbuf = 0.chr * 4
-        hbuf[0] = (word & 0xff).chr
-        hbuf[1] = ((word >> 8) & 0xff).chr
-        hbuf[2] = ((word >> 16) & 0xff).chr
-        hbuf[3] = ((word >> 24) & 0xff).chr
-        check = crc32(check, hbuf)
+    hbuf[0] = (word & 0xff).chr
+    hbuf[1] = ((word >> 8) & 0xff).chr
+    hbuf[2] = ((word >> 16) & 0xff).chr
+    hbuf[3] = ((word >> 24) & 0xff).chr
+    check = crc32(check, hbuf)
   end
 
   # Load registers with state in inflate() for speed
   def LOAD(strm, state)
     @@put = strm.next_out
-        @@left = strm.avail_out
-        @@next = strm.next_in
-        @@have = strm.avail_in
-        @@hold = state.hold
-        @@bits = state.bits
+    @@left = strm.avail_out
+    @@next = strm.next_in
+    @@have = strm.avail_in
+    @@hold = state.hold
+    @@bits = state.bits
   end
 
   # Restore state from registers in inflate()
   def RESTORE(strm, state)
     strm.next_out = @@put
-        strm.avail_out = @@left
-        strm.next_in = @@next
-        strm.avail_in = @@have
-        state.hold = @@hold
-        state.bits = @@bits
+    strm.avail_out = @@left
+    strm.next_in = @@next
+    strm.avail_in = @@have
+    state.hold = @@hold
+    state.bits = @@bits
   end
 
   # Clear the input bit accumulator
   def INITBITS
     @@hold = 0
-        @@bits = 0
+    @@bits = 0
   end
 
   # Get a byte of input into the bit accumulator, or return from inflate()
@@ -4191,13 +4191,13 @@ module Rbzlib
   # Remove n bits from the bit accumulator
   def DROPBITS(n)
     @@hold >>= (n)
-        @@bits -= (n)
+    @@bits -= (n)
   end
 
   # Remove zero to seven bits as needed to go to a byte boundary
   def BYTEBITS
     @@hold >>= @@bits & 7
-        @@bits -= @@bits & 7
+    @@bits -= @@bits & 7
   end
 
   # Reverse the bytes in a 32-bit value
@@ -4306,200 +4306,200 @@ module Rbzlib
         if(state.mode == HEAD)
           if state.wrap == 0
             state.mode = TYPEDO
-              next
+            next
           end
-            NEEDBITS(16)
-            if (state.wrap & 2) != 0 && @@hold == 0x8b1f
-              state.check = crc32(0, nil)
-                state.check = CRC2(state.check, @@hold)
-                INITBITS()
-                state.mode = FLAGS
-                next
-            end
-            state.flags = 0
-            if state.head
-              state.head.done = -1
-            end
-            if ((state.wrap & 1) == 0 ||
-                ((BITS(8) << 8) + (@@hold >> 8)) % 31) != 0
-              strm.msg = 'incorrect header check'
-                state.mode = BAD
-                next
-            end
-            if BITS(4) != Z_DEFLATED
-              strm.msg = 'unknown compression method'
-                state.mode = BAD
-                next
-            end
-            DROPBITS(4)
-            len = BITS(4) + 8
-            if len > state.wbits
-              strm.msg = 'invalid window size'
-                state.mode = BAD
-                next
-            end
-            state.dmax = 1 << len
-            strm.adler = state.check = adler32(0, nil)
-            state.mode = (@@hold & 0x200) != 0 ? DICTID : TYPE
+          NEEDBITS(16)
+          if (state.wrap & 2) != 0 && @@hold == 0x8b1f
+            state.check = crc32(0, nil)
+            state.check = CRC2(state.check, @@hold)
             INITBITS()
+            state.mode = FLAGS
+            next
+          end
+          state.flags = 0
+          if state.head
+            state.head.done = -1
+          end
+          if ((state.wrap & 1) == 0 ||
+              ((BITS(8) << 8) + (@@hold >> 8)) % 31) != 0
+            strm.msg = 'incorrect header check'
+            state.mode = BAD
+            next
+          end
+          if BITS(4) != Z_DEFLATED
+            strm.msg = 'unknown compression method'
+            state.mode = BAD
+            next
+          end
+          DROPBITS(4)
+          len = BITS(4) + 8
+          if len > state.wbits
+            strm.msg = 'invalid window size'
+            state.mode = BAD
+            next
+          end
+          state.dmax = 1 << len
+          strm.adler = state.check = adler32(0, nil)
+          state.mode = (@@hold & 0x200) != 0 ? DICTID : TYPE
+          INITBITS()
         end
         if(state.mode == FLAGS)
           NEEDBITS(16)
-            state.flags = (@@hold)
-            if (state.flags & 0xff) != Z_DEFLATED
-              strm.msg = 'unknown compression method'
-                state.mode = BAD
-                next
-            end
-            if (state.flags & 0xe000) != 0
-              strm.msg = 'unknown header flags set'
-                state.mode = BAD
-                next
-            end
-            if state.head
-              state.head.text = ((@@hold >> 8) & 1)
-            end
-            state.check = CRC2(state.check, @@hold) if (state.flags & 0x0200) != 0
-            INITBITS()
-            state.mode = TIME
+          state.flags = (@@hold)
+          if (state.flags & 0xff) != Z_DEFLATED
+            strm.msg = 'unknown compression method'
+            state.mode = BAD
+            next
+          end
+          if (state.flags & 0xe000) != 0
+            strm.msg = 'unknown header flags set'
+            state.mode = BAD
+            next
+          end
+          if state.head
+            state.head.text = ((@@hold >> 8) & 1)
+          end
+          state.check = CRC2(state.check, @@hold) if (state.flags & 0x0200) != 0
+          INITBITS()
+          state.mode = TIME
         end
         if(state.mode == TIME)
           NEEDBITS(32)
-            if state.head
-              state.head.time = @@hold
-            end
-            state.check = CRC4(state.check, @@hold) if (state.flags & 0x0200) != 0
-            INITBITS()
-            state.mode = OS
+          if state.head
+            state.head.time = @@hold
+          end
+          state.check = CRC4(state.check, @@hold) if (state.flags & 0x0200) != 0
+          INITBITS()
+          state.mode = OS
         end
         if(state.mode == OS)
           NEEDBITS(16)
-            if state.head
-              state.head.xflags = (@@hold & 0xff)
-                state.head.os = (@@hold >> 8)
-            end
-            state.check = CRC2(state.check, @@hold) if (state.flags & 0x0200) != 0
-            INITBITS()
-            state.mode = EXLEN
+          if state.head
+            state.head.xflags = (@@hold & 0xff)
+            state.head.os = (@@hold >> 8)
+          end
+          state.check = CRC2(state.check, @@hold) if (state.flags & 0x0200) != 0
+          INITBITS()
+          state.mode = EXLEN
         end
         if(state.mode == EXLEN)
           if (state.flags & 0x0400) != 0
             NEEDBITS(16)
-              state.length = @@hold
-              if state.head
-                state.head.extra_len = @@hold
-              end
-              state.check = CRC2(state.check, @@hold) if (state.flags & 0x0200) != 0
-              INITBITS()
+            state.length = @@hold
+            if state.head
+              state.head.extra_len = @@hold
+            end
+            state.check = CRC2(state.check, @@hold) if (state.flags & 0x0200) != 0
+            INITBITS()
           elsif state.head
             state.head.extra = nil
           end
-            state.mode = EXTRA
+          state.mode = EXTRA
         end
         if(state.mode == EXTRA)
           if (state.flags & 0x0400) != 0
             copy = state.length
-              copy = @@have if copy > @@have
-              if copy != 0
-                if state.head && state.head.extra
-                  len = state.head.extra_len - state.length
-                    l = len + copy > state.head.extra_max ?
-                            state.head.extra_max - len : copy
-                    state.head.extra[len, l] = @@next.current[0, l]
-                end
-                  if (state.flags & 0x0200) != 0
-                    state.check = crc32(state.check, @@next.current, copy)
-                  end
-                  @@have -= copy
-                  @@next += copy
-                  state.length -= copy
+            copy = @@have if copy > @@have
+            if copy != 0
+              if state.head && state.head.extra
+                len = state.head.extra_len - state.length
+                l = len + copy > state.head.extra_max ?
+                        state.head.extra_max - len : copy
+                state.head.extra[len, l] = @@next.current[0, l]
               end
-              throw :inf_leave if state.length != 0
+              if (state.flags & 0x0200) != 0
+                state.check = crc32(state.check, @@next.current, copy)
+              end
+              @@have -= copy
+              @@next += copy
+              state.length -= copy
+            end
+            throw :inf_leave if state.length != 0
           end
-            state.length = 0
-            state.mode = NAME
+          state.length = 0
+          state.mode = NAME
         end
         if(state.mode == NAME)
           if (state.flags & 0x0800) != 0
             throw :inf_leave if @@have == 0
-              copy = 0
-              loop do
-                len = (@@next[copy])
-                  copy += 1
-                  if state.head && state.head.name &&
-                          state.length < state.head.name_max
-                    state.head.name[state.length] = len
-                      state.length += 1
-                  end
-                  break unless len != 0 && copy < @@have
+            copy = 0
+            loop do
+              len = (@@next[copy])
+              copy += 1
+              if state.head && state.head.name &&
+                      state.length < state.head.name_max
+                state.head.name[state.length] = len
+                state.length += 1
               end
-              if (state.flags & 0x0200) != 0
-                state.check = crc32(state.check, @@next.current, copy)
-              end
-              @@have -= copy
-              @@next += copy
-              throw :inf_leave if len != 0
+              break unless len != 0 && copy < @@have
+            end
+            if (state.flags & 0x0200) != 0
+              state.check = crc32(state.check, @@next.current, copy)
+            end
+            @@have -= copy
+            @@next += copy
+            throw :inf_leave if len != 0
           elsif state.head
             state.head.name = nil
           end
-            state.length = 0
-            state.mode = COMMENT
+          state.length = 0
+          state.mode = COMMENT
         end
         if(state.mode == COMMENT)
           if (state.flags & 0x1000) != 0
             throw :inf_leave if @@have == 0
-              copy = 0
-              loop do
-                len = (@@next[copy])
-                  copy += 1
-                  if state.head && state.head.comment &&
-                          state.length < state.head.comm_max
-                    state.head.comment[state.length] = len
-                      state.length += 1
-                  end
-                  break unless len != 0 && copy < have
+            copy = 0
+            loop do
+              len = (@@next[copy])
+              copy += 1
+              if state.head && state.head.comment &&
+                      state.length < state.head.comm_max
+                state.head.comment[state.length] = len
+                state.length += 1
               end
-              if (state.flags & 0x0200) != 0
-                state.check = crc32(state.check, @@next.current, copy)
-              end
-              @@have -= copy
-              @@next += copy
-              throw :inf_leave if len != 0
+              break unless len != 0 && copy < have
+            end
+            if (state.flags & 0x0200) != 0
+              state.check = crc32(state.check, @@next.current, copy)
+            end
+            @@have -= copy
+            @@next += copy
+            throw :inf_leave if len != 0
           elsif state.head
             state.head.comment = nil
           end
-            state.mode = HCRC
+          state.mode = HCRC
         end
         if(state.mode == HCRC)
           if (state.flags & 0x0200) != 0
             NEEDBITS(16)
-              if @@hold != (state.check & 0xffff)
-                strm.msg = 'header crc mismatch'
-                  state.mode = BAD
-                  next
-              end
-              INITBITS()
-          end
-            if state.head
-              state.head.hcrc = ((state.flags >> 9) & 1)
-                state.head.done = 1
+            if @@hold != (state.check & 0xffff)
+              strm.msg = 'header crc mismatch'
+              state.mode = BAD
+              next
             end
-            strm.adler = state.check = crc32(0, nil)
-            state.mode = TYPE
+            INITBITS()
+          end
+          if state.head
+            state.head.hcrc = ((state.flags >> 9) & 1)
+            state.head.done = 1
+          end
+          strm.adler = state.check = crc32(0, nil)
+          state.mode = TYPE
         end
         if(state.mode == DICTID)
           NEEDBITS(32)
-            strm.adler = state.check = REVERSE(@@hold)
-            INITBITS()
-            state.mode = DICT
+          strm.adler = state.check = REVERSE(@@hold)
+          INITBITS()
+          state.mode = DICT
         end
         if(state.mode == DICT)
           if state.havedict == 0
             RESTORE(strm, state)
-              return Z_NEED_DICT
+            return Z_NEED_DICT
           end
-            strm.adler = state.check = adler32(0, nil)
-            state.mode = TYPE
+          strm.adler = state.check = adler32(0, nil)
+          state.mode = TYPE
         end
         if(state.mode == TYPE)
           throw :inf_leave if flush == Z_BLOCK
@@ -4507,331 +4507,331 @@ module Rbzlib
         if([TYPE, TYPEDO].include?(state.mode))
           if state.last != 0
             BYTEBITS()
-              state.mode = CHECK
-              next
+            state.mode = CHECK
+            next
           end
-            NEEDBITS(3)
-            state.last = BITS(1)
-            DROPBITS(1)
-            case (BITS(2))
-            when 0
-              state.mode = STORED
-            when 1
-              fixedtables(state)
-                state.mode = LEN
-            when 2
-              state.mode = TABLE
-            when 3
-              strm.msg = 'invalid block type'
-                state.mode = BAD
-            end
-            DROPBITS(2)
+          NEEDBITS(3)
+          state.last = BITS(1)
+          DROPBITS(1)
+          case (BITS(2))
+          when 0
+            state.mode = STORED
+          when 1
+            fixedtables(state)
+            state.mode = LEN
+          when 2
+            state.mode = TABLE
+          when 3
+            strm.msg = 'invalid block type'
+            state.mode = BAD
+          end
+          DROPBITS(2)
         end
         if(state.mode == STORED)
           BYTEBITS()
-            NEEDBITS(32)
-            if (@@hold & 0xffff) != ((@@hold >> 16) ^ 0xffff)
-              strm.msg = 'invalid stored block lengths'
-                state.mode = BAD
-                next
-            end
-            state.length = @@hold & 0xffff
-            INITBITS()
-            state.mode = COPY
+          NEEDBITS(32)
+          if (@@hold & 0xffff) != ((@@hold >> 16) ^ 0xffff)
+            strm.msg = 'invalid stored block lengths'
+            state.mode = BAD
+            next
+          end
+          state.length = @@hold & 0xffff
+          INITBITS()
+          state.mode = COPY
         end
         if(state.mode == COPY)
           copy = state.length
-            if copy != 0
-              copy = @@have if copy > @@have
-                copy = @@left if copy > @@left
-                throw :inf_leave if copy == 0
-                @@put.buffer[@@put.offset, copy] = @@next.current[0, copy]
-                @@have -= copy
-                @@next += copy
-                @@left -= copy
-                @@put += copy
-                state.length -= copy
-                next
-            end
-            state.mode = TYPE
+          if copy != 0
+            copy = @@have if copy > @@have
+            copy = @@left if copy > @@left
+            throw :inf_leave if copy == 0
+            @@put.buffer[@@put.offset, copy] = @@next.current[0, copy]
+            @@have -= copy
+            @@next += copy
+            @@left -= copy
+            @@put += copy
+            state.length -= copy
+            next
+          end
+          state.mode = TYPE
         end
         if(state.mode == TABLE)
           NEEDBITS(14)
-            state.nlen = BITS(5) + 257
-            DROPBITS(5)
-            state.ndist = BITS(5) + 1
-            DROPBITS(5)
-            state.ncode = BITS(4) + 4
-            DROPBITS(4)
-            if state.nlen > 286 || state.ndist > 30
-              strm.msg = 'too many length or distance symbols'
-                state.mode = BAD
-                next
-            end
-            state.have = 0
-            state.mode = LENLENS
+          state.nlen = BITS(5) + 257
+          DROPBITS(5)
+          state.ndist = BITS(5) + 1
+          DROPBITS(5)
+          state.ncode = BITS(4) + 4
+          DROPBITS(4)
+          if state.nlen > 286 || state.ndist > 30
+            strm.msg = 'too many length or distance symbols'
+            state.mode = BAD
+            next
+          end
+          state.have = 0
+          state.mode = LENLENS
         end
         if(state.mode == LENLENS)
           while state.have < state.ncode
             NEEDBITS(3)
-              state.lens[order[state.have]] = BITS(3)
-              state.have += 1
-              DROPBITS(3)
+            state.lens[order[state.have]] = BITS(3)
+            state.have += 1
+            DROPBITS(3)
           end
-            while state.have < 19
-              state.lens[order[state.have]] = 0
-                state.have += 1
-            end
-            state.next = Bytef.new(state.codes)
-            state.lencode = Bytef.new(state.codes)
-            state.lenbits = 7
-            ret, state.lenbits, state.next.offset = inflate_table(CODES, state.lens, 19, state.codes,
-              state.next.offset, state.lenbits, state.work)
+          while state.have < 19
+            state.lens[order[state.have]] = 0
+            state.have += 1
+          end
+          state.next = Bytef.new(state.codes)
+          state.lencode = Bytef.new(state.codes)
+          state.lenbits = 7
+          ret, state.lenbits, state.next.offset = inflate_table(CODES, state.lens, 19, state.codes,
+            state.next.offset, state.lenbits, state.work)
 
-            if ret != 0
-              strm.msg = 'invalid code lengths set'
-                state.mode = BAD
-                next
-            end
-            state.have = 0
-            state.mode = CODELENS
+          if ret != 0
+            strm.msg = 'invalid code lengths set'
+            state.mode = BAD
+            next
+          end
+          state.have = 0
+          state.mode = CODELENS
         end
         if(state.mode == CODELENS)
           while state.have < state.nlen + state.ndist
             this = nil
-              loop do
-                this = state.lencode[BITS(state.lenbits)]
-                  break if (this.bits) <= @@bits
-                  PULLBYTE()
-              end
-              if this.val < 16
-                NEEDBITS(this.bits)
-                  DROPBITS(this.bits)
-                  state.lens[state.have] = this.val
-                  state.have += 1
-              else
-                if this.val == 16
-                  NEEDBITS(this.bits + 2)
-                    DROPBITS(this.bits)
-                    if state.have == 0
-                      strm.msg = 'invalid bit length repeat'
-                        state.mode = BAD
-                        break
-                    end
-                    len = state.lens[state.have - 1]
-                    copy = 3 + BITS(2)
-                    DROPBITS(2)
-                elsif this.val == 17
-                  NEEDBITS(this.bits + 3)
-                    DROPBITS(this.bits)
-                    len = 0
-                    copy = 3 + BITS(3)
-                    DROPBITS(3)
-                else
-                  NEEDBITS(this.bits + 7)
-                    DROPBITS(this.bits)
-                    len = 0
-                    copy = 11 + BITS(7)
-                    DROPBITS(7)
+            loop do
+              this = state.lencode[BITS(state.lenbits)]
+              break if (this.bits) <= @@bits
+              PULLBYTE()
+            end
+            if this.val < 16
+              NEEDBITS(this.bits)
+              DROPBITS(this.bits)
+              state.lens[state.have] = this.val
+              state.have += 1
+            else
+              if this.val == 16
+                NEEDBITS(this.bits + 2)
+                DROPBITS(this.bits)
+                if state.have == 0
+                  strm.msg = 'invalid bit length repeat'
+                  state.mode = BAD
+                  break
                 end
-                  if state.have + copy > state.nlen + state.ndist
-                    strm.msg = 'invalid bit length repeat'
-                      state.mode = BAD
-                      break
-                  end
-                  while copy != 0
-                    copy -= 1
-                      state.lens[state.have] = len
-                      state.have += 1
-                  end
+                len = state.lens[state.have - 1]
+                copy = 3 + BITS(2)
+                DROPBITS(2)
+              elsif this.val == 17
+                NEEDBITS(this.bits + 3)
+                DROPBITS(this.bits)
+                len = 0
+                copy = 3 + BITS(3)
+                DROPBITS(3)
+              else
+                NEEDBITS(this.bits + 7)
+                DROPBITS(this.bits)
+                len = 0
+                copy = 11 + BITS(7)
+                DROPBITS(7)
               end
+              if state.have + copy > state.nlen + state.ndist
+                strm.msg = 'invalid bit length repeat'
+                state.mode = BAD
+                break
+              end
+              while copy != 0
+                copy -= 1
+                state.lens[state.have] = len
+                state.have += 1
+              end
+            end
           end
 
-            next if state.mode == BAD
+          next if state.mode == BAD
 
-            state.next = Bytef.new(state.codes)
-            state.lencode = Bytef.new(state.codes)
-            state.lenbits = 9
-            ret, state.lenbits, state.next.offset = inflate_table(LENS, state.lens, state.nlen,
-              state.codes, state.next.offset, state.lenbits, state.work)
-            if ret != 0
-              strm.msg = 'invalid literal/lengths set'
-                state.mode = BAD
-                next
-            end
-            state.distcode = Bytef.new(state.codes, state.next.offset)
-            state.distbits = 6
-            ret, state.distbits, state.next.offset = inflate_table(DISTS, state.lens + state.nlen, state.ndist,
-                            state.codes, state.next.offset, state.distbits, state.work)
-            if ret != 0
-              strm.msg = 'invalid distances set'
-                state.mode = BAD
-                next
-            end
-            state.mode = LEN
+          state.next = Bytef.new(state.codes)
+          state.lencode = Bytef.new(state.codes)
+          state.lenbits = 9
+          ret, state.lenbits, state.next.offset = inflate_table(LENS, state.lens, state.nlen,
+            state.codes, state.next.offset, state.lenbits, state.work)
+          if ret != 0
+            strm.msg = 'invalid literal/lengths set'
+            state.mode = BAD
+            next
+          end
+          state.distcode = Bytef.new(state.codes, state.next.offset)
+          state.distbits = 6
+          ret, state.distbits, state.next.offset = inflate_table(DISTS, state.lens + state.nlen, state.ndist,
+                          state.codes, state.next.offset, state.distbits, state.work)
+          if ret != 0
+            strm.msg = 'invalid distances set'
+            state.mode = BAD
+            next
+          end
+          state.mode = LEN
         end
         if(state.mode == LEN)
           if @@have >= 6 && @@left >= 258
             RESTORE(strm, state)
-              inflate_fast(strm, out)
-              LOAD(strm, state)
-              next
+            inflate_fast(strm, out)
+            LOAD(strm, state)
+            next
           end
-            this = nil
+          this = nil
+          loop do
+            this = state.lencode[BITS(state.lenbits)]
+            break if (this.bits) <= @@bits
+            PULLBYTE()
+          end
+          if this.op != 0 && (this.op & 0xf0) == 0
+            last = this
             loop do
-              this = state.lencode[BITS(state.lenbits)]
-                break if (this.bits) <= @@bits
-                PULLBYTE()
+              this = state.lencode[last.val +
+                      (BITS(last.bits + last.op) >> last.bits)]
+              break if (last.bits + this.bits) <= @@bits
+              PULLBYTE()
             end
-            if this.op != 0 && (this.op & 0xf0) == 0
-              last = this
-                loop do
-                  this = state.lencode[last.val +
-                          (BITS(last.bits + last.op) >> last.bits)]
-                    break if (last.bits + this.bits) <= @@bits
-                    PULLBYTE()
-                end
-                DROPBITS(last.bits)
-            end
-            DROPBITS(this.bits)
-            state.length = this.val
-            if this.op == 0
-              state.mode = LIT
-                next
-            end
-            if (this.op & 32) != 0
-              state.mode = TYPE
-                next
-            end
-            if (this.op & 64) != 0
-              strm.msg = 'invalid literal/length code'
-                state.mode = BAD
-                next
-            end
-            state.extra = (this.op) & 15
-            state.mode = LENEXT
+            DROPBITS(last.bits)
+          end
+          DROPBITS(this.bits)
+          state.length = this.val
+          if this.op == 0
+            state.mode = LIT
+            next
+          end
+          if (this.op & 32) != 0
+            state.mode = TYPE
+            next
+          end
+          if (this.op & 64) != 0
+            strm.msg = 'invalid literal/length code'
+            state.mode = BAD
+            next
+          end
+          state.extra = (this.op) & 15
+          state.mode = LENEXT
         end
         if(state.mode == LENEXT)
           if state.extra != 0
             NEEDBITS(state.extra)
-              state.length += BITS(state.extra)
-              DROPBITS(state.extra)
+            state.length += BITS(state.extra)
+            DROPBITS(state.extra)
           end
-            state.mode = DIST
+          state.mode = DIST
         end
         if(state.mode == DIST)
           loop do
             this = state.distcode[BITS(state.distbits)]
-              break if (this.bits) <= @@bits
-              PULLBYTE()
+            break if (this.bits) <= @@bits
+            PULLBYTE()
           end
-            if (this.op & 0xf0) == 0
-              last = this
-                loop do
-                  this = state.distcode[last.val +
-                          (BITS(last.bits + last.op) >> last.bits)]
-                    break if (last.bits + this.bits) <= @@bits
-                    PULLBYTE()
-                end
-                DROPBITS(last.bits)
+          if (this.op & 0xf0) == 0
+            last = this
+            loop do
+              this = state.distcode[last.val +
+                      (BITS(last.bits + last.op) >> last.bits)]
+              break if (last.bits + this.bits) <= @@bits
+              PULLBYTE()
             end
-            DROPBITS(this.bits)
-            if (this.op & 64) != 0
-              strm.msg = 'invalid distance code'
-                state.mode = BAD
-                next
-            end
-            state.offset = this.val
-            state.extra = (this.op) & 15
-            state.mode = DISTEXT
+            DROPBITS(last.bits)
+          end
+          DROPBITS(this.bits)
+          if (this.op & 64) != 0
+            strm.msg = 'invalid distance code'
+            state.mode = BAD
+            next
+          end
+          state.offset = this.val
+          state.extra = (this.op) & 15
+          state.mode = DISTEXT
         end
         if(state.mode == DISTEXT)
           if state.extra != 0
             NEEDBITS(state.extra)
-              state.offset += BITS(state.extra)
-              DROPBITS(state.extra)
+            state.offset += BITS(state.extra)
+            DROPBITS(state.extra)
           end
-            if state.offset > state.whave + out - @@left
-              strm.msg = 'invalid distance too far back'
-                state.mode = BAD
-                next
-            end
-            state.mode = MATCH
+          if state.offset > state.whave + out - @@left
+            strm.msg = 'invalid distance too far back'
+            state.mode = BAD
+            next
+          end
+          state.mode = MATCH
         end
         if(state.mode == MATCH)
           throw :inf_leave if @@left == 0
-            copy = out - @@left
-            if state.offset > copy
-              copy = state.offset - copy
-                if copy > state.write
-                  copy -= state.write
-                    from = Bytef.new(state.window, state.wsize - copy)
-                else
-                  from = Bytef.new(state.window, state.write - copy)
-                end
-                copy = state.length if copy > state.length
+          copy = out - @@left
+          if state.offset > copy
+            copy = state.offset - copy
+            if copy > state.write
+              copy -= state.write
+              from = Bytef.new(state.window, state.wsize - copy)
             else
-              from = Bytef.new(@@put, @@put.offset - state.offset)
-                copy = state.length
+              from = Bytef.new(state.window, state.write - copy)
             end
-            copy = @@left if copy > @@left
-            @@left -= copy
-            state.length -= copy
-            loop do
-              @@put.set(from.get)
-                @@put += 1
-                from += 1
-                copy -= 1
-                break if copy == 0
-            end
-            state.mode = LEN if state.length == 0
+            copy = state.length if copy > state.length
+          else
+            from = Bytef.new(@@put, @@put.offset - state.offset)
+            copy = state.length
+          end
+          copy = @@left if copy > @@left
+          @@left -= copy
+          state.length -= copy
+          loop do
+            @@put.set(from.get)
+            @@put += 1
+            from += 1
+            copy -= 1
+            break if copy == 0
+          end
+          state.mode = LEN if state.length == 0
         end
         if(state.mode == LIT)
           throw :inf_leave if @@left == 0
-            @@put.set(state.length)
-            @@put += 1
-            @@left -= 1
-            state.mode = LEN
+          @@put.set(state.length)
+          @@put += 1
+          @@left -= 1
+          state.mode = LEN
         end
         if(state.mode == CHECK)
           if state.wrap != 0
             NEEDBITS(32)
-              out -= @@left
-              strm.total_out += out
-              state.total += out
-              if out != 0
-                strm.adler = state.check =
-                    UPDATE(state, state.check, @@put.buffer[@@put.offset - out, out])
-              end
-              out = @@left
-              if (state.flags != 0 ? @@hold : REVERSE(@@hold)) != state.check
-                strm.msg = 'incorrect data check'
-                  state.mode = BAD
-                  next
-              end
-              INITBITS()
+            out -= @@left
+            strm.total_out += out
+            state.total += out
+            if out != 0
+              strm.adler = state.check =
+                  UPDATE(state, state.check, @@put.buffer[@@put.offset - out, out])
+            end
+            out = @@left
+            if (state.flags != 0 ? @@hold : REVERSE(@@hold)) != state.check
+              strm.msg = 'incorrect data check'
+              state.mode = BAD
+              next
+            end
+            INITBITS()
           end
-            state.mode = LENGTH
+          state.mode = LENGTH
         end
         if(state.mode == LENGTH)
           if state.wrap != 0 && state.flags != 0
             NEEDBITS(32)
-              if @@hold != (state.total & 0xffffffff)
-                strm.msg = 'incorrect length check'
-                  state.mode = BAD
-                  next
-              end
-              INITBITS()
+            if @@hold != (state.total & 0xffffffff)
+              strm.msg = 'incorrect length check'
+              state.mode = BAD
+              next
+            end
+            INITBITS()
           end
-            state.mode = DONE
+          state.mode = DONE
         end
         if(state.mode == DONE)
           ret = Z_STREAM_END
-            throw :inf_leave
+          throw :inf_leave
         end
         if(state.mode == BAD)
           ret = Z_DATA_ERROR
-            throw :inf_leave
+          throw :inf_leave
         elsif(state.mode == MEM)
           return Z_MEM_ERROR
         elsif(state.mode == SYNC)
@@ -4845,7 +4845,7 @@ module Rbzlib
     if state.wsize != 0 || (state.mode < CHECK && out != strm.avail_out)
       if updatewindow(strm, out)
         state.mode = MEM
-          return Z_MEM_ERROR
+        return Z_MEM_ERROR
       end
     end
 
@@ -4888,24 +4888,24 @@ module Rbzlib
 
     if state.mode == DICT
       id = adler32(0, nil)
-        id = adler32(id, dictionary, dictLength)
-        if id != state.check
-          return Z_DATA_ERROR
-        end
+      id = adler32(id, dictionary, dictLength)
+      if id != state.check
+        return Z_DATA_ERROR
+      end
     end
 
     if updatewindow(strm, strm.avail_out)
       state.mode = MEM
-        return Z_MEM_ERROR
+      return Z_MEM_ERROR
     end
     if dictLength > state.wsize
       state.window[0, state.wsize] =
         dictionary[dictLength - state.wsize, state.wsize]
-        state.whave = state.wsize
+      state.whave = state.wsize
     else
       state.window[state.wsize - dictLength, dictLength] =
         dictionary[0, dictLength]
-        state.whave = dictLength
+      state.whave = dictLength
     end
     state.havedict = 1
     return Z_OK
@@ -4942,7 +4942,7 @@ module Rbzlib
       else
         got = 4 - got
       end
-        _next += 1
+      _next += 1
     end
     have = got
     return [_next, have]
@@ -4957,17 +4957,17 @@ module Rbzlib
     buf = 0.chr * 4
     if state.mode != SYNC
       state.mode = SYNC
-        state.hold <<= state.bits & 7
-        state.bits -= state.bits & 7
-        len = 0
-        while state.bits >= 8
-          buf[len] = (state.hold).chr
-            len += 1
-            state.hold >>= 8
-            state.bits -= 8
-        end
-        state.have = 0
-        _, state.have = syncsearch((state.have), buf, len)
+      state.hold <<= state.bits & 7
+      state.bits -= state.bits & 7
+      len = 0
+      while state.bits >= 8
+        buf[len] = (state.hold).chr
+        len += 1
+        state.hold >>= 8
+        state.bits -= 8
+      end
+      state.have = 0
+      _, state.have = syncsearch((state.have), buf, len)
     end
 
     len, state.have = syncsearch((state.have), strm.next_in, strm.avail_in)
@@ -5008,10 +5008,10 @@ module Rbzlib
     window = nil
     if state.window
       window = 0.chr * (1 << state.wbits)
-        if window.nil?
-          copy = nil
-            return Z_MEM_ERROR
-        end
+      if window.nil?
+        copy = nil
+        return Z_MEM_ERROR
+      end
     end
 
     dest = source.dup
@@ -5019,12 +5019,12 @@ module Rbzlib
     if state.lencode.offset >= 0 &&
         state.lencode.offset <= 0 + ENOUGH - 1
       copy.lencode.offset = 0 + (state.lencode.offset - 0)
-        copy.distcode.offset = 0 + (state.distcode.offset - 0)
+      copy.distcode.offset = 0 + (state.distcode.offset - 0)
     end
     copy.next.offset = 0 + (state.next.offset - 0)
     if window
       wsize = 1 << state.wbits
-        window[0, wsize] = state.window[0, wsize]
+      window[0, wsize] = state.window[0, wsize]
     end
     copy.window = window
     dest.state = copy
@@ -5060,10 +5060,10 @@ module Rbzlib
     err = inflate(stream, Z_FINISH)
     if err != Z_STREAM_END
       inflateEnd(stream)
-        if err == Z_NEED_DICT || (err == Z_BUF_ERROR && stream.avail_in == 0)
-          return [Z_DATA_ERROR, destLen]
-        end
-        return [err, destLen]
+      if err == Z_NEED_DICT || (err == Z_BUF_ERROR && stream.avail_in == 0)
+        return [Z_DATA_ERROR, destLen]
+      end
+      return [err, destLen]
     end
     destLen = stream.total_out
 
