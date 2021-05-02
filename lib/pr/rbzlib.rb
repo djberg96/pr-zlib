@@ -188,7 +188,7 @@ module Rbzlib
       @buffer.setbyte(idx + @offset, val.ord)
     end
 
-    def get()
+    def get
       @buffer.getbyte(@offset)
     end
 
@@ -216,7 +216,7 @@ module Rbzlib
       @buffer[idx + @offset] = val
     end
 
-    def get()
+    def get
       @buffer[@offset]
     end
 
@@ -244,7 +244,7 @@ module Rbzlib
       @buffer[(idx * 2) + @offset, 2] = [val].pack('v')
     end
 
-    def get()
+    def get
       @buffer[@offset, 2].unpack('v').first
     end
 
@@ -4159,14 +4159,14 @@ module Rbzlib
   end
 
   # Clear the input bit accumulator
-  def INITBITS()
+  def INITBITS
         @@hold = 0
         @@bits = 0
   end
 
   # Get a byte of input into the bit accumulator, or return from inflate()
   # if there is no input available.
-  def PULLBYTE()
+  def PULLBYTE
     throw :inf_leave if @@have == 0
     @@have -= 1
     @@next.get
@@ -4195,7 +4195,7 @@ module Rbzlib
   end
 
   # Remove zero to seven bits as needed to go to a byte boundary
-  def BYTEBITS()
+  def BYTEBITS
         @@hold >>= @@bits & 7
         @@bits -= @@bits & 7
   end

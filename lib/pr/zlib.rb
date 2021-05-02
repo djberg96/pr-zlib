@@ -113,7 +113,7 @@ module Zlib
       end
     end
 
-    def zstream_expand_buffer()
+    def zstream_expand_buffer
       if @buf.nil?
         @buf = Bytef.new(0.chr * ZSTREAM_INITIAL_BUFSIZE)
         @stream.next_out = Bytef.new(@buf)
@@ -159,7 +159,7 @@ module Zlib
       @stream.next_out = Bytef.new(@buf, @buf.offset)
     end
 
-    def zstream_detach_buffer()
+    def zstream_detach_buffer
       if @buf.nil?
        dst = ''
       else
@@ -220,18 +220,18 @@ module Zlib
       end
     end
 
-    def zstream_reset_input()
+    def zstream_reset_input
       @input = nil
     end
 
-    def zstream_passthrough_input()
+    def zstream_passthrough_input
       if @input
        zstream_append_buffer(@input, @input.length)
        @input = nil
       end
     end
 
-    def zstream_detach_input()
+    def zstream_detach_input
       if @input.nil?
        dst = ''
       else
@@ -241,7 +241,7 @@ module Zlib
       return dst
     end
 
-    def zstream_reset()
+    def zstream_reset
       err = send(@func.reset, @stream)
       if err != Z_OK
         raise_zlib_error(err, @stream.msg)
@@ -254,7 +254,7 @@ module Zlib
       zstream_reset_input()
     end
 
-    def zstream_end()
+    def zstream_end
       if !ZSTREAM_IS_READY()
         warn('attempt to close uninitialized zstream; ignored.')
         return nil
@@ -367,19 +367,19 @@ module Zlib
       end
     end
 
-    def ZSTREAM_READY()
+    def ZSTREAM_READY
       (@flags |= ZSTREAM_FLAG_READY)
     end
 
-    def ZSTREAM_IS_READY()
+    def ZSTREAM_IS_READY
       !(@flags & ZSTREAM_FLAG_READY).zero?
     end
 
-    def ZSTREAM_IS_FINISHED()
+    def ZSTREAM_IS_FINISHED
       !(@flags & ZSTREAM_FLAG_FINISHED).zero?
     end
 
-    def ZSTREAM_IS_CLOSING()
+    def ZSTREAM_IS_CLOSING
       !(@flags & ZSTREAM_FLAG_CLOSING).zero?
     end
 
@@ -402,7 +402,7 @@ module Zlib
 
     attr_reader :z
 
-    def avail_out()
+    def avail_out
       @z.stream.avail_out
     end
 
@@ -452,7 +452,7 @@ module Zlib
     end
     alias ended? :closed?
 
-    def close()
+    def close
       if !@z.ZSTREAM_IS_READY()
          warn('attempt to close uninitialized zstream ignored.')
          return nil
@@ -471,7 +471,7 @@ module Zlib
     end
     alias end :close
 
-    def reset()
+    def reset
       err = send(@z.func.reset, @z.stream)
       if err != Z_OK
         raise_zlib_error(err, @z.stream.msg)
@@ -483,7 +483,7 @@ module Zlib
       @z.input = nil
     end
 
-    def finish()
+    def finish
       @z.zstream_run('', 0, Z_FINISH)
       @z.zstream_detach_buffer()
     end
@@ -684,7 +684,7 @@ module Zlib
       return @z.zstream_sync(src, src.length)
     end
 
-    def sync_point?()
+    def sync_point?
       err = inflateSyncPoint(@z.stream)
       return true if err == 1
 
@@ -761,7 +761,7 @@ module Zlib
       end
     end
 
-    def gzfile_ensure_close()
+    def gzfile_ensure_close
       if @gz.z.ZSTREAM_IS_READY()
         gzfile_close(true)
       end
@@ -871,7 +871,7 @@ module Zlib
       self
     end
 
-    def gzfile_reset()
+    def gzfile_reset
       @gz.z.zstream_reset
       @gz.crc = crc32(0, nil, 0)
       @gz.lineno = 0
@@ -929,7 +929,7 @@ module Zlib
       @gz.z.flags |= GZFILE_FLAG_HEADER_FINISHED
     end
 
-    def gzfile_make_footer()
+    def gzfile_make_footer
       buf = 0.chr * 8
       buf[0, 4] = gzfile_set32(@gz.crc)
       buf[4, 4] = gzfile_set32(@gz.z.stream.total_in)
@@ -937,7 +937,7 @@ module Zlib
       @gz.z.flags |= GZFILE_FLAG_FOOTER_FINISHED
     end
 
-    def gzfile_read_header()
+    def gzfile_read_header
       if !gzfile_read_raw_ensure(10)
        raise GzipFile::Error, 'not in gzip format'
       end
@@ -1000,7 +1000,7 @@ module Zlib
       end
     end
 
-    def gzfile_check_footer()
+    def gzfile_check_footer
       @gz.z.flags |= GZFILE_FLAG_FOOTER_FINISHED
 
       if !gzfile_read_raw_ensure(8)
@@ -1237,12 +1237,12 @@ module Zlib
       self
     end
 
-    def rewind()
+    def rewind
       gzfile_reader_rewind()
       return 0
     end
 
-    def unused()
+    def unused
       gzfile_reader_get_unused()
     end
 
@@ -1258,12 +1258,12 @@ module Zlib
       return gzfile_read(len)
     end
 
-    def getc()
+    def getc
       dst = gzfile_read(1)
       dst ? dst[0] : dst
     end
 
-    def readchar()
+    def readchar
       dst = getc()
       if dst.nil?
         raise EOFError, 'end of file reached'
@@ -1271,7 +1271,7 @@ module Zlib
       dst
     end
 
-    def each_byte()
+    def each_byte
       while (c = getc)
         yield(c)
       end
@@ -1311,7 +1311,7 @@ module Zlib
 
     private
 
-    def gzfile_reader_end_run()
+    def gzfile_reader_end_run
       if GZFILE_IS_FINISHED(@gz) && (@gz.z.flags &
         GZFILE_FLAG_FOOTER_FINISHED).zero?
         gzfile_check_footer()
@@ -1319,7 +1319,7 @@ module Zlib
       nil
     end
 
-    def gzfile_reader_end()
+    def gzfile_reader_end
       return if @gz.z.ZSTREAM_IS_CLOSING()
       @gz.z.flags |= ZSTREAM_FLAG_CLOSING
       begin
@@ -1343,7 +1343,7 @@ module Zlib
       gzfile_reset()
     end
 
-    def gzfile_reader_get_unused()
+    def gzfile_reader_get_unused
       return nil if !@gz.z.ZSTREAM_IS_READY()
       return nil if !GZFILE_IS_FINISHED(@gz)
       if (@gz.z.flags & GZFILE_FLAG_FOOTER_FINISHED).zero?
@@ -1446,7 +1446,7 @@ module Zlib
       dst
     end
 
-    def gzfile_read_all()
+    def gzfile_read_all
       while !@gz.z.ZSTREAM_IS_FINISHED()
         gzfile_read_more()
       end
@@ -1462,7 +1462,7 @@ module Zlib
       dst
     end
 
-    def gzfile_read_raw()
+    def gzfile_read_raw
       str = @gz.io.read(GZFILE_READ_SIZE)
       if str && str.class != String
         raise TypeError, "wrong argument type #{rs.class} (expected String)"
