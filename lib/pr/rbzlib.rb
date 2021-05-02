@@ -143,7 +143,7 @@ module Rbzlib
   end
 
   class Bytef
-    def self.new(buffer, offset=0)
+    def self.new(buffer, offset = 0)
       if(buffer.class == Array)
         Bytef_arr.new(buffer, offset)
       else
@@ -155,7 +155,7 @@ module Rbzlib
   class Bytef_str
     attr_accessor :buffer, :offset
 
-    def initialize(buffer, offset=0)
+    def initialize(buffer, offset = 0)
       if buffer.class == String
         @buffer = buffer
         @offset = offset
@@ -203,7 +203,7 @@ module Rbzlib
 
   class Bytef_arr < Bytef_str
 
-    def initialize(buffer, offset=0)
+    def initialize(buffer, offset = 0)
         @buffer = buffer
         @offset = offset
     end
@@ -259,7 +259,7 @@ module Rbzlib
   module_function
 
   # Compute the Adler-32 checksum of a data stream
-  def adler32(adler, buf, len=0)
+  def adler32(adler, buf, len = 0)
     return 1 if buf.nil?
 
     len = buf.length if len == 0
@@ -405,7 +405,7 @@ module Rbzlib
 
   # Compute the CRC-32 of a data stream.
   #
-  def crc32(crc, buf, len=0)
+  def crc32(crc, buf, len = 0)
     return 0 if buf.nil?
     len = buf.length if len == 0
     crc = crc ^ 0xffffffff

@@ -510,7 +510,7 @@ module Zlib
       return @z.zstream_detach_buffer()
     end
 
-    def self.deflate(src, level=Z_DEFAULT_COMPRESSION)
+    def self.deflate(src, level = Z_DEFAULT_COMPRESSION)
       @z = ZStream.new
       @z.zstream_init(DeflateFuncs)
       err = deflateInit(@z.stream, level)
@@ -527,7 +527,7 @@ module Zlib
       dst
     end
 
-    def initialize(level=Z_DEFAULT_COMPRESSION, wbits=MAX_WBITS, memlevel=DEF_MEM_LEVEL, strategy=Z_DEFAULT_STRATEGY)
+    def initialize(level = Z_DEFAULT_COMPRESSION, wbits = MAX_WBITS, memlevel = DEF_MEM_LEVEL, strategy = Z_DEFAULT_STRATEGY)
       @z = ZStream.new
       @z.zstream_init(DeflateFuncs)
       err = deflateInit2(@z.stream, level, Z_DEFLATED, wbits, memlevel, strategy)
@@ -558,7 +558,7 @@ module Zlib
     end
     private :do_deflate
 
-    def deflate(src, flush=Z_NO_FLUSH)
+    def deflate(src, flush = Z_NO_FLUSH)
       do_deflate(src, flush)
       @z.zstream_detach_buffer
     end
@@ -575,7 +575,7 @@ module Zlib
       @z.zstream_detach_buffer()
     end
 
-    def params(level=Z_DEFAULT_COMPRESSION, strategy=Z_DEFAULT_STRATEGY)
+    def params(level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY)
       err = deflateParams(@z.stream, level, strategy)
       while (err == Z_BUF_ERROR)
         warn("deflateParams() returned Z_BUF_ERROR")
@@ -633,7 +633,7 @@ module Zlib
     end
     private :do_inflate
 
-    def initialize(wbits=MAX_WBITS)
+    def initialize(wbits = MAX_WBITS)
       @z = ZStream.new
       @z.zstream_init(InflateFuncs)
       err = inflateInit2(@z.stream, wbits)
@@ -768,7 +768,7 @@ module Zlib
       nil
     end
 
-    def self.wrap(io, level=Z_DEFAULT_COMPRESSION, strategy=Z_DEFAULT_STRATEGY)
+    def self.wrap(io, level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY)
       obj = new(io, level, strategy)
       if block_given?
         begin
@@ -1070,11 +1070,11 @@ module Zlib
 
     alias tell :pos
 
-    def self.open(filename, level=Z_DEFAULT_COMPRESSION, strategy=Z_DEFAULT_STRATEGY, &blk)
+    def self.open(filename, level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY, &blk)
       GzipWriter.gzfile_s_open(filename, 'wb', level, strategy, &blk)
     end
 
-    def initialize(io, level=nil, strategy=nil)
+    def initialize(io, level = nil, strategy = nil)
       level = Z_DEFAULT_COMPRESSION if level.nil?
       strategy = Z_DEFAULT_STRATEGY if strategy.nil?
 
@@ -1098,7 +1098,7 @@ module Zlib
       @gz.z.ZSTREAM_READY()
     end
 
-    def flush(v_flush=Z_SYNC_FLUSH)
+    def flush(v_flush = Z_SYNC_FLUSH)
       raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
 
       if v_flush != Z_NO_FLUSH
@@ -1220,11 +1220,11 @@ module Zlib
     end
     alias tell :pos
 
-    def self.open(filename, level=Z_DEFAULT_COMPRESSION, strategy=Z_DEFAULT_STRATEGY, &blk)
+    def self.open(filename, level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY, &blk)
       GzipReader.gzfile_s_open(filename, "rb", level=Z_DEFAULT_COMPRESSION, strategy=Z_DEFAULT_STRATEGY, &blk)
     end
 
-    def initialize(io, level=Z_DEFAULT_COMPRESSION, strategy=Z_DEFAULT_STRATEGY)
+    def initialize(io, level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY)
       gzfile_new(InflateFuncs, :gzfile_reader_end)
       @gz.level = level
       err = inflateInit2(@gz.z.stream, -MAX_WBITS)
@@ -1246,7 +1246,7 @@ module Zlib
       gzfile_reader_get_unused()
     end
 
-    def read(len=nil)
+    def read(len = nil)
       if len.nil?
         return gzfile_read_all()
       end
@@ -1283,17 +1283,17 @@ module Zlib
       nil
     end
 
-    def gets(rs=$/)
+    def gets(rs = $/)
       dst = gzreader_gets(rs)
       $_ = dst if dst
       dst
     end
 
-    def readline(rs=$/)
+    def readline(rs = $/)
       gets(rs)
     end
 
-    def each(rs=$/)
+    def each(rs = $/)
       while (str = gzreader_gets(rs))
         yield(str)
       end
@@ -1301,7 +1301,7 @@ module Zlib
     end
     alias each_line :each
 
-    def readlines(rs=$/)
+    def readlines(rs = $/)
       dst = []
       while str = gzreader_gets(rs)
         dst.push(str)
@@ -1357,7 +1357,7 @@ module Zlib
       raise RuntimeError, "rs modified" if rs != rsptr
     end
 
-    def gzreader_gets(rs=$/)
+    def gzreader_gets(rs = $/)
       if rs && rs.class != String
         raise TypeError, "wrong argument type #{rs.class} (expected String)"
       end
@@ -1520,7 +1520,7 @@ module Zlib
     zlibVersion()
   end
 
-  def adler32(string=nil, adler=nil)
+  def adler32(string = nil, adler = nil)
     if adler
       check_long_range adler
       sum = adler
@@ -1538,7 +1538,7 @@ module Zlib
     sum
   end
 
-  def crc32(string=nil, crc=nil)
+  def crc32(string = nil, crc = nil)
     if crc
       check_long_range crc
       sum = crc
