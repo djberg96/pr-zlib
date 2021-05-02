@@ -145,9 +145,9 @@ module Rbzlib
   class Bytef
     def self.new(buffer, offset=0)
       if(buffer.class == Array)
-        Bytef_arr.new(buffer,offset)
+        Bytef_arr.new(buffer, offset)
       else
-        Bytef_str.new(buffer,offset)
+        Bytef_str.new(buffer, offset)
       end
     end
   end
@@ -185,7 +185,7 @@ module Rbzlib
     end
 
     def []=(idx, val)
-      @buffer.setbyte(idx + @offset,val.ord)
+      @buffer.setbyte(idx + @offset, val.ord)
     end
 
     def get()
@@ -193,7 +193,7 @@ module Rbzlib
     end
 
     def set(val)
-      @buffer.setbyte(@offset,val.ord)
+      @buffer.setbyte(@offset, val.ord)
     end
 
     def current
@@ -586,14 +586,14 @@ module Rbzlib
 
   # Opens a gzip (.gz) file for reading or writing.
   #
-  def gzopen(path,mode)
+  def gzopen(path, mode)
     return gz_open(path, mode, -1)
   end
 
   # Associate a gzFile with the file descriptor fd. fd is not dup'ed here
   # to mimic the behavio(u)r of fdopen.
   #
-  def gzdopen(fd,mode)
+  def gzdopen(fd, mode)
     return nil if fd < 0
     name = "<fd:#{fd}"
     return gz_open(name, mode, fd)
@@ -601,7 +601,7 @@ module Rbzlib
 
   # Update the compression level and strategy
   #
-  def gzsetparams(file,level,strategy)
+  def gzsetparams(file, level, strategy)
     s = file
 
     if s.nil? || s.mode != 'w'
@@ -687,7 +687,7 @@ module Rbzlib
       begin
         buf = s.file.read(Z_BUFSIZE >> len)
         if buf
-          s.inbuf[len,buf.length] = buf
+          s.inbuf[len, buf.length] = buf
           len = buf.length
         else
           len = 0
@@ -787,7 +787,7 @@ module Rbzlib
 
   # Reads the given number of uncompressed bytes from the compressed file.
   # gzread returns the number of bytes actually read (0 for end of file).
-  def gzread(file,buf,len)
+  def gzread(file, buf, len)
     s = file
     start = Bytef.new(buf)
 
@@ -826,7 +826,7 @@ module Rbzlib
         end
 
         if n > 0
-          s.stream.next_out.buffer[s.stream.next_out.offset,n] = s.stream.next_in.current[0,n]
+          s.stream.next_out.buffer[s.stream.next_out.offset, n] = s.stream.next_in.current[0, n]
           next_out += n
           s.stream.next_out.offset = next_out.offset
           s.stream.next_in += n
@@ -837,7 +837,7 @@ module Rbzlib
         if s.stream.avail_out > 0
           buff = s.file.read(s.stream.avail_out)
           if buff
-            next_out.buffer[next_out.offset,buff.length] = buff
+            next_out.buffer[next_out.offset, buff.length] = buff
             s.stream.avail_out -= buff.length
           end
         end
@@ -857,7 +857,7 @@ module Rbzlib
         begin
           buf = s.file.read(Z_BUFSIZE)
           if buf
-            s.inbuf[0,buf.length] = buf
+            s.inbuf[0, buf.length] = buf
             s.stream.avail_in = buf.length
           else
             s.stream.avail_in = 0
@@ -880,7 +880,7 @@ module Rbzlib
       s.out -= s.stream.avail_out
 
       if s.z_err == Z_STREAM_END
-        s.crc = crc32(s.crc, start.current,s.stream.next_out.offset - start.offset)
+        s.crc = crc32(s.crc, start.current, s.stream.next_out.offset - start.offset)
         start = s.stream.next_out.dup
         if getLong(s) != s.crc
           s.z_err = Z_DATA_ERROR
@@ -897,7 +897,7 @@ module Rbzlib
       break if s.z_err != Z_OK || s.z_eof
     end
 
-    s.crc = crc32(s.crc, start.current,s.stream.next_out.offset - start.offset)
+    s.crc = crc32(s.crc, start.current, s.stream.next_out.offset - start.offset)
 
     if len == s.stream.avail_out && (s.z_err == Z_DATA_ERROR || s.z_err = Z_ERRNO)
       return -1
@@ -911,7 +911,7 @@ module Rbzlib
   #
   def gzgetc(file)
     c = 0.chr
-    if (gzread(file,c,1) == 1)
+    if (gzread(file, c, 1) == 1)
       return c
     else
       return -1
@@ -938,7 +938,7 @@ module Rbzlib
   #
   # Returns buf, or Z_NULL in case of error.
   #
-  def gzgets(file,buf,len)
+  def gzgets(file, buf, len)
     return nil if buf.nil? || (len <= 0)
 
     i = 0
@@ -964,7 +964,7 @@ module Rbzlib
 
   #   Writes the given number of uncompressed bytes into the compressed file.
   # gzwrite returns the number of bytes actually written (0 in case of error).
-  def gzwrite(file,buf,len)
+  def gzwrite(file, buf, len)
     s = file
     if s.nil? || (s.mode != 'w')
       return Z_STREAM_ERROR
@@ -995,8 +995,8 @@ module Rbzlib
 
   #   Writes c, converted to an unsigned char, into the compressed file.
   # gzputc returns the value that was written, or -1 in case of error.
-  def gzputc(file,c)
-    if (gzwrite(file,c,1) == 1)
+  def gzputc(file, c)
+    if (gzwrite(file, c, 1) == 1)
       return c
     else
       return -1
@@ -1006,13 +1006,13 @@ module Rbzlib
   #    Writes the given null-terminated string to the compressed file, excluding
   # the terminating null character.
   #    gzputs returns the number of characters written, or -1 in case of error.
-  def gzputs(file,s)
-    return gzwrite(file,s,s.length)
+  def gzputs(file, s)
+    return gzwrite(file, s, s.length)
   end
 
   #   Flushes all pending output into the compressed file. The parameter
   # flush is as in the deflate() function.
-  def do_flush(file,flush)
+  def do_flush(file, flush)
     done = false
     s = file
 
@@ -1026,7 +1026,7 @@ module Rbzlib
       len = Z_BUFSIZE - s.stream.avail_out
 
       if len != 0
-        written = s.file.write(s.outbuf[0,len])
+        written = s.file.write(s.outbuf[0, len])
         if (written != len)
           s.z_err = Z_ERRNO
           return Z_ERRNO
@@ -1057,7 +1057,7 @@ module Rbzlib
   end
 
   # Flush output file.
-  def gzflush(file,flush)
+  def gzflush(file, flush)
     s = file
     err = do_flush(file, flush)
 
@@ -1084,7 +1084,7 @@ module Rbzlib
     s.z_eof = false
     s.stream.avail_in = 0
     s.stream.next_in = Bytef.new(s.inbuf)
-    s.crc = crc32(0,nil)
+    s.crc = crc32(0, nil)
     if !s.transparent
       inflateReset(s.stream)
     end
@@ -1099,7 +1099,7 @@ module Rbzlib
   # the beginning of the uncompressed stream, or -1 in case of error.
   #    SEEK_END is not implemented, returns error.
   #    In this version of the library, gzseek can be extremely slow.
-  def gzseek(file,offset,whence)
+  def gzseek(file, offset, whence)
     s = file
 
     if s.nil? || (whence == SEEK_END) || (s.z_err == Z_ERRNO) ||
@@ -1211,7 +1211,7 @@ module Rbzlib
   end
 
   # Outputs a long in LSB order to the given file
-  def putLong(s,x)
+  def putLong(s, x)
     4.times{
       c = x & 0xFF
       s.putc(c)
@@ -1246,7 +1246,7 @@ module Rbzlib
   # given compressed file. errnum is set to zlib error number. If an
   # error occurred in the file system and not in the compression library,
   # errnum is set to Z_ERRNO and the application may consult errno
-  def gzerror(file,errnum)
+  def gzerror(file, errnum)
     s = file
     if s.nil?
       errnum = Z_STREAM_ERROR
@@ -1282,7 +1282,7 @@ module Rbzlib
   TOO_FAR = 4096
   MIN_LOOKAHEAD = (MAX_MATCH+MIN_MATCH+1)
 
-  Config = Struct.new(:good_length,:max_lazy,:nice_length,:max_chain,:func)
+  Config = Struct.new(:good_length, :max_lazy, :nice_length, :max_chain, :func)
   @@configuration_table = [
     [0,  0,   0,   0,    :deflate_stored],
     [4,  4,   8,   4,    :deflate_fast],
@@ -1306,7 +1306,7 @@ module Rbzlib
   # IN  assertion: all calls to to INSERT_STRING are made with consecutive
   #    input characters and the first MIN_MATCH bytes of str are valid
   #    (except for the last MIN_MATCH-1 bytes of the input file).
-  def INSERT_STRING(s,str,match_head)
+  def INSERT_STRING(s, str, match_head)
     s.ins_h = ((s.ins_h << s.hash_shift) ^ (s.window[str + 2].ord)) & s.hash_mask
 
     match_head = s.head[s.ins_h]
@@ -1317,7 +1317,7 @@ module Rbzlib
 
   # Initialize the hash table (avoiding 64K overflow for 16 bit systems).
   # prev[] will be initialized on the fly.
-  def deflateInit2_(strm,level,method,windowBits,memLevel,strategy,version,stream_size)
+  def deflateInit2_(strm, level, method, windowBits, memLevel, strategy, version, stream_size)
     wrap = 1
     my_version = ZLIB_VERSION
 
@@ -1347,9 +1347,9 @@ module Rbzlib
     s.dyn_ltree = Array.new(HEAP_SIZE).map{|i|Ct_data.new()}
     s.dyn_dtree = Array.new(2*D_CODES+1).map{|i|Ct_data.new()}
     s.bl_tree = Array.new(2*BL_CODES+1).map{|i|Ct_data.new()}
-    s.bl_count = Array.new(MAX_BITS+1,0)
-    s.heap = Array.new(2*L_CODES+1,0)
-    s.depth = Array.new(2*L_CODES+1,0)
+    s.bl_count = Array.new(MAX_BITS+1, 0)
+    s.heap = Array.new(2*L_CODES+1, 0)
+    s.depth = Array.new(2*L_CODES+1, 0)
     strm.state = s
     s.strm = strm
 
@@ -1365,8 +1365,8 @@ module Rbzlib
     s.hash_shift =  ((s.hash_bits+MIN_MATCH-1) / MIN_MATCH)
 
     s.window = 0.chr * (s.w_size * 2)
-    s.prev   = Array.new(s.w_size,0)
-    s.head   = Array.new(s.hash_size,0)
+    s.prev   = Array.new(s.w_size, 0)
+    s.head   = Array.new(s.hash_size, 0)
 
     s.lit_bufsize = 1 << (memLevel + 6)
 
@@ -1380,8 +1380,8 @@ module Rbzlib
       deflateEnd(strm)
       return Z_MEM_ERROR
     end
-    s.d_buf = Posf.new(overlay,s.lit_bufsize)
-    s.l_buf = Bytef.new(overlay,(1+2) * s.lit_bufsize)
+    s.d_buf = Posf.new(overlay, s.lit_bufsize)
+    s.l_buf = Bytef.new(overlay, (1+2) * s.lit_bufsize)
 
     s.level = level
     s.strategy = strategy
@@ -1389,12 +1389,12 @@ module Rbzlib
     deflateReset(strm)
   end
 
-  def deflateInit2(strm,level,method,windowBits,memLevel,strategy)
+  def deflateInit2(strm, level, method, windowBits, memLevel, strategy)
     deflateInit2_(strm, level, method, windowBits,
-                   memLevel, strategy, ZLIB_VERSION,strm.size)
+                   memLevel, strategy, ZLIB_VERSION, strm.size)
   end
 
-  def deflateInit_(strm,level,version,stream_size)
+  def deflateInit_(strm, level, version, stream_size)
     if strm.nil?
       return Z_STREAM_ERROR
     else
@@ -1403,13 +1403,13 @@ module Rbzlib
     end
   end
 
-  def deflateInit(strm,level)
+  def deflateInit(strm, level)
     deflateInit2_(strm, level, Z_DEFLATED, MAX_WBITS,
-         DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, ZLIB_VERSION,strm.size)
+         DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, ZLIB_VERSION, strm.size)
   end
 
   #
-  def deflateSetDictionary(strm,dictionary,dictLength)
+  def deflateSetDictionary(strm, dictionary, dictLength)
     length = dictLength
     offset = 0
     hash_head = 0
@@ -1420,7 +1420,7 @@ module Rbzlib
     end
 
     s = strm.state
-    strm.adler = adler32(strm.adler, dictionary,dictLength) if s.wrap != 0
+    strm.adler = adler32(strm.adler, dictionary, dictLength) if s.wrap != 0
     if (length < MIN_MATCH)
       return Z_OK
     end
@@ -1431,7 +1431,7 @@ module Rbzlib
       offset += dictLength - length
     end
 
-    s.window[0,length] = dictionary[offset,length]
+    s.window[0, length] = dictionary[offset, length]
     s.strstart = length
     s.block_start = length
 
@@ -1464,7 +1464,7 @@ module Rbzlib
       s.wrap = -s.wrap
     end
     s.status = s.wrap != 0 ? INIT_STATE : BUSY_STATE
-    strm.adler = (s.wrap==2) ? crc32(0,nil) : adler32(0,nil)
+    strm.adler = (s.wrap==2) ? crc32(0, nil) : adler32(0, nil)
     s.last_flush = Z_NO_FLUSH
 
     _tr_init(s)
@@ -1474,7 +1474,7 @@ module Rbzlib
   end
 
   #
-  def deflateSetHeader(strm,head)
+  def deflateSetHeader(strm, head)
     if (strm.nil? || strm.state.nil?)
       return Z_STREAM_ERROR
     end
@@ -1484,7 +1484,7 @@ module Rbzlib
   end
 
   #
-  def deflatePrime(strm,bits,value)
+  def deflatePrime(strm, bits, value)
     if (strm.nil? || strm.state.nil?)
       return Z_STREAM_ERROR
     end
@@ -1494,7 +1494,7 @@ module Rbzlib
   end
 
   #
-  def deflateParams(strm,level,strategy)
+  def deflateParams(strm, level, strategy)
     err = Z_OK
     if strm.state.nil?
       return Z_STREAM_ERROR
@@ -1571,7 +1571,7 @@ module Rbzlib
   # Put a short in the pending buffer. The 16-bit value is put in MSB order.
   # IN assertion: the stream state is correct and there is enough room in
   # pending_buf.
-  def putShortMSB(s,b)
+  def putShortMSB(s, b)
     s.pending_buf[s.pending] = (b >> 8)
     s.pending+=1
     s.pending_buf[s.pending] = (b & 0xff)
@@ -1589,7 +1589,7 @@ module Rbzlib
       len = strm.avail_out
     end
     return if len == 0
-    strm.next_out.buffer[strm.next_out.offset,len] = s.pending_out.current[0,len]
+    strm.next_out.buffer[strm.next_out.offset, len] = s.pending_out.current[0, len]
     strm.next_out += len
     s.pending_out += len
     strm.total_out += len
@@ -1601,7 +1601,7 @@ module Rbzlib
   end
 
   #
-  def deflate(strm,flush)
+  def deflate(strm, flush)
     if strm.state.nil? || (flush > Z_FINISH) || (flush < 0)
       return Z_STREAM_ERROR
     end
@@ -1625,7 +1625,7 @@ module Rbzlib
 
     if (s.status == INIT_STATE)
       if (s.wrap == 2)
-        strm.adler = crc32(0,nil)
+        strm.adler = crc32(0, nil)
         s.pending_buf[s.pending] = 31
         s.pending+=1
         s.pending_buf[s.pending] = 139
@@ -1714,7 +1714,7 @@ module Rbzlib
           putShortMSB(s, (strm.adler >> 16))
           putShortMSB(s, (strm.adler & 0xffff))
         end
-        strm.adler = adler32(0,nil)
+        strm.adler = adler32(0, nil)
       end
     end
 
@@ -1725,7 +1725,7 @@ module Rbzlib
         while (s.gzindex < (s.gzhead.extra_len & 0xffff))
           if (s.pending == s.pending_buf_size)
             if (s.gzhead.hcrc && s.pending > beg)
-              strm.adler = crc32(strm.adler, s.pending_buf.buffer[beg,s.pending - beg])
+              strm.adler = crc32(strm.adler, s.pending_buf.buffer[beg, s.pending - beg])
             end
             flush_pending(strm)
             beg = s.pending
@@ -1736,7 +1736,7 @@ module Rbzlib
           s.gzindex+=1
         end
         if (s.gzhead.hcrc && s.pending > beg)
-          strm.adler = crc32(strm.adler, s.pending_buf[beg,s.pending - beg])
+          strm.adler = crc32(strm.adler, s.pending_buf[beg, s.pending - beg])
         end
         if (s.gzindex == s.gzhead.extra_len)
           s.gzindex = 0
@@ -1752,7 +1752,7 @@ module Rbzlib
         loop do
           if (s.pending == s.pending_buf_size)
             if (s.gzhead.hcrc && s.pending > beg)
-              strm.adler = crc32(strm.adler, s.pending_buf.buffer[beg,s.pending - beg])
+              strm.adler = crc32(strm.adler, s.pending_buf.buffer[beg, s.pending - beg])
             end
             flush_pending(strm)
             beg = s.pending
@@ -1768,7 +1768,7 @@ module Rbzlib
           break if val == 0
         end
         if (s.gzhead.hcrc && s.pending > beg)
-          strm.adler = crc32(strm.adler, s.pending_buf.buffer[beg,s.pending - beg])
+          strm.adler = crc32(strm.adler, s.pending_buf.buffer[beg, s.pending - beg])
         end
         if val == 0
           s.gzindex = 0
@@ -1784,7 +1784,7 @@ module Rbzlib
         loop do
           if (s.pending == s.pending_buf_size)
             if (s.gzhead.hcrc && s.pending > beg)
-              strm.adler = crc32(strm.adler, s.pending_buf.buffer[beg,s.pending - beg])
+              strm.adler = crc32(strm.adler, s.pending_buf.buffer[beg, s.pending - beg])
             end
             flush_pending(strm)
             beg = s.pending
@@ -1800,7 +1800,7 @@ module Rbzlib
           break if val == 0
         end
         if (s.gzhead.hcrc && s.pending > beg)
-          strm.adler = crc32(strm.adler, s.pending_buf.buffer[beg,s.pending - beg])
+          strm.adler = crc32(strm.adler, s.pending_buf.buffer[beg, s.pending - beg])
         end
         if val == 0
           s.status = HCRC_STATE
@@ -1859,7 +1859,7 @@ module Rbzlib
           _tr_stored_block(s, nil, (0), false)
 
           if (flush == Z_FULL_FLUSH)
-            s.head = Array.new(s.hash_size,0)
+            s.head = Array.new(s.hash_size, 0)
             s.head[s.hash_size-1] = ZNIL
           end
         end
@@ -1935,7 +1935,7 @@ module Rbzlib
   # Copy the source state to the destination state.
   # To simplify the source, this is not supported for 16-bit MSDOS (which
   # doesn't have enough memory anyway to duplicate compression states).
-  def deflateCopy(dest,source)
+  def deflateCopy(dest, source)
     if source.nil? || dest.nil? || source.state.nil?
       return Z_STREAM_ERROR
     end
@@ -1953,9 +1953,9 @@ module Rbzlib
     ds.pending_buf = ss.pending_buf.dup
     ds.pending_buf.buffer = ss.pending_buf.buffer.dup
 
-    ds.pending_out = Bytef.new(ds.pending_buf,ss.pending_out.offset)
-    ds.d_buf = Posf.new(ds.pending_buf,ds.lit_bufsize)
-    ds.l_buf = Bytef.new(ds.pending_buf,(1+2) * ds.lit_bufsize)
+    ds.pending_out = Bytef.new(ds.pending_buf, ss.pending_out.offset)
+    ds.d_buf = Posf.new(ds.pending_buf, ds.lit_bufsize)
+    ds.l_buf = Bytef.new(ds.pending_buf, (1+2) * ds.lit_bufsize)
 
     ds.l_desc.dyn_tree = ds.dyn_ltree
     ds.d_desc.dyn_tree = ds.dyn_dtree
@@ -1969,7 +1969,7 @@ module Rbzlib
   # this function so some applications may wish to modify it to avoid
   # allocating a large strm->next_in buffer and copying from it.
   # (See also flush_pending()).
-  def read_buf(strm,buf,offset,size)
+  def read_buf(strm, buf, offset, size)
     len = strm.avail_in
 
     if (len > size)
@@ -1982,12 +1982,12 @@ module Rbzlib
     strm.avail_in -= len
 
     if strm.state.wrap == 1
-      strm.adler = adler32(strm.adler, strm.next_in.current,len)
+      strm.adler = adler32(strm.adler, strm.next_in.current, len)
     elsif (strm.state.wrap == 2)
-      strm.adler = crc32(strm.adler,strm.next_in.current,len)
+      strm.adler = crc32(strm.adler, strm.next_in.current, len)
     end
 
-    buf[offset,len] = strm.next_in.current[0,len]
+    buf[offset, len] = strm.next_in.current[0, len]
     strm.next_in += len
     strm.total_in += len
 
@@ -1998,7 +1998,7 @@ module Rbzlib
   def lm_init(s)
     s.window_size = (2*s.w_size)
 
-    s.head = Array.new(s.hash_size,0)
+    s.head = Array.new(s.hash_size, 0)
     s.head[s.hash_size-1] = ZNIL
 
     s.max_lazy_match   = @@configuration_table[s.level].max_lazy
@@ -2022,7 +2022,7 @@ module Rbzlib
   # IN assertions: cur_match is the head of the hash chain for the current
   #   string (strstart) and its distance is <= MAX_DIST, and prev_length >= 1
   # OUT assertion: the match length is not greater than s->lookahead.
-  def longest_match(s,cur_match)
+  def longest_match(s, cur_match)
     chain_length = s.max_chain_length
     scan = s.strstart
     best_len = s.prev_length
@@ -2112,10 +2112,10 @@ module Rbzlib
 
    # Optimized version for level == 1 or strategy == Z_RLE only
   def longest_match_fast(s, cur_match)
-    scan = Bytef.new(s.window,s.strstart)
-    strend = Bytef.new(s.window,s.strstart + MAX_MATCH)
+    scan = Bytef.new(s.window, s.strstart)
+    strend = Bytef.new(s.window, s.strstart + MAX_MATCH)
 
-    match = Bytef.new(s.window,cur_match)
+    match = Bytef.new(s.window, cur_match)
 
     return (MIN_MATCH-1) if (match[0] != scan[0] || match[1] != scan[1])
 
@@ -2158,7 +2158,7 @@ module Rbzlib
   end
 
   # Check that the match at match_start is indeed a match.
-  def check_match(s,start, match,length)
+  def check_match(s, start, match, length)
   end
 
   # Fill the window when the lookahead becomes insufficient.
@@ -2180,7 +2180,7 @@ module Rbzlib
           more -= 1
       end
       if (s.strstart >= wsize+ (wsize-MIN_LOOKAHEAD))
-        s.window[0,wsize] = s.window[wsize,wsize]
+        s.window[0, wsize] = s.window[wsize, wsize]
         s.match_start -= wsize
         s.strstart -= wsize
         s.block_start -= wsize
@@ -2217,7 +2217,7 @@ module Rbzlib
       end
       return if s.strm.avail_in == 0
 
-      n = read_buf(s.strm, s.window,(s.strstart + s.lookahead),more)
+      n = read_buf(s.strm, s.window, (s.strstart + s.lookahead), more)
       s.lookahead += n
 
       if (s.lookahead >= MIN_MATCH)
@@ -2230,7 +2230,7 @@ module Rbzlib
 
   # Flush the current block, with given end-of-file flag.
   # IN assertion: strstart is set to the end of the current match.
-  def FLUSH_BLOCK_ONLY(s,eof)
+  def FLUSH_BLOCK_ONLY(s, eof)
     if (s.block_start >= (0))
       _tr_flush_block(s, s.window[(s.block_start)..-1],
                     ((s.strstart) - s.block_start), eof)
@@ -2250,7 +2250,7 @@ module Rbzlib
   # only for the level=0 compression option.
   # NOTE: this function should be optimized to avoid extra copying from
   # window to pending_buf.
-  def deflate_stored(s,flush)
+  def deflate_stored(s, flush)
     max_block_size = 0xffff
     if (max_block_size > s.pending_buf_size - 5)
       max_block_size = s.pending_buf_size - 5
@@ -2308,7 +2308,7 @@ module Rbzlib
   # This function does not perform lazy evaluation of matches and inserts
   # new strings in the dictionary only for unmatched strings or for short
   # matches. It is used only for the fast compression options.
-  def deflate_fast(s,flush)
+  def deflate_fast(s, flush)
     hash_head = ZNIL
     loop do
 
@@ -2386,7 +2386,7 @@ module Rbzlib
   # Same as above, but achieves better compression. We use a lazy
   # evaluation for matches: a match is finally adopted only if there is
   # no better match at the next window position.
-  def deflate_slow(s,flush)
+  def deflate_slow(s, flush)
     hash_head = ZNIL
 
     loop do
@@ -2497,133 +2497,133 @@ module Rbzlib
   BUSY_STATE =  113
   FINISH_STATE = 666
 
-  Ct_data = Struct.new(:fc,:dl)
+  Ct_data = Struct.new(:fc, :dl)
 
-  Static_tree_desc = Struct.new(:static_tree,:extra_bits,:extra_base,:elems,:max_length)
+  Static_tree_desc = Struct.new(:static_tree, :extra_bits, :extra_base, :elems, :max_length)
 
-  Tree_desc = Struct.new(:dyn_tree,:max_code,:stat_desc)
+  Tree_desc = Struct.new(:dyn_tree, :max_code, :stat_desc)
 
-  Deflate_state = Struct.new(:strm,:status,:pending_buf,:pending_buf_size,:pending_out,
-    :pending,:wrap,:gzhead,:gzindex,:method,:last_flush,:w_size,:w_bits,:w_mask,:window,
-    :window_size,:prev,:head,:ins_h,:hash_size,:hash_bits,:hash_mask,:hash_shift,:block_start,
-    :match_length,:prev_match,:match_available,:strstart,:match_start,:lookahead,:prev_length,
-    :max_chain_length,:level,:strategy,:good_match,:nice_match,:dyn_ltree,
-    :dyn_dtree,:bl_tree,:l_desc,:d_desc,:bl_desc,:bl_count,:heap,:heap_len,:heap_max,:depth,
-    :l_buf,:lit_bufsize,:last_lit,:d_buf,:opt_len,:static_len,:matches,:last_eob_len,
-    :bi_buf,:bi_valid,:max_lazy_match,:max_insert_length)
+  Deflate_state = Struct.new(:strm, :status, :pending_buf, :pending_buf_size, :pending_out,
+    :pending, :wrap, :gzhead, :gzindex, :method, :last_flush, :w_size, :w_bits, :w_mask, :window,
+    :window_size, :prev, :head, :ins_h, :hash_size, :hash_bits, :hash_mask, :hash_shift, :block_start,
+    :match_length, :prev_match, :match_available, :strstart, :match_start, :lookahead, :prev_length,
+    :max_chain_length, :level, :strategy, :good_match, :nice_match, :dyn_ltree,
+    :dyn_dtree, :bl_tree, :l_desc, :d_desc, :bl_desc, :bl_count, :heap, :heap_len, :heap_max, :depth,
+    :l_buf, :lit_bufsize, :last_lit, :d_buf, :opt_len, :static_len, :matches, :last_eob_len,
+    :bi_buf, :bi_valid, :max_lazy_match, :max_insert_length)
 
   DIST_CODE_LEN = 512
 
   @@static_ltree = [
-    [( 12),( 8)], [(140),( 8)], [( 76),( 8)],
-    [(204),( 8)], [( 44),( 8)], [(172),( 8)],
-    [(108),( 8)], [(236),( 8)], [( 28),( 8)],
-    [(156),( 8)], [( 92),( 8)], [(220),( 8)],
-    [( 60),( 8)], [(188),( 8)], [(124),( 8)],
-    [(252),( 8)], [(  2),( 8)], [(130),( 8)],
-    [( 66),( 8)], [(194),( 8)], [( 34),( 8)],
-    [(162),( 8)], [( 98),( 8)], [(226),( 8)],
-    [( 18),( 8)], [(146),( 8)], [( 82),( 8)],
-    [(210),( 8)], [( 50),( 8)], [(178),( 8)],
-    [(114),( 8)], [(242),( 8)], [( 10),( 8)],
-    [(138),( 8)], [( 74),( 8)], [(202),( 8)],
-    [( 42),( 8)], [(170),( 8)], [(106),( 8)],
-    [(234),( 8)], [( 26),( 8)], [(154),( 8)],
-    [( 90),( 8)], [(218),( 8)], [( 58),( 8)],
-    [(186),( 8)], [(122),( 8)], [(250),( 8)],
-    [(  6),( 8)], [(134),( 8)], [( 70),( 8)],
-    [(198),( 8)], [( 38),( 8)], [(166),( 8)],
-    [(102),( 8)], [(230),( 8)], [( 22),( 8)],
-    [(150),( 8)], [( 86),( 8)], [(214),( 8)],
-    [( 54),( 8)], [(182),( 8)], [(118),( 8)],
-    [(246),( 8)], [( 14),( 8)], [(142),( 8)],
-    [( 78),( 8)], [(206),( 8)], [( 46),( 8)],
-    [(174),( 8)], [(110),( 8)], [(238),( 8)],
-    [( 30),( 8)], [(158),( 8)], [( 94),( 8)],
-    [(222),( 8)], [( 62),( 8)], [(190),( 8)],
-    [(126),( 8)], [(254),( 8)], [(  1),( 8)],
-    [(129),( 8)], [( 65),( 8)], [(193),( 8)],
-    [( 33),( 8)], [(161),( 8)], [( 97),( 8)],
-    [(225),( 8)], [( 17),( 8)], [(145),( 8)],
-    [( 81),( 8)], [(209),( 8)], [( 49),( 8)],
-    [(177),( 8)], [(113),( 8)], [(241),( 8)],
-    [(  9),( 8)], [(137),( 8)], [( 73),( 8)],
-    [(201),( 8)], [( 41),( 8)], [(169),( 8)],
-    [(105),( 8)], [(233),( 8)], [( 25),( 8)],
-    [(153),( 8)], [( 89),( 8)], [(217),( 8)],
-    [( 57),( 8)], [(185),( 8)], [(121),( 8)],
-    [(249),( 8)], [(  5),( 8)], [(133),( 8)],
-    [( 69),( 8)], [(197),( 8)], [( 37),( 8)],
-    [(165),( 8)], [(101),( 8)], [(229),( 8)],
-    [( 21),( 8)], [(149),( 8)], [( 85),( 8)],
-    [(213),( 8)], [( 53),( 8)], [(181),( 8)],
-    [(117),( 8)], [(245),( 8)], [( 13),( 8)],
-    [(141),( 8)], [( 77),( 8)], [(205),( 8)],
-    [( 45),( 8)], [(173),( 8)], [(109),( 8)],
-    [(237),( 8)], [( 29),( 8)], [(157),( 8)],
-    [( 93),( 8)], [(221),( 8)], [( 61),( 8)],
-    [(189),( 8)], [(125),( 8)], [(253),( 8)],
-    [( 19),( 9)], [(275),( 9)], [(147),( 9)],
-    [(403),( 9)], [( 83),( 9)], [(339),( 9)],
-    [(211),( 9)], [(467),( 9)], [( 51),( 9)],
-    [(307),( 9)], [(179),( 9)], [(435),( 9)],
-    [(115),( 9)], [(371),( 9)], [(243),( 9)],
-    [(499),( 9)], [( 11),( 9)], [(267),( 9)],
-    [(139),( 9)], [(395),( 9)], [( 75),( 9)],
-    [(331),( 9)], [(203),( 9)], [(459),( 9)],
-    [( 43),( 9)], [(299),( 9)], [(171),( 9)],
-    [(427),( 9)], [(107),( 9)], [(363),( 9)],
-    [(235),( 9)], [(491),( 9)], [( 27),( 9)],
-    [(283),( 9)], [(155),( 9)], [(411),( 9)],
-    [( 91),( 9)], [(347),( 9)], [(219),( 9)],
-    [(475),( 9)], [( 59),( 9)], [(315),( 9)],
-    [(187),( 9)], [(443),( 9)], [(123),( 9)],
-    [(379),( 9)], [(251),( 9)], [(507),( 9)],
-    [(  7),( 9)], [(263),( 9)], [(135),( 9)],
-    [(391),( 9)], [( 71),( 9)], [(327),( 9)],
-    [(199),( 9)], [(455),( 9)], [( 39),( 9)],
-    [(295),( 9)], [(167),( 9)], [(423),( 9)],
-    [(103),( 9)], [(359),( 9)], [(231),( 9)],
-    [(487),( 9)], [( 23),( 9)], [(279),( 9)],
-    [(151),( 9)], [(407),( 9)], [( 87),( 9)],
-    [(343),( 9)], [(215),( 9)], [(471),( 9)],
-    [( 55),( 9)], [(311),( 9)], [(183),( 9)],
-    [(439),( 9)], [(119),( 9)], [(375),( 9)],
-    [(247),( 9)], [(503),( 9)], [( 15),( 9)],
-    [(271),( 9)], [(143),( 9)], [(399),( 9)],
-    [( 79),( 9)], [(335),( 9)], [(207),( 9)],
-    [(463),( 9)], [( 47),( 9)], [(303),( 9)],
-    [(175),( 9)], [(431),( 9)], [(111),( 9)],
-    [(367),( 9)], [(239),( 9)], [(495),( 9)],
-    [( 31),( 9)], [(287),( 9)], [(159),( 9)],
-    [(415),( 9)], [( 95),( 9)], [(351),( 9)],
-    [(223),( 9)], [(479),( 9)], [( 63),( 9)],
-    [(319),( 9)], [(191),( 9)], [(447),( 9)],
-    [(127),( 9)], [(383),( 9)], [(255),( 9)],
-    [(511),( 9)], [(  0),( 7)], [( 64),( 7)],
-    [( 32),( 7)], [( 96),( 7)], [( 16),( 7)],
-    [( 80),( 7)], [( 48),( 7)], [(112),( 7)],
-    [(  8),( 7)], [( 72),( 7)], [( 40),( 7)],
-    [(104),( 7)], [( 24),( 7)], [( 88),( 7)],
-    [( 56),( 7)], [(120),( 7)], [(  4),( 7)],
-    [( 68),( 7)], [( 36),( 7)], [(100),( 7)],
-    [( 20),( 7)], [( 84),( 7)], [( 52),( 7)],
-    [(116),( 7)], [(  3),( 8)], [(131),( 8)],
-    [( 67),( 8)], [(195),( 8)], [( 35),( 8)],
-    [(163),( 8)], [( 99),( 8)], [(227),( 8)]
+    [( 12), ( 8)], [(140), ( 8)], [( 76), ( 8)],
+    [(204), ( 8)], [( 44), ( 8)], [(172), ( 8)],
+    [(108), ( 8)], [(236), ( 8)], [( 28), ( 8)],
+    [(156), ( 8)], [( 92), ( 8)], [(220), ( 8)],
+    [( 60), ( 8)], [(188), ( 8)], [(124), ( 8)],
+    [(252), ( 8)], [(  2), ( 8)], [(130), ( 8)],
+    [( 66), ( 8)], [(194), ( 8)], [( 34), ( 8)],
+    [(162), ( 8)], [( 98), ( 8)], [(226), ( 8)],
+    [( 18), ( 8)], [(146), ( 8)], [( 82), ( 8)],
+    [(210), ( 8)], [( 50), ( 8)], [(178), ( 8)],
+    [(114), ( 8)], [(242), ( 8)], [( 10), ( 8)],
+    [(138), ( 8)], [( 74), ( 8)], [(202), ( 8)],
+    [( 42), ( 8)], [(170), ( 8)], [(106), ( 8)],
+    [(234), ( 8)], [( 26), ( 8)], [(154), ( 8)],
+    [( 90), ( 8)], [(218), ( 8)], [( 58), ( 8)],
+    [(186), ( 8)], [(122), ( 8)], [(250), ( 8)],
+    [(  6), ( 8)], [(134), ( 8)], [( 70), ( 8)],
+    [(198), ( 8)], [( 38), ( 8)], [(166), ( 8)],
+    [(102), ( 8)], [(230), ( 8)], [( 22), ( 8)],
+    [(150), ( 8)], [( 86), ( 8)], [(214), ( 8)],
+    [( 54), ( 8)], [(182), ( 8)], [(118), ( 8)],
+    [(246), ( 8)], [( 14), ( 8)], [(142), ( 8)],
+    [( 78), ( 8)], [(206), ( 8)], [( 46), ( 8)],
+    [(174), ( 8)], [(110), ( 8)], [(238), ( 8)],
+    [( 30), ( 8)], [(158), ( 8)], [( 94), ( 8)],
+    [(222), ( 8)], [( 62), ( 8)], [(190), ( 8)],
+    [(126), ( 8)], [(254), ( 8)], [(  1), ( 8)],
+    [(129), ( 8)], [( 65), ( 8)], [(193), ( 8)],
+    [( 33), ( 8)], [(161), ( 8)], [( 97), ( 8)],
+    [(225), ( 8)], [( 17), ( 8)], [(145), ( 8)],
+    [( 81), ( 8)], [(209), ( 8)], [( 49), ( 8)],
+    [(177), ( 8)], [(113), ( 8)], [(241), ( 8)],
+    [(  9), ( 8)], [(137), ( 8)], [( 73), ( 8)],
+    [(201), ( 8)], [( 41), ( 8)], [(169), ( 8)],
+    [(105), ( 8)], [(233), ( 8)], [( 25), ( 8)],
+    [(153), ( 8)], [( 89), ( 8)], [(217), ( 8)],
+    [( 57), ( 8)], [(185), ( 8)], [(121), ( 8)],
+    [(249), ( 8)], [(  5), ( 8)], [(133), ( 8)],
+    [( 69), ( 8)], [(197), ( 8)], [( 37), ( 8)],
+    [(165), ( 8)], [(101), ( 8)], [(229), ( 8)],
+    [( 21), ( 8)], [(149), ( 8)], [( 85), ( 8)],
+    [(213), ( 8)], [( 53), ( 8)], [(181), ( 8)],
+    [(117), ( 8)], [(245), ( 8)], [( 13), ( 8)],
+    [(141), ( 8)], [( 77), ( 8)], [(205), ( 8)],
+    [( 45), ( 8)], [(173), ( 8)], [(109), ( 8)],
+    [(237), ( 8)], [( 29), ( 8)], [(157), ( 8)],
+    [( 93), ( 8)], [(221), ( 8)], [( 61), ( 8)],
+    [(189), ( 8)], [(125), ( 8)], [(253), ( 8)],
+    [( 19), ( 9)], [(275), ( 9)], [(147), ( 9)],
+    [(403), ( 9)], [( 83), ( 9)], [(339), ( 9)],
+    [(211), ( 9)], [(467), ( 9)], [( 51), ( 9)],
+    [(307), ( 9)], [(179), ( 9)], [(435), ( 9)],
+    [(115), ( 9)], [(371), ( 9)], [(243), ( 9)],
+    [(499), ( 9)], [( 11), ( 9)], [(267), ( 9)],
+    [(139), ( 9)], [(395), ( 9)], [( 75), ( 9)],
+    [(331), ( 9)], [(203), ( 9)], [(459), ( 9)],
+    [( 43), ( 9)], [(299), ( 9)], [(171), ( 9)],
+    [(427), ( 9)], [(107), ( 9)], [(363), ( 9)],
+    [(235), ( 9)], [(491), ( 9)], [( 27), ( 9)],
+    [(283), ( 9)], [(155), ( 9)], [(411), ( 9)],
+    [( 91), ( 9)], [(347), ( 9)], [(219), ( 9)],
+    [(475), ( 9)], [( 59), ( 9)], [(315), ( 9)],
+    [(187), ( 9)], [(443), ( 9)], [(123), ( 9)],
+    [(379), ( 9)], [(251), ( 9)], [(507), ( 9)],
+    [(  7), ( 9)], [(263), ( 9)], [(135), ( 9)],
+    [(391), ( 9)], [( 71), ( 9)], [(327), ( 9)],
+    [(199), ( 9)], [(455), ( 9)], [( 39), ( 9)],
+    [(295), ( 9)], [(167), ( 9)], [(423), ( 9)],
+    [(103), ( 9)], [(359), ( 9)], [(231), ( 9)],
+    [(487), ( 9)], [( 23), ( 9)], [(279), ( 9)],
+    [(151), ( 9)], [(407), ( 9)], [( 87), ( 9)],
+    [(343), ( 9)], [(215), ( 9)], [(471), ( 9)],
+    [( 55), ( 9)], [(311), ( 9)], [(183), ( 9)],
+    [(439), ( 9)], [(119), ( 9)], [(375), ( 9)],
+    [(247), ( 9)], [(503), ( 9)], [( 15), ( 9)],
+    [(271), ( 9)], [(143), ( 9)], [(399), ( 9)],
+    [( 79), ( 9)], [(335), ( 9)], [(207), ( 9)],
+    [(463), ( 9)], [( 47), ( 9)], [(303), ( 9)],
+    [(175), ( 9)], [(431), ( 9)], [(111), ( 9)],
+    [(367), ( 9)], [(239), ( 9)], [(495), ( 9)],
+    [( 31), ( 9)], [(287), ( 9)], [(159), ( 9)],
+    [(415), ( 9)], [( 95), ( 9)], [(351), ( 9)],
+    [(223), ( 9)], [(479), ( 9)], [( 63), ( 9)],
+    [(319), ( 9)], [(191), ( 9)], [(447), ( 9)],
+    [(127), ( 9)], [(383), ( 9)], [(255), ( 9)],
+    [(511), ( 9)], [(  0), ( 7)], [( 64), ( 7)],
+    [( 32), ( 7)], [( 96), ( 7)], [( 16), ( 7)],
+    [( 80), ( 7)], [( 48), ( 7)], [(112), ( 7)],
+    [(  8), ( 7)], [( 72), ( 7)], [( 40), ( 7)],
+    [(104), ( 7)], [( 24), ( 7)], [( 88), ( 7)],
+    [( 56), ( 7)], [(120), ( 7)], [(  4), ( 7)],
+    [( 68), ( 7)], [( 36), ( 7)], [(100), ( 7)],
+    [( 20), ( 7)], [( 84), ( 7)], [( 52), ( 7)],
+    [(116), ( 7)], [(  3), ( 8)], [(131), ( 8)],
+    [( 67), ( 8)], [(195), ( 8)], [( 35), ( 8)],
+    [(163), ( 8)], [( 99), ( 8)], [(227), ( 8)]
     ].map{|i| Ct_data.new(*i)}
 
   @@static_dtree = [
-    [( 0),(5)], [(16),(5)], [( 8),(5)],
-    [(24),(5)], [( 4),(5)], [(20),(5)],
-    [(12),(5)], [(28),(5)], [( 2),(5)],
-    [(18),(5)], [(10),(5)], [(26),(5)],
-    [( 6),(5)], [(22),(5)], [(14),(5)],
-    [(30),(5)], [( 1),(5)], [(17),(5)],
-    [( 9),(5)], [(25),(5)], [( 5),(5)],
-    [(21),(5)], [(13),(5)], [(29),(5)],
-    [( 3),(5)], [(19),(5)], [(11),(5)],
-    [(27),(5)], [( 7),(5)], [(23),(5)]
+    [( 0), (5)], [(16), (5)], [( 8), (5)],
+    [(24), (5)], [( 4), (5)], [(20), (5)],
+    [(12), (5)], [(28), (5)], [( 2), (5)],
+    [(18), (5)], [(10), (5)], [(26), (5)],
+    [( 6), (5)], [(22), (5)], [(14), (5)],
+    [(30), (5)], [( 1), (5)], [(17), (5)],
+    [( 9), (5)], [(25), (5)], [( 5), (5)],
+    [(21), (5)], [(13), (5)], [(29), (5)],
+    [( 3), (5)], [(19), (5)], [(11), (5)],
+    [(27), (5)], [( 7), (5)], [(23), (5)]
     ].map{|i| Ct_data.new(*i)}
 
   @@_dist_code = [
@@ -2685,25 +2685,25 @@ module Rbzlib
 
   REPZ_11_138 = 18
 
-  @@extra_lbits = [0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0]
+  @@extra_lbits = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0]
 
-  @@extra_dbits = [0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13]
+  @@extra_dbits = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13]
 
-  @@extra_blbits = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,3,7]
+  @@extra_blbits = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 7]
 
-  @@bl_order = [16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15]
+  @@bl_order = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15]
 
   Buf_size = (8 * 2*1)
 
-  @@static_l_desc = Static_tree_desc.new(@@static_ltree,@@extra_lbits,LITERALS+1,L_CODES,MAX_BITS)
+  @@static_l_desc = Static_tree_desc.new(@@static_ltree, @@extra_lbits, LITERALS+1, L_CODES, MAX_BITS)
 
-  @@static_d_desc = Static_tree_desc.new(@@static_dtree,@@extra_dbits,0,D_CODES,MAX_BITS)
+  @@static_d_desc = Static_tree_desc.new(@@static_dtree, @@extra_dbits, 0, D_CODES, MAX_BITS)
 
-  @@static_bl_desc = Static_tree_desc.new(nil,@@extra_blbits,0,BL_CODES,MAX_BL_BITS)
+  @@static_bl_desc = Static_tree_desc.new(nil, @@extra_blbits, 0, BL_CODES, MAX_BL_BITS)
 
   # Send a value on a given number of bits.
   # IN assertion: length <= 16 and value fits in length bits.
-  def send_bits(s,value,length)
+  def send_bits(s, value, length)
     if (s.bi_valid > Buf_size - length)
       s.bi_buf |= (value << s.bi_valid)
       s.bi_buf &= 0xffff
@@ -2722,7 +2722,7 @@ module Rbzlib
   # Reverse the first len bits of a code, using straightforward code (a faster
   # method would use a table)
   # IN assertion: 1 <= len <= 15
-  def bi_reverse(code,len)
+  def bi_reverse(code, len)
     res = 0
     loop do
       res |= (code & 1)
@@ -2740,8 +2740,8 @@ module Rbzlib
   # the given tree and the field len is set for all tree elements.
   # OUT assertion: the field code is set for all tree elements of non
   #     zero code length.
-  def gen_codes(tree,max_code,bl_count)
-    next_code = Array.new(MAX_BITS+1,0)
+  def gen_codes(tree, max_code, bl_count)
+    next_code = Array.new(MAX_BITS+1, 0)
     code = 0
     for bits in 1 .. MAX_BITS
       code = ((code + bl_count[bits-1]) << 1)
@@ -2799,7 +2799,7 @@ module Rbzlib
   # exchanging a node with the smallest of its two sons if necessary, stopping
   # when the heap property is re-established (each father smaller than its
   # two sons).
-  def pqdownheap(s,tree,k)
+  def pqdownheap(s, tree, k)
     v = s.heap[k]
     j = k << 1
     while (j <= s.heap_len)
@@ -2829,7 +2829,7 @@ module Rbzlib
   #     array bl_count contains the frequencies for each bit length.
   #     The length opt_len is updated; static_len is also updated if stree is
   #     not null.
-  def gen_bitlen(s,desc)
+  def gen_bitlen(s, desc)
     tree = desc.dyn_tree
     max_code = desc.max_code
     stree = desc.stat_desc.static_tree
@@ -2900,7 +2900,7 @@ module Rbzlib
   # OUT assertions: the fields len and code are set to the optimal bit length
   #     and corresponding code. The length opt_len is updated; static_len is
   #     also updated if stree is not null. The field max_code is set.
-  def build_tree(s,desc)
+  def build_tree(s, desc)
     tree = desc.dyn_tree
     stree = desc.stat_desc.static_tree
     elems = desc.stat_desc.elems
@@ -2981,7 +2981,7 @@ module Rbzlib
 
   # Scan a literal or distance tree to determine the frequencies of the codes
   # in the bit length tree.
-  def scan_tree(s,tree,max_code)
+  def scan_tree(s, tree, max_code)
     prevlen = -1
     nextlen = tree[0].dl
     count = 0
@@ -3029,7 +3029,7 @@ module Rbzlib
 
   # Send a literal or distance tree in compressed form, using the codes in
   # bl_tree.
-  def send_tree(s,tree,max_code)
+  def send_tree(s, tree, max_code)
     prevlen = -1
     nextlen = tree[0].dl
     count = 0
@@ -3102,7 +3102,7 @@ module Rbzlib
   # Send the header for a block using dynamic Huffman trees: the counts, the
   # lengths of the bit length codes, the literal tree and the distance tree.
   # IN assertion: lcodes >= 257, dcodes >= 1, blcodes >= 4.
-  def send_all_trees(s,lcodes,dcodes,blcodes)
+  def send_all_trees(s, lcodes, dcodes, blcodes)
     send_bits(s, lcodes-257, 5)
     send_bits(s, dcodes-1,   5)
     send_bits(s, blcodes-4,  4)
@@ -3132,7 +3132,7 @@ module Rbzlib
 
   # Copy a stored block, storing first the length and its
   # one's complement if requested.
-  def copy_block(s,buf,len,header)
+  def copy_block(s, buf, len, header)
     bi_windup(s)
     s.last_eob_len = 8
 
@@ -3156,7 +3156,7 @@ module Rbzlib
   end
 
   # Send a stored block
-  def _tr_stored_block(s,buf,stored_len,eof)
+  def _tr_stored_block(s, buf, stored_len, eof)
     send_bits(s, (STORED_BLOCK << 1) + (eof ? 1 : 0), 3)
 
     copy_block(s, buf, stored_len, true)
@@ -3220,7 +3220,7 @@ module Rbzlib
   end
 
   # Send the block data compressed using the given Huffman trees
-  def compress_block(s,ltree,dtree)
+  def compress_block(s, ltree, dtree)
     lx = 0
     if s.last_lit != 0
       loop do
@@ -3256,7 +3256,7 @@ module Rbzlib
 
   # Determine the best encoding for the current block: dynamic trees, static
   #  trees or store, and output the encoded block to the zip file.
-  def _tr_flush_block(s,buf,stored_len,eof)
+  def _tr_flush_block(s, buf, stored_len, eof)
     max_blindex = 0
     if (s.level > 0)
       if (stored_len>0 && s.strm.data_type == Z_UNKNOWN)
@@ -3296,7 +3296,7 @@ module Rbzlib
 
   # Save the match info and tally the frequency counts. Return true if
   #  the current block must be flushed.
-  def _tr_tally(s,dist,lc)
+  def _tr_tally(s, dist, lc)
     s.d_buf[s.last_lit] = dist
     s.l_buf[s.last_lit] = lc
     s.last_lit+=1
@@ -3323,42 +3323,42 @@ module Rbzlib
   #   compress2 returns Z_OK if success, Z_MEM_ERROR if there was not enough
   # memory, Z_BUF_ERROR if there was not enough room in the output buffer,
   # Z_STREAM_ERROR if the level parameter is invalid.
-  def compress2(dest,destLen,source,sourceLen,level)
+  def compress2(dest, destLen, source, sourceLen, level)
     stream = Z_stream.new
     stream.next_in = Bytef.new(source)
     stream.avail_in = sourceLen
     stream.next_out = Bytef.new(dest)
     stream.avail_out = destLen
     if (stream.avail_out != destLen)
-      return [Z_BUF_ERROR,destLen]
+      return [Z_BUF_ERROR, destLen]
     end
 
     err = deflateInit(stream, level)
     if (err != Z_OK)
-      return [err,destLen]
+      return [err, destLen]
     end
 
     err = deflate(stream, Z_FINISH)
     if (err != Z_STREAM_END)
       deflateEnd(stream)
       if err == Z_OK
-        return [Z_BUF_ERROR,destLen]
+        return [Z_BUF_ERROR, destLen]
       else
-        return [err,destLen]
+        return [err, destLen]
       end
     end
     destLen = stream.total_out
 
     err = deflateEnd(stream)
-    return [err,destLen]
+    return [err, destLen]
   end
 
   #
-  def compress(dest,destLen,source,sourceLen)
+  def compress(dest, destLen, source, sourceLen)
     return compress2(dest, destLen, source, sourceLen, Z_DEFAULT_COMPRESSION)
   end
 
-  Code = Struct.new(:op,:bits,:val)
+  Code = Struct.new(:op, :bits, :val)
   ENOUGH = 2048
   MAXD = 592
 
@@ -3398,8 +3398,8 @@ module Rbzlib
 
     this = Code.new
 
-    count = Array.new(MAXBITS+1,0)
-    offs = Array.new(MAXBITS+1,0)
+    count = Array.new(MAXBITS+1, 0)
+    offs = Array.new(MAXBITS+1, 0)
     for sym in 0 ... codes
         count[lens[sym]]+=1
     end
@@ -3422,7 +3422,7 @@ module Rbzlib
         table[offset] = this.dup
         offset += 1
         bits = 1
-        return [0,bits,offset]
+        return [0, bits, offset]
     end
     for min in 1 .. MAXBITS
         break if count[min] != 0
@@ -3433,10 +3433,10 @@ module Rbzlib
     for len in 1 .. MAXBITS
         left <<= 1
         left -= count[len]
-        return [-1,bits,offset]  if (left < 0)
+        return [-1, bits, offset]  if (left < 0)
     end
     if (left > 0 && (type == CODES || max != 1))
-        return [-1,bits,offset]
+        return [-1, bits, offset]
     end
 
     offs[1] = 0
@@ -3471,7 +3471,7 @@ module Rbzlib
     huff = 0
     sym = 0
     len = min
-    _next = Bytef.new(table,offset)
+    _next = Bytef.new(table, offset)
     curr = root
     drop = 0
     low = (-1)
@@ -3479,7 +3479,7 @@ module Rbzlib
     mask = used - 1
 
     if (type == LENS && used >= ENOUGH - MAXD)
-        return [1,bits,offset]
+        return [1, bits, offset]
     end
     loop do
         this.bits = (len - drop)
@@ -3536,7 +3536,7 @@ module Rbzlib
 
             used += 1 << curr
             if (type == LENS && used >= ENOUGH - MAXD)
-                return [1,bits,offset]
+                return [1, bits, offset]
             end
             low = huff & mask
             table[offset+low] = Code.new
@@ -3571,7 +3571,7 @@ module Rbzlib
 
     offset += used
     bits = root
-    return [0,bits,offset]
+    return [0, bits, offset]
   end
 
   # Decode literal, length, and distance codes and write out the resulting
@@ -3610,8 +3610,8 @@ module Rbzlib
   #
   def inflate_fast(strm, start)
     state = strm.state
-    _in = Bytef.new(strm.next_in,strm.next_in.offset - 1)
-    last = Bytef.new(_in,_in.offset + (strm.avail_in - 5))
+    _in = Bytef.new(strm.next_in, strm.next_in.offset - 1)
+    last = Bytef.new(_in, _in.offset + (strm.avail_in - 5))
     out = Bytef.new(strm.next_out, strm.next_out.offset - 1)
     beg = Bytef.new(out, out.offset - (start - strm.avail_out))
     _end = Bytef.new(out, out.offset + (strm.avail_out - 257))
@@ -3705,7 +3705,7 @@ module Rbzlib
                         state.mode = BAD
                         break
                     end
-                    from = Bytef.new(window,-1)
+                    from = Bytef.new(window, -1)
                     if write == 0
                         from += wsize - op
                         if (op < len)
@@ -3717,7 +3717,7 @@ module Rbzlib
                                 op -= 1
                                 break if op == 0
                             end
-                            from = Bytef.new(out,out.offset - dist)
+                            from = Bytef.new(out, out.offset - dist)
                         end
                     elsif (write < op)
                         from += wsize + write - op
@@ -3731,7 +3731,7 @@ module Rbzlib
                                 op -= 1
                                 break if op == 0
                             end
-                            from = Bytef.new(window,-1)
+                            from = Bytef.new(window, -1)
                             if (write < len)
                                 op = write
                                 len -= op
@@ -3742,7 +3742,7 @@ module Rbzlib
                                     op -= 1
                                     break if op == 0
                                 end
-                                from = Bytef.new(out,out.offset - dist)
+                                from = Bytef.new(out, out.offset - dist)
                             end
                         end
                     else
@@ -3756,7 +3756,7 @@ module Rbzlib
                                 op -= 1
                                 break if op == 0
                             end
-                            from = Bytef.new(out,out.offset - dist)
+                            from = Bytef.new(out, out.offset - dist)
                         end
                     end
                     while (len > 2)
@@ -3782,7 +3782,7 @@ module Rbzlib
                         end
                     end
                 else
-                    from = Bytef.new(out,out.offset - dist)
+                    from = Bytef.new(out, out.offset - dist)
                     loop do
                         out += 1
                         from += 1
@@ -3876,19 +3876,19 @@ module Rbzlib
   MEM,
   SYNC = *0..29
 
-  Inflate_state = Struct.new(:mode,:last,:wrap,:havedict,:flags,:dmax,:check,:total,
-    :head,:wbits,:wsize,:whave,:write,:window,:hold,:bits,:length,:offset,
-    :extra,:lencode,:distcode,:lenbits,:distbits,:ncode,:nlen,:ndist,:have,:next,:lens,
-    :work,:codes)
+  Inflate_state = Struct.new(:mode, :last, :wrap, :havedict, :flags, :dmax, :check, :total,
+    :head, :wbits, :wsize, :whave, :write, :window, :hold, :bits, :length, :offset,
+    :extra, :lencode, :distcode, :lenbits, :distbits, :ncode, :nlen, :ndist, :have, :next, :lens,
+    :work, :codes)
 
   #
   def inflateInit(strm)
-    return inflateInit_(strm,ZLIB_VERSION, strm.size)
+    return inflateInit_(strm, ZLIB_VERSION, strm.size)
   end
 
   #
   def inflateInit2(strm, windowBits)
-    return inflateInit2_(strm,windowBits, ZLIB_VERSION, strm.size)
+    return inflateInit2_(strm, windowBits, ZLIB_VERSION, strm.size)
   end
 
   #
@@ -3908,9 +3908,9 @@ module Rbzlib
     state.write = 0
     state.hold = 0
     state.bits = 0
-    state.lens = Bytef.new(Array.new(320,0))
-    state.work = Array.new(288,0)
-    state.codes = Array.new(ENOUGH,0)
+    state.lens = Bytef.new(Array.new(320, 0))
+    state.work = Array.new(288, 0)
+    state.codes = Array.new(ENOUGH, 0)
     state.next = Bytef.new(state.codes)
     state.distcode = Bytef.new(state.codes)
     state.lencode = Bytef.new(state.codes)
@@ -3937,9 +3937,9 @@ module Rbzlib
     return Z_STREAM_ERROR if strm.nil?
     strm.msg = ''
     state = Inflate_state.new
-    state.lens = Array.new(320,0)
-    state.work = Array.new(288,0)
-    state.codes = Array.new(ENOUGH,0)
+    state.lens = Array.new(320, 0)
+    state.work = Array.new(288, 0)
+    state.codes = Array.new(ENOUGH, 0)
     return Z_MEM_ERROR if state.nil?
     strm.state = state
     if (windowBits < 0)
@@ -3975,88 +3975,88 @@ module Rbzlib
   def fixedtables(state)
 
     lenfix = [
-        [96,7,0],[0,8,80],[0,8,16],[20,8,115],[18,7,31],[0,8,112],[0,8,48],
-        [0,9,192],[16,7,10],[0,8,96],[0,8,32],[0,9,160],[0,8,0],[0,8,128],
-        [0,8,64],[0,9,224],[16,7,6],[0,8,88],[0,8,24],[0,9,144],[19,7,59],
-        [0,8,120],[0,8,56],[0,9,208],[17,7,17],[0,8,104],[0,8,40],[0,9,176],
-        [0,8,8],[0,8,136],[0,8,72],[0,9,240],[16,7,4],[0,8,84],[0,8,20],
-        [21,8,227],[19,7,43],[0,8,116],[0,8,52],[0,9,200],[17,7,13],[0,8,100],
-        [0,8,36],[0,9,168],[0,8,4],[0,8,132],[0,8,68],[0,9,232],[16,7,8],
-        [0,8,92],[0,8,28],[0,9,152],[20,7,83],[0,8,124],[0,8,60],[0,9,216],
-        [18,7,23],[0,8,108],[0,8,44],[0,9,184],[0,8,12],[0,8,140],[0,8,76],
-        [0,9,248],[16,7,3],[0,8,82],[0,8,18],[21,8,163],[19,7,35],[0,8,114],
-        [0,8,50],[0,9,196],[17,7,11],[0,8,98],[0,8,34],[0,9,164],[0,8,2],
-        [0,8,130],[0,8,66],[0,9,228],[16,7,7],[0,8,90],[0,8,26],[0,9,148],
-        [20,7,67],[0,8,122],[0,8,58],[0,9,212],[18,7,19],[0,8,106],[0,8,42],
-        [0,9,180],[0,8,10],[0,8,138],[0,8,74],[0,9,244],[16,7,5],[0,8,86],
-        [0,8,22],[64,8,0],[19,7,51],[0,8,118],[0,8,54],[0,9,204],[17,7,15],
-        [0,8,102],[0,8,38],[0,9,172],[0,8,6],[0,8,134],[0,8,70],[0,9,236],
-        [16,7,9],[0,8,94],[0,8,30],[0,9,156],[20,7,99],[0,8,126],[0,8,62],
-        [0,9,220],[18,7,27],[0,8,110],[0,8,46],[0,9,188],[0,8,14],[0,8,142],
-        [0,8,78],[0,9,252],[96,7,0],[0,8,81],[0,8,17],[21,8,131],[18,7,31],
-        [0,8,113],[0,8,49],[0,9,194],[16,7,10],[0,8,97],[0,8,33],[0,9,162],
-        [0,8,1],[0,8,129],[0,8,65],[0,9,226],[16,7,6],[0,8,89],[0,8,25],
-        [0,9,146],[19,7,59],[0,8,121],[0,8,57],[0,9,210],[17,7,17],[0,8,105],
-        [0,8,41],[0,9,178],[0,8,9],[0,8,137],[0,8,73],[0,9,242],[16,7,4],
-        [0,8,85],[0,8,21],[16,8,258],[19,7,43],[0,8,117],[0,8,53],[0,9,202],
-        [17,7,13],[0,8,101],[0,8,37],[0,9,170],[0,8,5],[0,8,133],[0,8,69],
-        [0,9,234],[16,7,8],[0,8,93],[0,8,29],[0,9,154],[20,7,83],[0,8,125],
-        [0,8,61],[0,9,218],[18,7,23],[0,8,109],[0,8,45],[0,9,186],[0,8,13],
-        [0,8,141],[0,8,77],[0,9,250],[16,7,3],[0,8,83],[0,8,19],[21,8,195],
-        [19,7,35],[0,8,115],[0,8,51],[0,9,198],[17,7,11],[0,8,99],[0,8,35],
-        [0,9,166],[0,8,3],[0,8,131],[0,8,67],[0,9,230],[16,7,7],[0,8,91],
-        [0,8,27],[0,9,150],[20,7,67],[0,8,123],[0,8,59],[0,9,214],[18,7,19],
-        [0,8,107],[0,8,43],[0,9,182],[0,8,11],[0,8,139],[0,8,75],[0,9,246],
-        [16,7,5],[0,8,87],[0,8,23],[64,8,0],[19,7,51],[0,8,119],[0,8,55],
-        [0,9,206],[17,7,15],[0,8,103],[0,8,39],[0,9,174],[0,8,7],[0,8,135],
-        [0,8,71],[0,9,238],[16,7,9],[0,8,95],[0,8,31],[0,9,158],[20,7,99],
-        [0,8,127],[0,8,63],[0,9,222],[18,7,27],[0,8,111],[0,8,47],[0,9,190],
-        [0,8,15],[0,8,143],[0,8,79],[0,9,254],[96,7,0],[0,8,80],[0,8,16],
-        [20,8,115],[18,7,31],[0,8,112],[0,8,48],[0,9,193],[16,7,10],[0,8,96],
-        [0,8,32],[0,9,161],[0,8,0],[0,8,128],[0,8,64],[0,9,225],[16,7,6],
-        [0,8,88],[0,8,24],[0,9,145],[19,7,59],[0,8,120],[0,8,56],[0,9,209],
-        [17,7,17],[0,8,104],[0,8,40],[0,9,177],[0,8,8],[0,8,136],[0,8,72],
-        [0,9,241],[16,7,4],[0,8,84],[0,8,20],[21,8,227],[19,7,43],[0,8,116],
-        [0,8,52],[0,9,201],[17,7,13],[0,8,100],[0,8,36],[0,9,169],[0,8,4],
-        [0,8,132],[0,8,68],[0,9,233],[16,7,8],[0,8,92],[0,8,28],[0,9,153],
-        [20,7,83],[0,8,124],[0,8,60],[0,9,217],[18,7,23],[0,8,108],[0,8,44],
-        [0,9,185],[0,8,12],[0,8,140],[0,8,76],[0,9,249],[16,7,3],[0,8,82],
-        [0,8,18],[21,8,163],[19,7,35],[0,8,114],[0,8,50],[0,9,197],[17,7,11],
-        [0,8,98],[0,8,34],[0,9,165],[0,8,2],[0,8,130],[0,8,66],[0,9,229],
-        [16,7,7],[0,8,90],[0,8,26],[0,9,149],[20,7,67],[0,8,122],[0,8,58],
-        [0,9,213],[18,7,19],[0,8,106],[0,8,42],[0,9,181],[0,8,10],[0,8,138],
-        [0,8,74],[0,9,245],[16,7,5],[0,8,86],[0,8,22],[64,8,0],[19,7,51],
-        [0,8,118],[0,8,54],[0,9,205],[17,7,15],[0,8,102],[0,8,38],[0,9,173],
-        [0,8,6],[0,8,134],[0,8,70],[0,9,237],[16,7,9],[0,8,94],[0,8,30],
-        [0,9,157],[20,7,99],[0,8,126],[0,8,62],[0,9,221],[18,7,27],[0,8,110],
-        [0,8,46],[0,9,189],[0,8,14],[0,8,142],[0,8,78],[0,9,253],[96,7,0],
-        [0,8,81],[0,8,17],[21,8,131],[18,7,31],[0,8,113],[0,8,49],[0,9,195],
-        [16,7,10],[0,8,97],[0,8,33],[0,9,163],[0,8,1],[0,8,129],[0,8,65],
-        [0,9,227],[16,7,6],[0,8,89],[0,8,25],[0,9,147],[19,7,59],[0,8,121],
-        [0,8,57],[0,9,211],[17,7,17],[0,8,105],[0,8,41],[0,9,179],[0,8,9],
-        [0,8,137],[0,8,73],[0,9,243],[16,7,4],[0,8,85],[0,8,21],[16,8,258],
-        [19,7,43],[0,8,117],[0,8,53],[0,9,203],[17,7,13],[0,8,101],[0,8,37],
-        [0,9,171],[0,8,5],[0,8,133],[0,8,69],[0,9,235],[16,7,8],[0,8,93],
-        [0,8,29],[0,9,155],[20,7,83],[0,8,125],[0,8,61],[0,9,219],[18,7,23],
-        [0,8,109],[0,8,45],[0,9,187],[0,8,13],[0,8,141],[0,8,77],[0,9,251],
-        [16,7,3],[0,8,83],[0,8,19],[21,8,195],[19,7,35],[0,8,115],[0,8,51],
-        [0,9,199],[17,7,11],[0,8,99],[0,8,35],[0,9,167],[0,8,3],[0,8,131],
-        [0,8,67],[0,9,231],[16,7,7],[0,8,91],[0,8,27],[0,9,151],[20,7,67],
-        [0,8,123],[0,8,59],[0,9,215],[18,7,19],[0,8,107],[0,8,43],[0,9,183],
-        [0,8,11],[0,8,139],[0,8,75],[0,9,247],[16,7,5],[0,8,87],[0,8,23],
-        [64,8,0],[19,7,51],[0,8,119],[0,8,55],[0,9,207],[17,7,15],[0,8,103],
-        [0,8,39],[0,9,175],[0,8,7],[0,8,135],[0,8,71],[0,9,239],[16,7,9],
-        [0,8,95],[0,8,31],[0,9,159],[20,7,99],[0,8,127],[0,8,63],[0,9,223],
-        [18,7,27],[0,8,111],[0,8,47],[0,9,191],[0,8,15],[0,8,143],[0,8,79],
-        [0,9,255]].map{|i|Code.new(*i)}
+        [96, 7, 0], [0, 8, 80], [0, 8, 16], [20, 8, 115], [18, 7, 31], [0, 8, 112], [0, 8, 48],
+        [0, 9, 192], [16, 7, 10], [0, 8, 96], [0, 8, 32], [0, 9, 160], [0, 8, 0], [0, 8, 128],
+        [0, 8, 64], [0, 9, 224], [16, 7, 6], [0, 8, 88], [0, 8, 24], [0, 9, 144], [19, 7, 59],
+        [0, 8, 120], [0, 8, 56], [0, 9, 208], [17, 7, 17], [0, 8, 104], [0, 8, 40], [0, 9, 176],
+        [0, 8, 8], [0, 8, 136], [0, 8, 72], [0, 9, 240], [16, 7, 4], [0, 8, 84], [0, 8, 20],
+        [21, 8, 227], [19, 7, 43], [0, 8, 116], [0, 8, 52], [0, 9, 200], [17, 7, 13], [0, 8, 100],
+        [0, 8, 36], [0, 9, 168], [0, 8, 4], [0, 8, 132], [0, 8, 68], [0, 9, 232], [16, 7, 8],
+        [0, 8, 92], [0, 8, 28], [0, 9, 152], [20, 7, 83], [0, 8, 124], [0, 8, 60], [0, 9, 216],
+        [18, 7, 23], [0, 8, 108], [0, 8, 44], [0, 9, 184], [0, 8, 12], [0, 8, 140], [0, 8, 76],
+        [0, 9, 248], [16, 7, 3], [0, 8, 82], [0, 8, 18], [21, 8, 163], [19, 7, 35], [0, 8, 114],
+        [0, 8, 50], [0, 9, 196], [17, 7, 11], [0, 8, 98], [0, 8, 34], [0, 9, 164], [0, 8, 2],
+        [0, 8, 130], [0, 8, 66], [0, 9, 228], [16, 7, 7], [0, 8, 90], [0, 8, 26], [0, 9, 148],
+        [20, 7, 67], [0, 8, 122], [0, 8, 58], [0, 9, 212], [18, 7, 19], [0, 8, 106], [0, 8, 42],
+        [0, 9, 180], [0, 8, 10], [0, 8, 138], [0, 8, 74], [0, 9, 244], [16, 7, 5], [0, 8, 86],
+        [0, 8, 22], [64, 8, 0], [19, 7, 51], [0, 8, 118], [0, 8, 54], [0, 9, 204], [17, 7, 15],
+        [0, 8, 102], [0, 8, 38], [0, 9, 172], [0, 8, 6], [0, 8, 134], [0, 8, 70], [0, 9, 236],
+        [16, 7, 9], [0, 8, 94], [0, 8, 30], [0, 9, 156], [20, 7, 99], [0, 8, 126], [0, 8, 62],
+        [0, 9, 220], [18, 7, 27], [0, 8, 110], [0, 8, 46], [0, 9, 188], [0, 8, 14], [0, 8, 142],
+        [0, 8, 78], [0, 9, 252], [96, 7, 0], [0, 8, 81], [0, 8, 17], [21, 8, 131], [18, 7, 31],
+        [0, 8, 113], [0, 8, 49], [0, 9, 194], [16, 7, 10], [0, 8, 97], [0, 8, 33], [0, 9, 162],
+        [0, 8, 1], [0, 8, 129], [0, 8, 65], [0, 9, 226], [16, 7, 6], [0, 8, 89], [0, 8, 25],
+        [0, 9, 146], [19, 7, 59], [0, 8, 121], [0, 8, 57], [0, 9, 210], [17, 7, 17], [0, 8, 105],
+        [0, 8, 41], [0, 9, 178], [0, 8, 9], [0, 8, 137], [0, 8, 73], [0, 9, 242], [16, 7, 4],
+        [0, 8, 85], [0, 8, 21], [16, 8, 258], [19, 7, 43], [0, 8, 117], [0, 8, 53], [0, 9, 202],
+        [17, 7, 13], [0, 8, 101], [0, 8, 37], [0, 9, 170], [0, 8, 5], [0, 8, 133], [0, 8, 69],
+        [0, 9, 234], [16, 7, 8], [0, 8, 93], [0, 8, 29], [0, 9, 154], [20, 7, 83], [0, 8, 125],
+        [0, 8, 61], [0, 9, 218], [18, 7, 23], [0, 8, 109], [0, 8, 45], [0, 9, 186], [0, 8, 13],
+        [0, 8, 141], [0, 8, 77], [0, 9, 250], [16, 7, 3], [0, 8, 83], [0, 8, 19], [21, 8, 195],
+        [19, 7, 35], [0, 8, 115], [0, 8, 51], [0, 9, 198], [17, 7, 11], [0, 8, 99], [0, 8, 35],
+        [0, 9, 166], [0, 8, 3], [0, 8, 131], [0, 8, 67], [0, 9, 230], [16, 7, 7], [0, 8, 91],
+        [0, 8, 27], [0, 9, 150], [20, 7, 67], [0, 8, 123], [0, 8, 59], [0, 9, 214], [18, 7, 19],
+        [0, 8, 107], [0, 8, 43], [0, 9, 182], [0, 8, 11], [0, 8, 139], [0, 8, 75], [0, 9, 246],
+        [16, 7, 5], [0, 8, 87], [0, 8, 23], [64, 8, 0], [19, 7, 51], [0, 8, 119], [0, 8, 55],
+        [0, 9, 206], [17, 7, 15], [0, 8, 103], [0, 8, 39], [0, 9, 174], [0, 8, 7], [0, 8, 135],
+        [0, 8, 71], [0, 9, 238], [16, 7, 9], [0, 8, 95], [0, 8, 31], [0, 9, 158], [20, 7, 99],
+        [0, 8, 127], [0, 8, 63], [0, 9, 222], [18, 7, 27], [0, 8, 111], [0, 8, 47], [0, 9, 190],
+        [0, 8, 15], [0, 8, 143], [0, 8, 79], [0, 9, 254], [96, 7, 0], [0, 8, 80], [0, 8, 16],
+        [20, 8, 115], [18, 7, 31], [0, 8, 112], [0, 8, 48], [0, 9, 193], [16, 7, 10], [0, 8, 96],
+        [0, 8, 32], [0, 9, 161], [0, 8, 0], [0, 8, 128], [0, 8, 64], [0, 9, 225], [16, 7, 6],
+        [0, 8, 88], [0, 8, 24], [0, 9, 145], [19, 7, 59], [0, 8, 120], [0, 8, 56], [0, 9, 209],
+        [17, 7, 17], [0, 8, 104], [0, 8, 40], [0, 9, 177], [0, 8, 8], [0, 8, 136], [0, 8, 72],
+        [0, 9, 241], [16, 7, 4], [0, 8, 84], [0, 8, 20], [21, 8, 227], [19, 7, 43], [0, 8, 116],
+        [0, 8, 52], [0, 9, 201], [17, 7, 13], [0, 8, 100], [0, 8, 36], [0, 9, 169], [0, 8, 4],
+        [0, 8, 132], [0, 8, 68], [0, 9, 233], [16, 7, 8], [0, 8, 92], [0, 8, 28], [0, 9, 153],
+        [20, 7, 83], [0, 8, 124], [0, 8, 60], [0, 9, 217], [18, 7, 23], [0, 8, 108], [0, 8, 44],
+        [0, 9, 185], [0, 8, 12], [0, 8, 140], [0, 8, 76], [0, 9, 249], [16, 7, 3], [0, 8, 82],
+        [0, 8, 18], [21, 8, 163], [19, 7, 35], [0, 8, 114], [0, 8, 50], [0, 9, 197], [17, 7, 11],
+        [0, 8, 98], [0, 8, 34], [0, 9, 165], [0, 8, 2], [0, 8, 130], [0, 8, 66], [0, 9, 229],
+        [16, 7, 7], [0, 8, 90], [0, 8, 26], [0, 9, 149], [20, 7, 67], [0, 8, 122], [0, 8, 58],
+        [0, 9, 213], [18, 7, 19], [0, 8, 106], [0, 8, 42], [0, 9, 181], [0, 8, 10], [0, 8, 138],
+        [0, 8, 74], [0, 9, 245], [16, 7, 5], [0, 8, 86], [0, 8, 22], [64, 8, 0], [19, 7, 51],
+        [0, 8, 118], [0, 8, 54], [0, 9, 205], [17, 7, 15], [0, 8, 102], [0, 8, 38], [0, 9, 173],
+        [0, 8, 6], [0, 8, 134], [0, 8, 70], [0, 9, 237], [16, 7, 9], [0, 8, 94], [0, 8, 30],
+        [0, 9, 157], [20, 7, 99], [0, 8, 126], [0, 8, 62], [0, 9, 221], [18, 7, 27], [0, 8, 110],
+        [0, 8, 46], [0, 9, 189], [0, 8, 14], [0, 8, 142], [0, 8, 78], [0, 9, 253], [96, 7, 0],
+        [0, 8, 81], [0, 8, 17], [21, 8, 131], [18, 7, 31], [0, 8, 113], [0, 8, 49], [0, 9, 195],
+        [16, 7, 10], [0, 8, 97], [0, 8, 33], [0, 9, 163], [0, 8, 1], [0, 8, 129], [0, 8, 65],
+        [0, 9, 227], [16, 7, 6], [0, 8, 89], [0, 8, 25], [0, 9, 147], [19, 7, 59], [0, 8, 121],
+        [0, 8, 57], [0, 9, 211], [17, 7, 17], [0, 8, 105], [0, 8, 41], [0, 9, 179], [0, 8, 9],
+        [0, 8, 137], [0, 8, 73], [0, 9, 243], [16, 7, 4], [0, 8, 85], [0, 8, 21], [16, 8, 258],
+        [19, 7, 43], [0, 8, 117], [0, 8, 53], [0, 9, 203], [17, 7, 13], [0, 8, 101], [0, 8, 37],
+        [0, 9, 171], [0, 8, 5], [0, 8, 133], [0, 8, 69], [0, 9, 235], [16, 7, 8], [0, 8, 93],
+        [0, 8, 29], [0, 9, 155], [20, 7, 83], [0, 8, 125], [0, 8, 61], [0, 9, 219], [18, 7, 23],
+        [0, 8, 109], [0, 8, 45], [0, 9, 187], [0, 8, 13], [0, 8, 141], [0, 8, 77], [0, 9, 251],
+        [16, 7, 3], [0, 8, 83], [0, 8, 19], [21, 8, 195], [19, 7, 35], [0, 8, 115], [0, 8, 51],
+        [0, 9, 199], [17, 7, 11], [0, 8, 99], [0, 8, 35], [0, 9, 167], [0, 8, 3], [0, 8, 131],
+        [0, 8, 67], [0, 9, 231], [16, 7, 7], [0, 8, 91], [0, 8, 27], [0, 9, 151], [20, 7, 67],
+        [0, 8, 123], [0, 8, 59], [0, 9, 215], [18, 7, 19], [0, 8, 107], [0, 8, 43], [0, 9, 183],
+        [0, 8, 11], [0, 8, 139], [0, 8, 75], [0, 9, 247], [16, 7, 5], [0, 8, 87], [0, 8, 23],
+        [64, 8, 0], [19, 7, 51], [0, 8, 119], [0, 8, 55], [0, 9, 207], [17, 7, 15], [0, 8, 103],
+        [0, 8, 39], [0, 9, 175], [0, 8, 7], [0, 8, 135], [0, 8, 71], [0, 9, 239], [16, 7, 9],
+        [0, 8, 95], [0, 8, 31], [0, 9, 159], [20, 7, 99], [0, 8, 127], [0, 8, 63], [0, 9, 223],
+        [18, 7, 27], [0, 8, 111], [0, 8, 47], [0, 9, 191], [0, 8, 15], [0, 8, 143], [0, 8, 79],
+        [0, 9, 255]].map{|i|Code.new(*i)}
 
     distfix = [
-        [16,5,1],[23,5,257],[19,5,17],[27,5,4097],[17,5,5],[25,5,1025],
-        [21,5,65],[29,5,16385],[16,5,3],[24,5,513],[20,5,33],[28,5,8193],
-        [18,5,9],[26,5,2049],[22,5,129],[64,5,0],[16,5,2],[23,5,385],
-        [19,5,25],[27,5,6145],[17,5,7],[25,5,1537],[21,5,97],[29,5,24577],
-        [16,5,4],[24,5,769],[20,5,49],[28,5,12289],[18,5,13],[26,5,3073],
-        [22,5,193],[64,5,0]].map{|i|Code.new(*i)}
+        [16, 5, 1], [23, 5, 257], [19, 5, 17], [27, 5, 4097], [17, 5, 5], [25, 5, 1025],
+        [21, 5, 65], [29, 5, 16385], [16, 5, 3], [24, 5, 513], [20, 5, 33], [28, 5, 8193],
+        [18, 5, 9], [26, 5, 2049], [22, 5, 129], [64, 5, 0], [16, 5, 2], [23, 5, 385],
+        [19, 5, 25], [27, 5, 6145], [17, 5, 7], [25, 5, 1537], [21, 5, 97], [29, 5, 24577],
+        [16, 5, 4], [24, 5, 769], [20, 5, 49], [28, 5, 12289], [18, 5, 13], [26, 5, 3073],
+        [22, 5, 193], [64, 5, 0]].map{|i|Code.new(*i)}
     state.lencode = Bytef.new(lenfix)
     state.lenbits = 9
     state.distcode = Bytef.new(distfix)
@@ -4091,19 +4091,19 @@ module Rbzlib
 
     copy = out - strm.avail_out
     if (copy >= state.wsize)
-        state.window[0,state.wsize] =
-          strm.next_out.buffer[strm.next_out.offset-state.wsize,state.wsize]
+        state.window[0, state.wsize] =
+          strm.next_out.buffer[strm.next_out.offset-state.wsize, state.wsize]
         state.write = 0
         state.whave = state.wsize
     else
         dist = state.wsize - state.write
         dist = copy if (dist > copy)
-        state.window[state.write,dist] =
-          strm.next_out.buffer[strm.next_out.offset-copy,dist]
+        state.window[state.write, dist] =
+          strm.next_out.buffer[strm.next_out.offset-copy, dist]
         copy -= dist
         if copy != 0
-            state.window[0,copy] =
-              strm.next_out.buffer[strm.next_out.offset-copy,copy]
+            state.window[0, copy] =
+              strm.next_out.buffer[strm.next_out.offset-copy, copy]
             state.write = copy
             state.whave = state.wsize
         else
@@ -4139,7 +4139,7 @@ module Rbzlib
   end
 
   # Load registers with state in inflate() for speed
-  def LOAD(strm,state)
+  def LOAD(strm, state)
         @@put = strm.next_out
         @@left = strm.avail_out
         @@next = strm.next_in
@@ -4149,7 +4149,7 @@ module Rbzlib
   end
 
   # Restore state from registers in inflate()
-  def RESTORE(strm,state)
+  def RESTORE(strm, state)
         strm.next_out = @@put
         strm.avail_out = @@left
         strm.next_in = @@next
@@ -4296,7 +4296,7 @@ module Rbzlib
 
     state = strm.state
     state.mode = TYPEDO  if (state.mode == TYPE)
-    LOAD(strm,state)
+    LOAD(strm, state)
     _in = @@have
     out = @@left
     ret = Z_OK
@@ -4405,10 +4405,10 @@ module Rbzlib
                         len = state.head.extra_len - state.length
                         l = len + copy > state.head.extra_max ?
                                 state.head.extra_max - len : copy
-                        state.head.extra[len,l] = @@next.current[0,l]
+                        state.head.extra[len, l] = @@next.current[0, l]
                     end
                     if (state.flags & 0x0200) != 0
-                        state.check = crc32(state.check, @@next.current,copy)
+                        state.check = crc32(state.check, @@next.current, copy)
                     end
                     @@have -= copy
                     @@next += copy
@@ -4434,7 +4434,7 @@ module Rbzlib
                     break unless (len != 0 && copy < @@have)
                 end
                 if (state.flags & 0x0200) != 0
-                    state.check = crc32(state.check, @@next.current,copy)
+                    state.check = crc32(state.check, @@next.current, copy)
                 end
                 @@have -= copy
                 @@next += copy
@@ -4495,7 +4495,7 @@ module Rbzlib
         end
         if(state.mode==DICT)
             if state.havedict == 0
-                RESTORE(strm,state)
+                RESTORE(strm, state)
                 return Z_NEED_DICT
             end
             strm.adler = state.check = adler32(0, nil)
@@ -4504,7 +4504,7 @@ module Rbzlib
         if(state.mode==TYPE)
             throw :inf_leave if (flush == Z_BLOCK)
         end
-        if([TYPE,TYPEDO].include?(state.mode))
+        if([TYPE, TYPEDO].include?(state.mode))
             if state.last != 0
                 BYTEBITS()
                 state.mode = CHECK
@@ -4545,7 +4545,7 @@ module Rbzlib
                 copy = @@have if (copy > @@have)
                 copy = @@left if (copy > @@left)
                 throw :inf_leave if copy == 0
-                @@put.buffer[@@put.offset,copy] = @@next.current[0,copy]
+                @@put.buffer[@@put.offset, copy] = @@next.current[0, copy]
                 @@have -= copy
                 @@next += copy
                 @@left -= copy
@@ -4585,8 +4585,8 @@ module Rbzlib
             state.next = Bytef.new(state.codes)
             state.lencode = Bytef.new(state.codes)
             state.lenbits = 7
-            ret,state.lenbits,state.next.offset = inflate_table(CODES, state.lens, 19, state.codes,
-              state.next.offset,state.lenbits, state.work)
+            ret, state.lenbits, state.next.offset = inflate_table(CODES, state.lens, 19, state.codes,
+              state.next.offset, state.lenbits, state.work)
 
             if ret != 0
                 strm.msg = "invalid code lengths set"
@@ -4652,17 +4652,17 @@ module Rbzlib
             state.next = Bytef.new(state.codes)
             state.lencode = Bytef.new(state.codes)
             state.lenbits = 9
-            ret,state.lenbits,state.next.offset = inflate_table(LENS, state.lens, state.nlen,
-              state.codes,state.next.offset,state.lenbits, state.work)
+            ret, state.lenbits, state.next.offset = inflate_table(LENS, state.lens, state.nlen,
+              state.codes, state.next.offset, state.lenbits, state.work)
             if ret != 0
                 strm.msg = "invalid literal/lengths set"
                 state.mode = BAD
                 next
             end
-            state.distcode = Bytef.new(state.codes,state.next.offset)
+            state.distcode = Bytef.new(state.codes, state.next.offset)
             state.distbits = 6
-            ret,state.distbits,state.next.offset = inflate_table(DISTS, state.lens+state.nlen, state.ndist,
-                            state.codes,state.next.offset, state.distbits, state.work)
+            ret, state.distbits, state.next.offset = inflate_table(DISTS, state.lens+state.nlen, state.ndist,
+                            state.codes, state.next.offset, state.distbits, state.work)
             if ret != 0
                 strm.msg = "invalid distances set"
                 state.mode = BAD
@@ -4672,9 +4672,9 @@ module Rbzlib
         end
         if(state.mode==LEN)
             if (@@have >= 6 && @@left >= 258)
-                RESTORE(strm,state)
+                RESTORE(strm, state)
                 inflate_fast(strm, out)
-                LOAD(strm,state)
+                LOAD(strm, state)
                 next
             end
             this = nil
@@ -4765,13 +4765,13 @@ module Rbzlib
                 copy = state.offset - copy
                 if (copy > state.write)
                     copy -= state.write
-                    from = Bytef.new(state.window,state.wsize - copy)
+                    from = Bytef.new(state.window, state.wsize - copy)
                 else
-                    from = Bytef.new(state.window,state.write - copy)
+                    from = Bytef.new(state.window, state.write - copy)
                 end
                 copy = state.length if (copy > state.length)
             else
-                from = Bytef.new(@@put,@@put.offset - state.offset)
+                from = Bytef.new(@@put, @@put.offset - state.offset)
                 copy = state.length
             end
             copy = @@left if (copy > @@left)
@@ -4840,7 +4840,7 @@ module Rbzlib
       end
     end
 
-    RESTORE(strm,state)
+    RESTORE(strm, state)
 
     if (state.wsize != 0 || (state.mode < CHECK && out != strm.avail_out))
         if (updatewindow(strm, out))
@@ -4899,12 +4899,12 @@ module Rbzlib
         return Z_MEM_ERROR
     end
     if (dictLength > state.wsize)
-        state.window[0,state.wsize] =
-          dictionary[dictLength - state.wsize,state.wsize]
+        state.window[0, state.wsize] =
+          dictionary[dictLength - state.wsize, state.wsize]
         state.whave = state.wsize
     else
-        state.window[state.wsize - dictLength,dictLength] =
-          dictionary[0,dictLength]
+        state.window[state.wsize - dictLength, dictLength] =
+          dictionary[0, dictLength]
         state.whave = dictLength
     end
     state.havedict = 1
@@ -4945,7 +4945,7 @@ module Rbzlib
         _next+=1
     end
     have = got
-    return [_next,have]
+    return [_next, have]
   end
 
   #
@@ -4967,10 +4967,10 @@ module Rbzlib
             state.bits -= 8
         end
         state.have = 0
-        _,state.have = syncsearch((state.have), buf, len)
+        _, state.have = syncsearch((state.have), buf, len)
     end
 
-    len,state.have = syncsearch((state.have), strm.next_in, strm.avail_in)
+    len, state.have = syncsearch((state.have), strm.next_in, strm.avail_in)
     strm.avail_in -= len
     strm.next_in += len
     strm.total_in += len
@@ -5024,7 +5024,7 @@ module Rbzlib
     copy.next.offset = 0 + (state.next.offset - 0)
     if window
         wsize = 1 << state.wbits
-        window[0,wsize] = state.window[0,wsize]
+        window[0, wsize] = state.window[0, wsize]
     end
     copy.window = window
     dest.state = copy
@@ -5044,31 +5044,31 @@ module Rbzlib
   #   uncompress returns Z_OK if success, Z_MEM_ERROR if there was not
   # enough memory, Z_BUF_ERROR if there was not enough room in the output
   # buffer, or Z_DATA_ERROR if the input data was corrupted.
-  def uncompress(dest,destLen,source,sourceLen)
+  def uncompress(dest, destLen, source, sourceLen)
     stream = Z_stream.new
     stream.next_in = Bytef.new(source)
     stream.avail_in = sourceLen
-    return [Z_BUF_ERROR,destLen] if (stream.avail_in != sourceLen)
+    return [Z_BUF_ERROR, destLen] if (stream.avail_in != sourceLen)
 
     stream.next_out = Bytef.new(dest)
     stream.avail_out = destLen
-    return [Z_BUF_ERROR,destLen] if (stream.avail_out != destLen)
+    return [Z_BUF_ERROR, destLen] if (stream.avail_out != destLen)
 
     err = inflateInit(stream)
-    return [err,destLen] if (err != Z_OK)
+    return [err, destLen] if (err != Z_OK)
 
     err = inflate(stream, Z_FINISH)
     if (err != Z_STREAM_END)
         inflateEnd(stream)
         if (err == Z_NEED_DICT || (err == Z_BUF_ERROR && stream.avail_in == 0))
-            return [Z_DATA_ERROR,destLen]
+            return [Z_DATA_ERROR, destLen]
         end
-        return [err,destLen]
+        return [err, destLen]
     end
     destLen = stream.total_out
 
     err = inflateEnd(stream)
-    return [err,destLen]
+    return [err, destLen]
   end
 
 
