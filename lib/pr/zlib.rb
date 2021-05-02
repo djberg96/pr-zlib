@@ -320,7 +320,7 @@ module Zlib
     end
 
     def zstream_run(src, len, flush)
-      if (@input.nil? && len == 0)
+      if @input.nil? && len == 0
         @stream.next_in = ''
         @stream.avail_in = 0
       else
@@ -337,7 +337,7 @@ module Zlib
         n = @stream.avail_out
         err = send(@func.run, @stream, flush)
         @buf += n - @stream.avail_out
-        if (err == Z_STREAM_END)
+        if err == Z_STREAM_END
           @flags &= ~ZSTREAM_FLAG_IN_STREAM
           @flags |= ZSTREAM_FLAG_FINISHED
           break
@@ -569,7 +569,7 @@ module Zlib
     end
 
     def flush(v_flush)
-      if (v_flush != Z_NO_FLUSH)
+      if v_flush != Z_NO_FLUSH
         @z.zstream_run('', 0, flush)
       end
       @z.zstream_detach_buffer()
