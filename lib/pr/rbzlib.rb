@@ -339,7 +339,7 @@ module Rbzlib
       sum2 %= BASE
     end
 
-    return adler | (sum2 << 16)
+    adler | (sum2 << 16)
   end
 
   @@crc_table = [
@@ -581,13 +581,13 @@ module Rbzlib
       s.start = s.file.pos - s.stream.avail_in
     end
 
-    return s
+    s
   end
 
   # Opens a gzip (.gz) file for reading or writing.
   #
   def gzopen(path, mode)
-    return gz_open(path, mode, -1)
+    gz_open(path, mode, -1)
   end
 
   # Associate a gzFile with the file descriptor fd. fd is not dup'ed here
@@ -596,7 +596,7 @@ module Rbzlib
   def gzdopen(fd, mode)
     return nil if fd < 0
     name = "<fd:#{fd}"
-    return gz_open(name, mode, fd)
+    gz_open(name, mode, fd)
   end
 
   # Update the compression level and strategy
@@ -619,7 +619,7 @@ module Rbzlib
       s.stream.avail_out = Z_BUFSIZE
     end
 
-    return deflateParams(s.stream, level, strategy)
+    deflateParams(s.stream, level, strategy)
   end
 
   # Read a byte from a gz_stream; update next_in and avail_in. Return EOF
@@ -649,7 +649,7 @@ module Rbzlib
     _get_byte = s.stream.next_in.get
     s.stream.next_in += 1
 
-    return _get_byte
+    _get_byte
   end
 
   # Reads a long in LSB order from the given gz_stream. Sets z_err in case
@@ -664,7 +664,7 @@ module Rbzlib
 
     s.z_err = Z_DATA_ERROR if c == Z_EOF
 
-    return x.unpack('v').first
+    x.unpack('v').first
   end
 
   # Check the gzip header of a gz_stream opened for reading. Set the stream
@@ -782,7 +782,7 @@ module Rbzlib
       err = s.z_err
     end
 
-    return err
+    err
   end
 
   # Reads the given number of uncompressed bytes from the compressed file.
@@ -903,7 +903,7 @@ module Rbzlib
       return -1
     end
 
-    return len - s.stream.avail_out
+    len - s.stream.avail_out
   end
 
   # Reads one byte from the compressed file. gzgetc returns this byte
@@ -912,9 +912,9 @@ module Rbzlib
   def gzgetc(file)
     c = 0.chr
     if gzread(file, c, 1) == 1
-      return c
+      c
     else
-      return -1
+      -1
     end
   end
 
@@ -928,7 +928,7 @@ module Rbzlib
     s.last = (s.z_err == Z_STREAM_END)
     s.z_err = Z_OK if s.last
     s.z_eof = false
-    return c
+    c
   end
 
   # Reads bytes from the compressed file until len-1 characters are
@@ -956,9 +956,9 @@ module Rbzlib
     buf.chomp!(0.chr)
 
     if i == 0 && (len > 0)
-      return nil
+      nil
     else
-      return buf
+      buf
     end
   end
 
@@ -990,16 +990,16 @@ module Rbzlib
       break if s.z_err != Z_OK
     end
     s.crc = crc32(s.crc, buf, len)
-    return (len - s.stream.avail_in)
+    (len - s.stream.avail_in)
   end
 
   #   Writes c, converted to an unsigned char, into the compressed file.
   # gzputc returns the value that was written, or -1 in case of error.
   def gzputc(file, c)
     if gzwrite(file, c, 1) == 1
-      return c
+      c
     else
-      return -1
+      -1
     end
   end
 
@@ -1007,7 +1007,7 @@ module Rbzlib
   # the terminating null character.
   #    gzputs returns the number of characters written, or -1 in case of error.
   def gzputs(file, s)
-    return gzwrite(file, s, s.length)
+    gzwrite(file, s, s.length)
   end
 
   #   Flushes all pending output into the compressed file. The parameter
@@ -1050,9 +1050,9 @@ module Rbzlib
     end
 
     if (s.z_err = Z_STREAM_END)
-      return Z_OK
+      Z_OK
     else
-      return s.z_err
+      s.z_err
     end
   end
 
@@ -1066,9 +1066,9 @@ module Rbzlib
     end
 
     if s.z_err == Z_STREAM_END
-      return Z_OK
+      Z_OK
     else
-      return s.z_err
+      s.z_err
     end
   end
 
@@ -1090,7 +1090,7 @@ module Rbzlib
     end
     s.in = 0
     s.out = 0
-    return s.file.seek(s.start, SEEK_SET)
+    s.file.seek(s.start, SEEK_SET)
   end
 
   #    Sets the starting position for the next gzread or gzwrite on the given
@@ -1182,14 +1182,14 @@ module Rbzlib
       offset -= size
     end
 
-    return(s.out)
+    (s.out)
   end
 
   #   Returns the starting position for the next gzread or gzwrite on the
   # given compressed file. This position represents a number of bytes in the
   # uncompressed data stream.
   def gztell(file)
-    return gzseek(file, 0, SEEK_CUR)
+    gzseek(file, 0, SEEK_CUR)
   end
 
   #   Returns 1 when EOF has previously been detected reading the given
@@ -1199,7 +1199,7 @@ module Rbzlib
 
     return false if s.nil? || (s.mode != 'r')
     return s.z_eof if s.z_eof
-    return s.z_err == Z_STREAM_END
+    s.z_err == Z_STREAM_END
   end
 
   #   Returns 1 if reading and doing so transparently, otherwise zero.
@@ -1207,7 +1207,7 @@ module Rbzlib
     s = file
 
     return false if s.nil? || s.mode != 'r'
-    return s.transparent
+    s.transparent
   end
 
   # Outputs a long in LSB order to the given file
@@ -1239,7 +1239,7 @@ module Rbzlib
       putLong(s.file, s.in & 0xffffffff)
     end
 
-    return destroy(file)
+    destroy(file)
   end
 
   #   Returns the error message for the last error which occurred on the
@@ -1266,7 +1266,7 @@ module Rbzlib
       m = zError(s.z_err)
     end
     s.msg = s.path + ': ' + m
-    return s.msg
+    s.msg
   end
 
   # Clear the error and end-of-file flags, and do the same for the real file.
@@ -1312,7 +1312,7 @@ module Rbzlib
     match_head = s.head[s.ins_h]
     s.prev[(str) & s.w_mask] = match_head
     s.head[s.ins_h] = str
-    return match_head
+    match_head
   end
 
   # Initialize the hash table (avoiding 64K overflow for 16 bit systems).
@@ -1396,9 +1396,9 @@ module Rbzlib
 
   def deflateInit_(strm, level, version, stream_size)
     if strm.nil?
-      return Z_STREAM_ERROR
+      Z_STREAM_ERROR
     else
-      return deflateInit2_(strm, level, Z_DEFLATED, MAX_WBITS,
+      deflateInit2_(strm, level, Z_DEFLATED, MAX_WBITS,
                    DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, version, stream_size)
     end
   end
@@ -1442,7 +1442,7 @@ module Rbzlib
     for n in 0 .. (length - MIN_MATCH)
       hash_head = INSERT_STRING(s, n, hash_head)
     end
-    return Z_OK
+    Z_OK
   end
 
   #
@@ -1470,7 +1470,7 @@ module Rbzlib
     _tr_init(s)
     lm_init(s)
 
-    return Z_OK
+    Z_OK
   end
 
   #
@@ -1480,7 +1480,7 @@ module Rbzlib
     end
     return Z_STREAM_ERROR if(strm.state.wrap != 2)
     strm.state.gzhead = head
-    return Z_OK
+    Z_OK
   end
 
   #
@@ -1490,7 +1490,7 @@ module Rbzlib
     end
     strm.state.bi_valid = bits
     strm.state.bi_buf = (value & ((1 << bits) - 1))
-    return Z_OK
+    Z_OK
   end
 
   #
@@ -1521,7 +1521,7 @@ module Rbzlib
       s.max_chain_length = @@configuration_table[level].max_chain
     end
     s.strategy = strategy
-    return err
+    err
   end
 
   #
@@ -1534,7 +1534,7 @@ module Rbzlib
     s.max_lazy_match = max_lazy
     s.nice_match = nice_length
     s.max_chain_length = max_chain
-    return Z_OK
+    Z_OK
   end
 
   # For the default windowBits of 15 and memLevel of 8, this function returns
@@ -1565,7 +1565,7 @@ module Rbzlib
       return destLen
     end
 
-    return compressBound(sourceLen)
+    compressBound(sourceLen)
   end
 
   # Put a short in the pending buffer. The 16-bit value is put in MSB order.
@@ -1903,7 +1903,7 @@ module Rbzlib
     flush_pending(strm)
 
     s.wrap = -s.wrap if s.wrap > 0
-    return s.pending != 0 ? Z_OK : Z_STREAM_END
+    s.pending != 0 ? Z_OK : Z_STREAM_END
   end
 
   #
@@ -1926,9 +1926,9 @@ module Rbzlib
     strm.state = nil
 
     if status == BUSY_STATE
-      return Z_DATA_ERROR
+      Z_DATA_ERROR
     else
-      return Z_OK
+      Z_OK
     end
   end
 
@@ -1961,7 +1961,7 @@ module Rbzlib
     ds.d_desc.dyn_tree = ds.dyn_dtree
     ds.bl_desc.dyn_tree = ds.bl_tree
 
-    return Z_OK
+    Z_OK
   end
 
   # Read a new buffer from the current input stream, update the adler32
@@ -1991,7 +1991,7 @@ module Rbzlib
     strm.next_in += len
     strm.total_in += len
 
-    return len
+    len
   end
 
   # Initialize the "longest match" routines for a new zlib stream
@@ -2104,9 +2104,9 @@ module Rbzlib
     end until (cur_match <= limit) || chain_length == 0
 
     if best_len <= s.lookahead
-      return best_len
+      best_len
     else
-      return s.lookahead
+      s.lookahead
     end
   end
 
@@ -2154,7 +2154,7 @@ module Rbzlib
     return (MIN_MATCH - 1) if len < MIN_MATCH
 
     s.match_start = cur_match
-    return len <= s.lookahead ? len : s.lookahead
+    len <= s.lookahead ? len : s.lookahead
   end
 
   # Check that the match at match_start is indeed a match.
@@ -2297,9 +2297,9 @@ module Rbzlib
     end
 
     if flush == Z_FINISH
-      return :finish_done
+      :finish_done
     else
-      return :block_done
+      :block_done
     end
   end
 
@@ -2377,9 +2377,9 @@ module Rbzlib
     end
 
     if flush == Z_FINISH
-      return :finish_done
+      :finish_done
     else
-      return :block_done
+      :block_done
     end
   end
 
@@ -2475,9 +2475,9 @@ module Rbzlib
       end
     end
     if flush == Z_FINISH
-      return :finish_done
+      :finish_done
     else
-      return :block_done
+      :block_done
     end
   end
 
@@ -3350,12 +3350,12 @@ module Rbzlib
     destLen = stream.total_out
 
     err = deflateEnd(stream)
-    return [err, destLen]
+    [err, destLen]
   end
 
   #
   def compress(dest, destLen, source, sourceLen)
-    return compress2(dest, destLen, source, sourceLen, Z_DEFAULT_COMPRESSION)
+    compress2(dest, destLen, source, sourceLen, Z_DEFAULT_COMPRESSION)
   end
 
   Code = Struct.new(:op, :bits, :val)
@@ -3571,7 +3571,7 @@ module Rbzlib
 
     offset += used
     bits = root
-    return [0, bits, offset]
+    [0, bits, offset]
   end
 
   # Decode literal, length, and distance codes and write out the resulting
@@ -3842,7 +3842,7 @@ module Rbzlib
                                  257 + (_end.offset - out.offset) : 257 - (out.offset - _end.offset))
     state.hold = hold
     state.bits = bits
-    return
+    nil
   end
 
   HEAD,
@@ -3883,12 +3883,12 @@ module Rbzlib
 
   #
   def inflateInit(strm)
-    return inflateInit_(strm, ZLIB_VERSION, strm.size)
+    inflateInit_(strm, ZLIB_VERSION, strm.size)
   end
 
   #
   def inflateInit2(strm, windowBits)
-    return inflateInit2_(strm, windowBits, ZLIB_VERSION, strm.size)
+    inflateInit2_(strm, windowBits, ZLIB_VERSION, strm.size)
   end
 
   #
@@ -3914,7 +3914,7 @@ module Rbzlib
     state.next = Bytef.new(state.codes)
     state.distcode = Bytef.new(state.codes)
     state.lencode = Bytef.new(state.codes)
-    return Z_OK
+    Z_OK
   end
 
   #
@@ -3925,7 +3925,7 @@ module Rbzlib
     value &= (1 << bits) - 1
     state.hold += value << state.bits
     state.bits += bits
-    return Z_OK
+    Z_OK
   end
 
   #
@@ -3956,12 +3956,12 @@ module Rbzlib
     end
     state.wbits = windowBits
     state.window = nil
-    return inflateReset(strm)
+    inflateReset(strm)
   end
 
   #
   def inflateInit_(strm, version, stream_size)
-    return inflateInit2_(strm, DEF_WBITS, version, stream_size)
+    inflateInit2_(strm, DEF_WBITS, version, stream_size)
   end
 
   # Return state with length and distance decoding tables and index sizes set to
@@ -4112,7 +4112,7 @@ module Rbzlib
         state.whave += dist if state.whave < state.wsize
       end
     end
-    return false
+    false
   end
 
   # check function to use adler32() for zlib or crc32() for gzip
@@ -4864,7 +4864,7 @@ module Rbzlib
     if ((_in == 0 && out == 0) || flush == Z_FINISH) && ret == Z_OK
       ret = Z_BUF_ERROR
     end
-    return ret
+    ret
   end
 
   #
@@ -4875,7 +4875,7 @@ module Rbzlib
     state = strm.state
     state.window = nil
     strm.state = nil
-    return Z_OK
+    Z_OK
   end
 
   #
@@ -4908,7 +4908,7 @@ module Rbzlib
       state.whave = dictLength
     end
     state.havedict = 1
-    return Z_OK
+    Z_OK
   end
 
   #
@@ -4919,7 +4919,7 @@ module Rbzlib
 
     state.head = head
     head.done = 0
-    return Z_OK
+    Z_OK
   end
 
   # Search buf[0..len-1] for the pattern: 0, 0, 0xff, 0xff.  Return when found
@@ -4945,7 +4945,7 @@ module Rbzlib
       _next += 1
     end
     have = got
-    return [_next, have]
+    [_next, have]
   end
 
   #
@@ -4981,7 +4981,7 @@ module Rbzlib
     strm.total_in = _in
     strm.total_out = out
     state.mode = TYPE
-    return Z_OK
+    Z_OK
   end
 
   # Returns true if inflate is currently at the end of a block generated by
@@ -4993,7 +4993,7 @@ module Rbzlib
   def inflateSyncPoint(strm)
     return Z_STREAM_ERROR if strm.nil? || strm.state.nil?
     state = strm.state
-    return state.mode == STORED && state.bits == 0
+    state.mode == STORED && state.bits == 0
   end
 
   #
@@ -5028,7 +5028,7 @@ module Rbzlib
     end
     copy.window = window
     dest.state = copy
-    return Z_OK
+    Z_OK
   end
 
   #   Decompresses the source buffer into the destination buffer.  sourceLen is
@@ -5068,7 +5068,7 @@ module Rbzlib
     destLen = stream.total_out
 
     err = inflateEnd(stream)
-    return [err, destLen]
+    [err, destLen]
   end
 
 

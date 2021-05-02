@@ -171,7 +171,7 @@ module Zlib
       @stream.avail_out = ZSTREAM_INITIAL_BUFSIZE
       @buf_filled = 0
 
-      return dst
+      dst
     end
 
     def zstream_shift_buffer(len)
@@ -187,7 +187,7 @@ module Zlib
       if @stream.avail_out > ZSTREAM_AVAIL_OUT_STEP_MAX
         @stream.avail_out = ZSTREAM_AVAIL_OUT_STEP_MAX
       end
-      return dst
+      dst
     end
 
     def zstream_buffer_ungetc(c)
@@ -238,7 +238,7 @@ module Zlib
         dst = @input
       end
       @input = nil
-      return dst
+      dst
     end
 
     def zstream_reset
@@ -270,7 +270,7 @@ module Zlib
         raise_zlib_error(err, @stream.msg)
       end
       @flags = 0
-      return nil
+      nil
     end
 
     def zstream_sync(src, len)
@@ -303,7 +303,7 @@ module Zlib
         rest = @stream.next_in.buffer[0, @stream.avail_in]
         raise_zlib_error(err, @stream.msg)
       end
-      return false
+      false
     end
 
     def zstream_init(func)
@@ -507,7 +507,7 @@ module Zlib
 
     def self.deflate_run(src)
       @z.zstream_run(src, src.length, Z_FINISH)
-      return @z.zstream_detach_buffer()
+      @z.zstream_detach_buffer()
     end
 
     def self.deflate(src, level = Z_DEFAULT_COMPRESSION)
@@ -681,7 +681,7 @@ module Zlib
 
     def sync
       raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
-      return @z.zstream_sync(src, src.length)
+      @z.zstream_sync(src, src.length)
     end
 
     def sync_point?
@@ -777,7 +777,7 @@ module Zlib
           obj.gzfile_ensure_close()
         end
       else
-        return obj
+        obj
       end
     end
 
@@ -1178,7 +1178,7 @@ module Zlib
       gzfile_make_footer()
       gzfile_write_raw()
 
-      return nil
+      nil
     end
 
     def gzfile_writer_end
@@ -1239,7 +1239,7 @@ module Zlib
 
     def rewind
       gzfile_reader_rewind()
-      return 0
+      0
     end
 
     def unused
@@ -1255,7 +1255,7 @@ module Zlib
         raise ArgumentError, "negative length #{len} given"
       end
 
-      return gzfile_read(len)
+      gzfile_read(len)
     end
 
     def getc
