@@ -3368,7 +3368,7 @@ module Rbzlib
 
   MAXBITS = 15
 
-  Inflate_copyright = " inflate 1.2.3 Copyright 1995-2005 Mark Adler "
+  Inflate_copyright = ' inflate 1.2.3 Copyright 1995-2005 Mark Adler '
 
   # Build a set of tables to decode the provided canonical Huffman code.
   # The code lengths are lens[0..codes-1].  The result starts at *table,
@@ -3701,7 +3701,7 @@ module Rbzlib
                 if dist > op
                     op = dist - op
                     if op > whave
-                        strm.msg = "invalid distance too far back"
+                        strm.msg = 'invalid distance too far back'
                         state.mode = BAD
                         break
                     end
@@ -3812,7 +3812,7 @@ module Rbzlib
                 status = :dodist
                 redo
             else
-                strm.msg = "invalid distance code"
+                strm.msg = 'invalid distance code'
                 state.mode = BAD
                 break
             end
@@ -3824,7 +3824,7 @@ module Rbzlib
           state.mode = TYPE
           break
       else
-          strm.msg = "invalid literal/length code"
+          strm.msg = 'invalid literal/length code'
           state.mode = BAD
           break
       end
@@ -4322,19 +4322,19 @@ module Rbzlib
             end
             if ((state.wrap & 1) == 0 ||
                 ((BITS(8) << 8) + (@@hold >> 8)) % 31) != 0
-                strm.msg = "incorrect header check"
+                strm.msg = 'incorrect header check'
                 state.mode = BAD
                 next
             end
             if BITS(4) != Z_DEFLATED
-                strm.msg = "unknown compression method"
+                strm.msg = 'unknown compression method'
                 state.mode = BAD
                 next
             end
             DROPBITS(4)
             len = BITS(4) + 8
             if len > state.wbits
-                strm.msg = "invalid window size"
+                strm.msg = 'invalid window size'
                 state.mode = BAD
                 next
             end
@@ -4347,12 +4347,12 @@ module Rbzlib
             NEEDBITS(16)
             state.flags = (@@hold)
             if (state.flags & 0xff) != Z_DEFLATED
-                strm.msg = "unknown compression method"
+                strm.msg = 'unknown compression method'
                 state.mode = BAD
                 next
             end
             if (state.flags & 0xe000) != 0
-                strm.msg = "unknown header flags set"
+                strm.msg = 'unknown header flags set'
                 state.mode = BAD
                 next
             end
@@ -4474,7 +4474,7 @@ module Rbzlib
             if (state.flags & 0x0200) != 0
                 NEEDBITS(16)
                 if @@hold != (state.check & 0xffff)
-                    strm.msg = "header crc mismatch"
+                    strm.msg = 'header crc mismatch'
                     state.mode = BAD
                     next
                 end
@@ -4522,7 +4522,7 @@ module Rbzlib
             when 2
                 state.mode = TABLE
             when 3
-                strm.msg = "invalid block type"
+                strm.msg = 'invalid block type'
                 state.mode = BAD
             end
             DROPBITS(2)
@@ -4531,7 +4531,7 @@ module Rbzlib
             BYTEBITS()
             NEEDBITS(32)
             if (@@hold & 0xffff) != ((@@hold >> 16) ^ 0xffff)
-                strm.msg = "invalid stored block lengths"
+                strm.msg = 'invalid stored block lengths'
                 state.mode = BAD
                 next
             end
@@ -4564,7 +4564,7 @@ module Rbzlib
             state.ncode = BITS(4) + 4
             DROPBITS(4)
             if state.nlen > 286 || state.ndist > 30
-                strm.msg = "too many length or distance symbols"
+                strm.msg = 'too many length or distance symbols'
                 state.mode = BAD
                 next
             end
@@ -4589,7 +4589,7 @@ module Rbzlib
               state.next.offset, state.lenbits, state.work)
 
             if ret != 0
-                strm.msg = "invalid code lengths set"
+                strm.msg = 'invalid code lengths set'
                 state.mode = BAD
                 next
             end
@@ -4614,7 +4614,7 @@ module Rbzlib
                         NEEDBITS(this.bits + 2)
                         DROPBITS(this.bits)
                         if state.have == 0
-                            strm.msg = "invalid bit length repeat"
+                            strm.msg = 'invalid bit length repeat'
                             state.mode = BAD
                             break
                         end
@@ -4635,7 +4635,7 @@ module Rbzlib
                         DROPBITS(7)
                     end
                     if state.have + copy > state.nlen + state.ndist
-                        strm.msg = "invalid bit length repeat"
+                        strm.msg = 'invalid bit length repeat'
                         state.mode = BAD
                         break
                     end
@@ -4655,7 +4655,7 @@ module Rbzlib
             ret, state.lenbits, state.next.offset = inflate_table(LENS, state.lens, state.nlen,
               state.codes, state.next.offset, state.lenbits, state.work)
             if ret != 0
-                strm.msg = "invalid literal/lengths set"
+                strm.msg = 'invalid literal/lengths set'
                 state.mode = BAD
                 next
             end
@@ -4664,7 +4664,7 @@ module Rbzlib
             ret, state.distbits, state.next.offset = inflate_table(DISTS, state.lens + state.nlen, state.ndist,
                             state.codes, state.next.offset, state.distbits, state.work)
             if ret != 0
-                strm.msg = "invalid distances set"
+                strm.msg = 'invalid distances set'
                 state.mode = BAD
                 next
             end
@@ -4704,7 +4704,7 @@ module Rbzlib
                 next
             end
             if (this.op & 64) != 0
-                strm.msg = "invalid literal/length code"
+                strm.msg = 'invalid literal/length code'
                 state.mode = BAD
                 next
             end
@@ -4737,7 +4737,7 @@ module Rbzlib
             end
             DROPBITS(this.bits)
             if (this.op & 64) != 0
-                strm.msg = "invalid distance code"
+                strm.msg = 'invalid distance code'
                 state.mode = BAD
                 next
             end
@@ -4752,7 +4752,7 @@ module Rbzlib
                 DROPBITS(state.extra)
             end
             if state.offset > state.whave + out - @@left
-                strm.msg = "invalid distance too far back"
+                strm.msg = 'invalid distance too far back'
                 state.mode = BAD
                 next
             end
@@ -4805,7 +4805,7 @@ module Rbzlib
                 end
                 out = @@left
                 if (state.flags != 0 ? @@hold : REVERSE(@@hold)) != state.check
-                    strm.msg = "incorrect data check"
+                    strm.msg = 'incorrect data check'
                     state.mode = BAD
                     next
                 end
@@ -4817,7 +4817,7 @@ module Rbzlib
             if state.wrap != 0 && state.flags != 0
                 NEEDBITS(32)
                 if @@hold != (state.total & 0xffffffff)
-                    strm.msg = "incorrect length check"
+                    strm.msg = 'incorrect length check'
                     state.mode = BAD
                     next
                 end

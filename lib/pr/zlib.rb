@@ -109,7 +109,7 @@ module Zlib
         when Z_ERRNO
           raise SystemCallError, msg
         else
-          raise Error, "unknown zlib error #errend: #msgend"
+          raise Error, 'unknown zlib error #errend: #msgend'
       end
     end
 
@@ -256,11 +256,11 @@ module Zlib
 
     def zstream_end()
       if !ZSTREAM_IS_READY()
-        warn("attempt to close uninitialized zstream; ignored.")
+        warn('attempt to close uninitialized zstream; ignored.')
         return nil
       end
       if (@flags & ZSTREAM_FLAG_IN_STREAM).nonzero?
-        warn("attempt to close unfinished zstream; reset forced.")
+        warn('attempt to close unfinished zstream; reset forced.')
         zstream_reset()
       end
 
@@ -391,10 +391,10 @@ module Zlib
         if z && z.ZSTREAM_IS_READY()
           err = send(z.func.end, z.stream)
           if err == Z_STREAM_ERROR
-            warn("the stream state was inconsistent.")
+            warn('the stream state was inconsistent.')
           end
           if err == Z_DATA_ERROR
-            warn("the stream was freed prematurely.")
+            warn('the stream was freed prematurely.')
           end
         end
       end
@@ -425,12 +425,12 @@ module Zlib
     end
 
     def total_in
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       @z.stream.total_in
     end
 
     def total_out
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       @z.stream.total_out
     end
 
@@ -454,11 +454,11 @@ module Zlib
 
     def close()
       if !@z.ZSTREAM_IS_READY()
-         warn("attempt to close uninitialized zstream ignored.")
+         warn('attempt to close uninitialized zstream ignored.')
          return nil
       end
       if (@z.flags & ZSTREAM_FLAG_IN_STREAM).nonzero?
-         warn("attempt to close unfinished zstream reset forced.")
+         warn('attempt to close unfinished zstream reset forced.')
          @z.input = nil
       end
 
@@ -484,7 +484,7 @@ module Zlib
     end
 
     def finish()
-      @z.zstream_run("", 0, Z_FINISH)
+      @z.zstream_run('', 0, Z_FINISH)
       @z.zstream_detach_buffer()
     end
 
@@ -570,7 +570,7 @@ module Zlib
 
     def flush(v_flush)
       if(v_flush != Z_NO_FLUSH)
-        @z.zstream_run("", 0, flush)
+        @z.zstream_run('', 0, flush)
       end
       @z.zstream_detach_buffer()
     end
@@ -578,7 +578,7 @@ module Zlib
     def params(level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY)
       err = deflateParams(@z.stream, level, strategy)
       while err == Z_BUF_ERROR
-        warn("deflateParams() returned Z_BUF_ERROR")
+        warn('deflateParams() returned Z_BUF_ERROR')
          @z.zstream_expand_buffer()
          err = deflateParams(@z.stream, level, strategy)
       end
@@ -624,7 +624,7 @@ module Zlib
 
     def do_inflate(src)
       if(src.nil?)
-        @z.zstream_run("", 0, Z_FINISH)
+        @z.zstream_run('', 0, Z_FINISH)
         return
       end
       if src.length > 0
@@ -680,7 +680,7 @@ module Zlib
     end
 
     def sync
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       return @z.zstream_sync(src, src.length)
     end
 
@@ -782,48 +782,48 @@ module Zlib
     end
 
     def to_io
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       @gz.io
     end
 
     def crc
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       @gz.crc
     end
 
     def mtime
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       Time.at(@gz.mtime)
     end
 
     def level
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       @gz.level
     end
 
     def os_code
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       @gz.os_code
     end
 
     def orig_name
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       @gz.orig_name ? @gz.orig_name.dup : nil
     end
 
     def comment
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       @gz.comment ? @gz.comment.dup : nil
     end
 
     def close
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       gzfile_close(true)
       @gz.io
     end
 
     def finish
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       gzfile_close(false)
       @gz.io
     end
@@ -833,12 +833,12 @@ module Zlib
     end
 
     def sync
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       !(@gz.z.flags & GZFILE_FLAG_SYNC).zero?
     end
 
     def sync=(mode)
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       if(mode)
         @gz.z.flags |= GZFILE_FLAG_SYNC
       else
@@ -939,13 +939,13 @@ module Zlib
 
     def gzfile_read_header()
       if !gzfile_read_raw_ensure(10)
-       raise GzipFile::Error, "not in gzip format"
+       raise GzipFile::Error, 'not in gzip format'
       end
 
       head = @gz.z.input
 
       if head[0].ord != GZ_MAGIC1 || head[1].ord != GZ_MAGIC2
-         raise GzipFile::Error, "not in gzip format"
+         raise GzipFile::Error, 'not in gzip format'
       end
       if head[2].ord != GZ_METHOD_DEFLATE
          raise GzipFile::Error, "unsupported compression method #{head[2].ord}"
@@ -953,11 +953,11 @@ module Zlib
 
       flags = head[3].ord
       if (flags & GZ_FLAG_MULTIPART).nonzero?
-         raise GzipFile::Error, "multi-part gzip file is not supported"
+         raise GzipFile::Error, 'multi-part gzip file is not supported'
       elsif (flags & GZ_FLAG_ENCRYPT).nonzero?
-         raise GzipFile::Error, "encrypted gzip file is not supported"
+         raise GzipFile::Error, 'encrypted gzip file is not supported'
       elsif (flags & GZ_FLAG_UNKNOWN_MASK).nonzero?
-         raise GzipFile::Error, "unknown flags 0x%02x" % flags
+         raise GzipFile::Error, 'unknown flags 0x%02x' % flags
       end
 
       if (head[8].ord & GZ_EXTRAFLAG_FAST).nonzero?
@@ -974,11 +974,11 @@ module Zlib
 
       if (flags & GZ_FLAG_EXTRA).nonzero?
          if !gzfile_read_raw_ensure(2)
-           raise GzipFile::Error, "unexpected end of file"
+           raise GzipFile::Error, 'unexpected end of file'
          end
          len = gzfile_get16(@gz.z.input)
          if !gzfile_read_raw_ensure(2 + len)
-           raise GzipFile::Error, "unexpected end of file"
+           raise GzipFile::Error, 'unexpected end of file'
          end
          @gz.z.zstream_discard_input(2 + len)
       end
@@ -1004,17 +1004,17 @@ module Zlib
       @gz.z.flags |= GZFILE_FLAG_FOOTER_FINISHED
 
       if !gzfile_read_raw_ensure(8)
-        raise NoFooter, "footer is not found"
+        raise NoFooter, 'footer is not found'
       end
       crc = gzfile_get32(@gz.z.input)
       length = gzfile_get32(@gz.z.input[4, 4])
       @gz.z.stream.total_in += 8
       @gz.z.zstream_discard_input(8)
       if @gz.crc != crc
-        raise CRCError, "invalid compressed data -- crc error"
+        raise CRCError, 'invalid compressed data -- crc error'
       end
       if @gz.z.stream.total_out != length
-        raise LengthError, "invalid compressed data -- length error"
+        raise LengthError, 'invalid compressed data -- length error'
       end
     end
 
@@ -1033,20 +1033,20 @@ module Zlib
   class GzipWriter < GzipFile
 
     def mtime=(mtime)
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
 
       if (@gz.z.flags & GZFILE_FLAG_HEADER_FINISHED).nonzero?
-        raise GzipFile::Error, "header is already written"
+        raise GzipFile::Error, 'header is already written'
       end
 
       @gz.mtime = mtime.to_i
     end
 
     def orig_name=(str)
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
 
       if (@gz.z.flags & GZFILE_FLAG_HEADER_FINISHED).nonzero?
-        raise GzipFile::Error, "header is already written"
+        raise GzipFile::Error, 'header is already written'
       end
 
       ap = str[0.chr]
@@ -1054,17 +1054,17 @@ module Zlib
     end
 
     def comment=(str)
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
 
       if (@gz.z.flags & GZFILE_FLAG_HEADER_FINISHED).nonzero?
-        raise GzipFile::Error, "header is already written"
+        raise GzipFile::Error, 'header is already written'
       end
 
       @gz.comment = str.dup
     end
 
     def pos
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       @gz.z.stream.total_in
     end
 
@@ -1099,10 +1099,10 @@ module Zlib
     end
 
     def flush(v_flush = Z_SYNC_FLUSH)
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
 
       if v_flush != Z_NO_FLUSH
-        @gz.z.zstream_run("", 0, v_flush)
+        @gz.z.zstream_run('', 0, v_flush)
       end
 
       gzfile_write_raw()
@@ -1115,14 +1115,14 @@ module Zlib
     end
 
     def write(str)
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       str = str.to_s
       gzfile_write(str, str.length)
       str.length
     end
 
     def putc(ch)
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       gzfile_write(ch.chr, 1)
       ch
     end
@@ -1174,7 +1174,7 @@ module Zlib
       if (@gz.z.flags & GZFILE_FLAG_HEADER_FINISHED).zero?
         gzfile_make_header()
       end
-      @gz.z.zstream_run("", 0, Z_FINISH)
+      @gz.z.zstream_run('', 0, Z_FINISH)
       gzfile_make_footer()
       gzfile_write_raw()
 
@@ -1196,17 +1196,17 @@ module Zlib
     include Enumerable
 
     def lineno
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       @gz.lineno
     end
 
     def lineno=(lineno)
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       @gz.lineno = lineno
     end
 
     def eof
-      raise GzipFile::Error, "closed gzip stream" unless @gz.z.ZSTREAM_IS_READY()
+      raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
       GZFILE_IS_FINISHED(@gz)
     end
     alias eof? :eof
@@ -1221,7 +1221,7 @@ module Zlib
     alias tell :pos
 
     def self.open(filename, level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY, &blk)
-      GzipReader.gzfile_s_open(filename, "rb", level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY, &blk)
+      GzipReader.gzfile_s_open(filename, 'rb', level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY, &blk)
     end
 
     def initialize(io, level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY)
@@ -1266,7 +1266,7 @@ module Zlib
     def readchar()
       dst = getc()
       if dst.nil?
-        raise EOFError, "end of file reached"
+        raise EOFError, 'end of file reached'
       end
       dst
     end
@@ -1354,7 +1354,7 @@ module Zlib
     end
 
     def rscheck(rsptr, rslen, rs)
-      raise RuntimeError, "rs modified" if rs != rsptr
+      raise RuntimeError, 'rs modified' if rs != rsptr
     end
 
     def gzreader_gets(rs = $INPUT_RECORD_SEPARATOR)
@@ -1423,7 +1423,7 @@ module Zlib
       end
 
       if len.zero?
-        return ""
+        return ''
       end
 
       if @gz.z.buf.nil?
@@ -1487,7 +1487,7 @@ module Zlib
         break if ap
         str = gzfile_read_raw()
 
-        raise Error, "unexpected end of file" if str.nil?
+        raise Error, 'unexpected end of file' if str.nil?
 
         offset = @gz.z.input.length
         @gz.z.zstream_append_input(str, str.length)
@@ -1501,7 +1501,7 @@ module Zlib
         str = gzfile_read_raw()
         if str.nil?
           if !@gz.z.ZSTREAM_IS_FINISHED()
-            raise Error, "unexpected end of file"
+            raise Error, 'unexpected end of file'
           end
           break
         end
