@@ -1283,17 +1283,17 @@ module Zlib
       nil
     end
 
-    def gets(rs = $/)
+    def gets(rs = $INPUT_RECORD_SEPARATOR)
       dst = gzreader_gets(rs)
       $_ = dst if dst
       dst
     end
 
-    def readline(rs = $/)
+    def readline(rs = $INPUT_RECORD_SEPARATOR)
       gets(rs)
     end
 
-    def each(rs = $/)
+    def each(rs = $INPUT_RECORD_SEPARATOR)
       while (str = gzreader_gets(rs))
         yield(str)
       end
@@ -1301,7 +1301,7 @@ module Zlib
     end
     alias each_line :each
 
-    def readlines(rs = $/)
+    def readlines(rs = $INPUT_RECORD_SEPARATOR)
       dst = []
       while str = gzreader_gets(rs)
         dst.push(str)
@@ -1357,7 +1357,7 @@ module Zlib
       raise RuntimeError, "rs modified" if rs != rsptr
     end
 
-    def gzreader_gets(rs = $/)
+    def gzreader_gets(rs = $INPUT_RECORD_SEPARATOR)
       if rs && rs.class != String
         raise TypeError, "wrong argument type #{rs.class} (expected String)"
       end
