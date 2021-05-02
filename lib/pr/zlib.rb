@@ -329,7 +329,7 @@ module Zlib
         @stream.avail_in = @input.length
         guard = @input
       end
-      if (@stream.avail_out.zero?)
+      if @stream.avail_out.zero?
         zstream_expand_buffer()
       end
 
@@ -623,7 +623,7 @@ module Zlib
     end
 
     def do_inflate(src)
-      if (src.nil?)
+      if src.nil?
         @z.zstream_run('', 0, Z_FINISH)
         return
       end
@@ -839,7 +839,7 @@ module Zlib
 
     def sync=(mode)
       raise GzipFile::Error, 'closed gzip stream' unless @gz.z.ZSTREAM_IS_READY()
-      if (mode)
+      if mode
         @gz.z.flags |= GZFILE_FLAG_SYNC
       else
         @gz.z.flags &= ~GZFILE_FLAG_SYNC

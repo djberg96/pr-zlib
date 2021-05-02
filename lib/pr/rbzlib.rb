@@ -1182,7 +1182,7 @@ module Rbzlib
       offset -= size
     end
 
-    (s.out)
+    s.out
   end
 
   #   Returns the starting position for the next gzread or gzwrite on the
@@ -4504,7 +4504,7 @@ module Rbzlib
         if (state.mode == TYPE)
           throw :inf_leave if flush == Z_BLOCK
         end
-        if ([TYPE, TYPEDO].include?(state.mode))
+        if [TYPE, TYPEDO].include?(state.mode)
           if state.last != 0
             BYTEBITS()
             state.mode = CHECK
