@@ -144,7 +144,7 @@ module Rbzlib
 
   class Bytef
     def self.new(buffer, offset = 0)
-      if(buffer.class == Array)
+      if buffer.class == Array
         Bytef_arr.new(buffer, offset)
       else
         Bytef_str.new(buffer, offset)
@@ -868,7 +868,7 @@ module Rbzlib
 
         if s.stream.avail_in == 0
           s.z_eof = true
-          break if(s.z_err == Z_ERRNO)
+          break if s.z_err == Z_ERRNO
         end
         s.stream.next_in = Bytef.new(s.inbuf)
       end
@@ -1163,7 +1163,7 @@ module Rbzlib
     if offset != 0 && s.outbuf.nil?
       s.outbuf = 0.chr * Z_BUFSIZE
     end
-    if(offset != 0 && s.back != Z_EOF)
+    if offset != 0 && s.back != Z_EOF
       s.back = Z_EOF
       s.out += 1
       offset -= 1
@@ -1182,7 +1182,7 @@ module Rbzlib
       offset -= size
     end
 
-    (s.out)
+    s.out
   end
 
   #   Returns the starting position for the next gzread or gzwrite on the
@@ -1273,7 +1273,7 @@ module Rbzlib
   def gzclearerr(file)
     s = file
     return if s.nil?
-    s.z_err = Z_OK if(s.z_err != Z_STREAM_END)
+    s.z_err = Z_OK if s.z_err != Z_STREAM_END
     s.z_eof = false
 
   end
@@ -1342,7 +1342,7 @@ module Rbzlib
       return Z_STREAM_ERROR
     end
 
-    windowBits = 9 if(windowBits == 8)
+    windowBits = 9 if windowBits == 8
     s = Deflate_state.new
     s.dyn_ltree = Array.new(HEAP_SIZE).map{|i|Ct_data.new()}
     s.dyn_dtree = Array.new(2 * D_CODES + 1).map{|i|Ct_data.new()}
@@ -1478,7 +1478,7 @@ module Rbzlib
     if strm.nil? || strm.state.nil?
       return Z_STREAM_ERROR
     end
-    return Z_STREAM_ERROR if(strm.state.wrap != 2)
+    return Z_STREAM_ERROR if strm.state.wrap != 2
     strm.state.gzhead = head
     Z_OK
   end
@@ -2329,7 +2329,7 @@ module Rbzlib
        (s.strstart - hash_head <= (s.w_size - MIN_LOOKAHEAD))
         if s.strategy != Z_HUFFMAN_ONLY && s.strategy != Z_RLE
           s.match_length = longest_match(s, hash_head)
-        elsif(s.strategy == Z_RLE && s.srstart - hash_end == 1)
+        elsif s.strategy == Z_RLE && s.srstart - hash_end == 1
           s.match_length = longest_match_fast(s, hash_head)
         end
       end
@@ -2412,7 +2412,7 @@ module Rbzlib
 
         if s.strategy != Z_HUFFMAN_ONLY && s.strategy != Z_RLE
           s.match_length = longest_match(s, hash_head)
-        elsif(s.strategy == Z_RLE && s.strstart - hash_head == 1)
+        elsif s.strategy == Z_RLE && s.strstart - hash_head == 1
           s.match_length = longest_match_fast(s, hash_head)
         end
 
@@ -3644,7 +3644,7 @@ module Rbzlib
         this = lcode[hold & lmask]
         status = :dolen if status.nil?
       end
-      if(status == :dolen)
+      if status == :dolen
         op = this.bits
         hold >>= op
         bits -= op
@@ -3654,7 +3654,7 @@ module Rbzlib
         out += 1
         out.set(this.val)
       elsif (op & 16) != 0 || status == :dodist
-        if(status != :dodist && (op & 16) != 0)
+        if status != :dodist && (op & 16) != 0
           len = this.val
           op &= 15
           if op != 0
@@ -4303,7 +4303,7 @@ module Rbzlib
 
     catch :inf_leave do
       loop do
-        if(state.mode == HEAD)
+        if state.mode == HEAD
           if state.wrap == 0
             state.mode = TYPEDO
             next
@@ -4343,7 +4343,7 @@ module Rbzlib
           state.mode = (@@hold & 0x200) != 0 ? DICTID : TYPE
           INITBITS()
         end
-        if(state.mode == FLAGS)
+        if state.mode == FLAGS
           NEEDBITS(16)
           state.flags = (@@hold)
           if (state.flags & 0xff) != Z_DEFLATED
@@ -4363,7 +4363,7 @@ module Rbzlib
           INITBITS()
           state.mode = TIME
         end
-        if(state.mode == TIME)
+        if state.mode == TIME
           NEEDBITS(32)
           if state.head
             state.head.time = @@hold
@@ -4372,7 +4372,7 @@ module Rbzlib
           INITBITS()
           state.mode = OS
         end
-        if(state.mode == OS)
+        if state.mode == OS
           NEEDBITS(16)
           if state.head
             state.head.xflags = (@@hold & 0xff)
@@ -4382,7 +4382,7 @@ module Rbzlib
           INITBITS()
           state.mode = EXLEN
         end
-        if(state.mode == EXLEN)
+        if state.mode == EXLEN
           if (state.flags & 0x0400) != 0
             NEEDBITS(16)
             state.length = @@hold
@@ -4396,7 +4396,7 @@ module Rbzlib
           end
           state.mode = EXTRA
         end
-        if(state.mode == EXTRA)
+        if state.mode == EXTRA
           if (state.flags & 0x0400) != 0
             copy = state.length
             copy = @@have if copy > @@have
@@ -4419,7 +4419,7 @@ module Rbzlib
           state.length = 0
           state.mode = NAME
         end
-        if(state.mode == NAME)
+        if state.mode == NAME
           if (state.flags & 0x0800) != 0
             throw :inf_leave if @@have == 0
             copy = 0
@@ -4445,7 +4445,7 @@ module Rbzlib
           state.length = 0
           state.mode = COMMENT
         end
-        if(state.mode == COMMENT)
+        if state.mode == COMMENT
           if (state.flags & 0x1000) != 0
             throw :inf_leave if @@have == 0
             copy = 0
@@ -4470,7 +4470,7 @@ module Rbzlib
           end
           state.mode = HCRC
         end
-        if(state.mode == HCRC)
+        if state.mode == HCRC
           if (state.flags & 0x0200) != 0
             NEEDBITS(16)
             if @@hold != (state.check & 0xffff)
@@ -4487,13 +4487,13 @@ module Rbzlib
           strm.adler = state.check = crc32(0, nil)
           state.mode = TYPE
         end
-        if(state.mode == DICTID)
+        if state.mode == DICTID
           NEEDBITS(32)
           strm.adler = state.check = REVERSE(@@hold)
           INITBITS()
           state.mode = DICT
         end
-        if(state.mode == DICT)
+        if state.mode == DICT
           if state.havedict == 0
             RESTORE(strm, state)
             return Z_NEED_DICT
@@ -4501,10 +4501,10 @@ module Rbzlib
           strm.adler = state.check = adler32(0, nil)
           state.mode = TYPE
         end
-        if(state.mode == TYPE)
+        if state.mode == TYPE
           throw :inf_leave if flush == Z_BLOCK
         end
-        if([TYPE, TYPEDO].include?(state.mode))
+        if [TYPE, TYPEDO].include?(state.mode)
           if state.last != 0
             BYTEBITS()
             state.mode = CHECK
@@ -4527,7 +4527,7 @@ module Rbzlib
           end
           DROPBITS(2)
         end
-        if(state.mode == STORED)
+        if state.mode == STORED
           BYTEBITS()
           NEEDBITS(32)
           if (@@hold & 0xffff) != ((@@hold >> 16) ^ 0xffff)
@@ -4539,7 +4539,7 @@ module Rbzlib
           INITBITS()
           state.mode = COPY
         end
-        if(state.mode == COPY)
+        if state.mode == COPY
           copy = state.length
           if copy != 0
             copy = @@have if copy > @@have
@@ -4555,7 +4555,7 @@ module Rbzlib
           end
           state.mode = TYPE
         end
-        if(state.mode == TABLE)
+        if state.mode == TABLE
           NEEDBITS(14)
           state.nlen = BITS(5) + 257
           DROPBITS(5)
@@ -4571,7 +4571,7 @@ module Rbzlib
           state.have = 0
           state.mode = LENLENS
         end
-        if(state.mode == LENLENS)
+        if state.mode == LENLENS
           while state.have < state.ncode
             NEEDBITS(3)
             state.lens[order[state.have]] = BITS(3)
@@ -4596,7 +4596,7 @@ module Rbzlib
           state.have = 0
           state.mode = CODELENS
         end
-        if(state.mode == CODELENS)
+        if state.mode == CODELENS
           while state.have < state.nlen + state.ndist
             this = nil
             loop do
@@ -4670,7 +4670,7 @@ module Rbzlib
           end
           state.mode = LEN
         end
-        if(state.mode == LEN)
+        if state.mode == LEN
           if @@have >= 6 && @@left >= 258
             RESTORE(strm, state)
             inflate_fast(strm, out)
@@ -4711,7 +4711,7 @@ module Rbzlib
           state.extra = (this.op) & 15
           state.mode = LENEXT
         end
-        if(state.mode == LENEXT)
+        if state.mode == LENEXT
           if state.extra != 0
             NEEDBITS(state.extra)
             state.length += BITS(state.extra)
@@ -4719,7 +4719,7 @@ module Rbzlib
           end
           state.mode = DIST
         end
-        if(state.mode == DIST)
+        if state.mode == DIST
           loop do
             this = state.distcode[BITS(state.distbits)]
             break if (this.bits) <= @@bits
@@ -4745,7 +4745,7 @@ module Rbzlib
           state.extra = (this.op) & 15
           state.mode = DISTEXT
         end
-        if(state.mode == DISTEXT)
+        if state.mode == DISTEXT
           if state.extra != 0
             NEEDBITS(state.extra)
             state.offset += BITS(state.extra)
@@ -4758,7 +4758,7 @@ module Rbzlib
           end
           state.mode = MATCH
         end
-        if(state.mode == MATCH)
+        if state.mode == MATCH
           throw :inf_leave if @@left == 0
           copy = out - @@left
           if state.offset > copy
@@ -4786,14 +4786,14 @@ module Rbzlib
           end
           state.mode = LEN if state.length == 0
         end
-        if(state.mode == LIT)
+        if state.mode == LIT
           throw :inf_leave if @@left == 0
           @@put.set(state.length)
           @@put += 1
           @@left -= 1
           state.mode = LEN
         end
-        if(state.mode == CHECK)
+        if state.mode == CHECK
           if state.wrap != 0
             NEEDBITS(32)
             out -= @@left
@@ -4813,7 +4813,7 @@ module Rbzlib
           end
           state.mode = LENGTH
         end
-        if(state.mode == LENGTH)
+        if state.mode == LENGTH
           if state.wrap != 0 && state.flags != 0
             NEEDBITS(32)
             if @@hold != (state.total & 0xffffffff)
@@ -4825,16 +4825,16 @@ module Rbzlib
           end
           state.mode = DONE
         end
-        if(state.mode == DONE)
+        if state.mode == DONE
           ret = Z_STREAM_END
           throw :inf_leave
         end
-        if(state.mode == BAD)
+        if state.mode == BAD
           ret = Z_DATA_ERROR
           throw :inf_leave
-        elsif(state.mode == MEM)
+        elsif state.mode == MEM
           return Z_MEM_ERROR
-        elsif(state.mode == SYNC)
+        elsif state.mode == SYNC
           return Z_STREAM_ERROR
         end
       end
