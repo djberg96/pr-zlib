@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 # minigzip -- simulate gzip using the zlib compression library
 # Copyright (C) 1995-2005 Jean-loup Gailly.
 # For conditions of distribution and use, see copyright notice in rbzlib.rb
