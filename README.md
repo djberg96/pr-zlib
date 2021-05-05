@@ -1,19 +1,19 @@
-= Description
+## Description
 The pr-zlib library is a pure Ruby version of the zlib compression library.
 It consists of both a port of zlib.h and the Ruby zlib library that ships as
 part of the standard library.
 
-= Synopsis
-
+## Synopsis
+```ruby
 # Imitating a bit of code used in rubygems
 require 'pr/zlib'
 require 'stringio'
 
 data = StringIO.new(data)
 Zlib::GzipReader.new(data).read
+```
 
-= Motivation
-
+## Motivation
 First, building the zlib C library on MS Windows with Visual C++ is very
 difficult. However, certain libraries depend on zlib, most notably rubygems.
 By providing a pure Ruby version we eliminate any compiler or platform
@@ -32,21 +32,18 @@ Last, the zlib interface that ships as part of the stdlib is a little on the
 clunky side. By providing a pure Ruby version, authors can create their own
 interface as they see fit.
 
-= TODO
-
+## TODO
 More tests, and better tests, are needed for both Rbzlib and Zlib.
 
-= Caveats
+## Caveats
 You cannot use both this library and the zlib standard library at the same
 time. If you try to use both there is a good chance you will get an allocation
 error of some sort. If you already have zlib, you do not need this library.
 
-= License
-
+## License
 This library is covered under the same license as zlib itself. For the text
 of the zlib license, please see http://zlib.net/zlib_license.html.
 
-= Authors
-
+## Authors
 * Park Heesob (C translation)
 * Daniel Berger (Testing, packaging, deployment)
