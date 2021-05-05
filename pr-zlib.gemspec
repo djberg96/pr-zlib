@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
   spec.metadata = {
     'homepage_uri'      => 'https://github.com/djberg96/pr-zlib',
     'bug_tracker_uri'   => 'https://github.com/djberg96/pr-zlib/issues',
-    'changelog_uri'     => 'https://github.com/djberg96/pr-zlib/blob/master/CHANGES',
+    'changelog_uri'     => 'https://github.com/djberg96/pr-zlib/blob/main/CHANGES',
     'documentation_uri' => 'https://github.com/djberg96/pr-zlib/wiki',
     'source_code_uri'   => 'https://github.com/djberg96/pr-zlib',
     'wiki_uri'          => 'https://github.com/djberg96/pr-zlib/wiki'
