@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.summary          = 'Pure Ruby version of the zlib library'
   spec.test_files       = Dir['test/*.rb']
   spec.files            = Dir["**/*"].reject{ |f| f.include?('git') }
-  spec.extra_rdoc_files = ['README', 'CHANGES', 'MANIFEST']
+  spec.extra_rdoc_files = ['README.md', 'CHANGES.md', 'MANIFEST.md']
   spec.cert_chain       = Dir['certs/*']
   spec.executables      = 'minirbgzip'
 
