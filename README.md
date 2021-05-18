@@ -32,6 +32,11 @@ Last, the zlib interface that ships as part of the stdlib is a little on the
 clunky side. By providing a pure Ruby version, authors can create their own
 interface as they see fit.
 
+## Origins
+This library was the result of a small code bounty that I (Daniel Berger) funded:
+
+https://rubytalk.org/t/bounty-pure-ruby-zlib-gzipwriter/50730
+
 ## TODO
 More tests, and better tests, are needed for both Rbzlib and Zlib.
 
