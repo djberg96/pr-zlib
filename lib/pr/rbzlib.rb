@@ -899,7 +899,7 @@ module Rbzlib
 
     s.crc = crc32(s.crc, start.current, s.stream.next_out.offset - start.offset)
 
-    if len == s.stream.avail_out && (s.z_err == Z_DATA_ERROR || s.z_err = Z_ERRNO)
+    if len == s.stream.avail_out && (s.z_err == Z_DATA_ERROR || s.z_err == Z_ERRNO)
       return -1
     end
 
