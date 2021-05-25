@@ -1221,10 +1221,10 @@ module Zlib
     alias tell :pos
 
     def self.open(filename, level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY, &blk)
-      GzipReader.gzfile_s_open(filename, 'rb', Z_DEFAULT_COMPRESSION, Z_DEFAULT_STRATEGY, &blk)
+      GzipReader.gzfile_s_open(filename, 'rb', level, strategy, &blk)
     end
 
-    def initialize(io, level = Z_DEFAULT_COMPRESSION, strategy = Z_DEFAULT_STRATEGY)
+    def initialize(io, level = Z_DEFAULT_COMPRESSION, _strategy = Z_DEFAULT_STRATEGY)
       gzfile_new(InflateFuncs, :gzfile_reader_end)
       @gz.level = level
       err = inflateInit2(@gz.z.stream, -MAX_WBITS)
@@ -1353,7 +1353,7 @@ module Zlib
       @gz.z.input.dup
     end
 
-    def rscheck(rsptr, rslen, rs)
+    def rscheck(rsptr, _rslen, rs)
       raise RuntimeError, 'rs modified' if rs != rsptr
     end
 
