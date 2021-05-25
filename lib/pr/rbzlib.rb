@@ -1242,29 +1242,34 @@ module Rbzlib
     destroy(file)
   end
 
-  #   Returns the error message for the last error which occurred on the
+  # Returns the error message for the last error which occurred on the
   # given compressed file. errnum is set to zlib error number. If an
   # error occurred in the file system and not in the compression library,
   # errnum is set to Z_ERRNO and the application may consult errno
   def gzerror(file, errnum)
     s = file
+
     if s.nil?
       errnum = Z_STREAM_ERROR
-      return zError(Z_STREAM_ERROR)
+      return zError(errnum)
     end
 
     errnum = s.z_err
+
     if errnum == Z_OK
       return zError(Z_OK)
     end
 
     m = s.stream.msg
+
     if errnum == Z_ERRNO
       m = ''
     end
+
     if m == ''
       m = zError(s.z_err)
     end
+
     s.msg = s.path + ': ' + m
     s.msg
   end
@@ -4125,7 +4130,7 @@ module Rbzlib
     hbuf = 0.chr * 2
     hbuf[0] = (word & 0xff).chr
     hbuf[1] = ((word >> 8) & 0xff).chr
-    check = crc32(check, hbuf)
+    crc32(check, hbuf)
   end
 
   # compute crc
@@ -4135,7 +4140,7 @@ module Rbzlib
     hbuf[1] = ((word >> 8) & 0xff).chr
     hbuf[2] = ((word >> 16) & 0xff).chr
     hbuf[3] = ((word >> 24) & 0xff).chr
-    check = crc32(check, hbuf)
+    crc32(check, hbuf)
   end
 
   # Load registers with state in inflate() for speed
