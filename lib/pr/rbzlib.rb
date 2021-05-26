@@ -1349,9 +1349,9 @@ module Rbzlib
 
     windowBits = 9 if windowBits == 8
     s = Deflate_state.new
-    s.dyn_ltree = Array.new(HEAP_SIZE).map{|i|Ct_data.new()}
-    s.dyn_dtree = Array.new(2 * D_CODES + 1).map{|i|Ct_data.new()}
-    s.bl_tree = Array.new(2 * BL_CODES + 1).map{|i|Ct_data.new()}
+    s.dyn_ltree = Array.new(HEAP_SIZE).map{ Ct_data.new() }
+    s.dyn_dtree = Array.new(2 * D_CODES + 1).map{ Ct_data.new() }
+    s.bl_tree = Array.new(2 * BL_CODES + 1).map{ Ct_data.new() }
     s.bl_count = Array.new(MAX_BITS + 1, 0)
     s.heap = Array.new(2 * L_CODES + 1, 0)
     s.depth = Array.new(2 * L_CODES + 1, 0)

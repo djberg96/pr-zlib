@@ -285,7 +285,7 @@ module Zlib
         end
         zstream_reset_input()
         if err != Z_DATA_ERROR
-          rest = @stream.next_in.buffer[0, @stream.avail_in]
+          @stream.next_in.buffer[0, @stream.avail_in]
           raise_zlib_error(err, @stream.msg)
         end
       end
@@ -300,7 +300,7 @@ module Zlib
         return true
       end
       if err != Z_DATA_ERROR
-        rest = @stream.next_in.buffer[0, @stream.avail_in]
+        @stream.next_in.buffer[0, @stream.avail_in]
         raise_zlib_error(err, @stream.msg)
       end
       false
@@ -327,7 +327,6 @@ module Zlib
         zstream_append_input(src, len)
         @stream.next_in = Bytef.new(@input)
         @stream.avail_in = @input.length
-        guard = @input
       end
       if @stream.avail_out.zero?
         zstream_expand_buffer()
@@ -363,7 +362,6 @@ module Zlib
       @input = nil
       if @stream.avail_in > 0
         zstream_append_input(@stream.next_in, @stream.avail_in)
-        guard = nil
       end
     end
 
