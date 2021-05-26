@@ -899,7 +899,7 @@ module Rbzlib
 
     s.crc = crc32(s.crc, start.current, s.stream.next_out.offset - start.offset)
 
-    if len == s.stream.avail_out && (s.z_err == Z_DATA_ERROR || s.z_err = Z_ERRNO)
+    if len == s.stream.avail_out && (s.z_err == Z_DATA_ERROR || s.z_err == Z_ERRNO)
       return -1
     end
 
@@ -1242,29 +1242,34 @@ module Rbzlib
     destroy(file)
   end
 
-  #   Returns the error message for the last error which occurred on the
+  # Returns the error message for the last error which occurred on the
   # given compressed file. errnum is set to zlib error number. If an
   # error occurred in the file system and not in the compression library,
   # errnum is set to Z_ERRNO and the application may consult errno
   def gzerror(file, errnum)
     s = file
+
     if s.nil?
       errnum = Z_STREAM_ERROR
-      return zError(Z_STREAM_ERROR)
+      return zError(errnum)
     end
 
     errnum = s.z_err
+
     if errnum == Z_OK
       return zError(Z_OK)
     end
 
     m = s.stream.msg
+
     if errnum == Z_ERRNO
       m = ''
     end
+
     if m == ''
       m = zError(s.z_err)
     end
+
     s.msg = s.path + ': ' + m
     s.msg
   end
@@ -1344,9 +1349,9 @@ module Rbzlib
 
     windowBits = 9 if windowBits == 8
     s = Deflate_state.new
-    s.dyn_ltree = Array.new(HEAP_SIZE).map{|i|Ct_data.new()}
-    s.dyn_dtree = Array.new(2 * D_CODES + 1).map{|i|Ct_data.new()}
-    s.bl_tree = Array.new(2 * BL_CODES + 1).map{|i|Ct_data.new()}
+    s.dyn_ltree = Array.new(HEAP_SIZE).map{ Ct_data.new() }
+    s.dyn_dtree = Array.new(2 * D_CODES + 1).map{ Ct_data.new() }
+    s.bl_tree = Array.new(2 * BL_CODES + 1).map{ Ct_data.new() }
     s.bl_count = Array.new(MAX_BITS + 1, 0)
     s.heap = Array.new(2 * L_CODES + 1, 0)
     s.depth = Array.new(2 * L_CODES + 1, 0)
@@ -4125,7 +4130,7 @@ module Rbzlib
     hbuf = 0.chr * 2
     hbuf[0] = (word & 0xff).chr
     hbuf[1] = ((word >> 8) & 0xff).chr
-    check = crc32(check, hbuf)
+    crc32(check, hbuf)
   end
 
   # compute crc
@@ -4135,7 +4140,7 @@ module Rbzlib
     hbuf[1] = ((word >> 8) & 0xff).chr
     hbuf[2] = ((word >> 16) & 0xff).chr
     hbuf[3] = ((word >> 24) & 0xff).chr
-    check = crc32(check, hbuf)
+    crc32(check, hbuf)
   end
 
   # Load registers with state in inflate() for speed
