@@ -78,13 +78,15 @@ class TC_Zlib_Zstream < Test::Unit::TestCase
 
    def test_raise_zlib_error_errno
       assert_raise(SystemCallError){ @zstream.raise_zlib_error(Z_ERRNO, nil) }
-      assert_raise_message('unknown error - file error'){ @zstream.raise_zlib_error(Z_ERRNO, nil) }
+      msg = RUBY_PLATFORM == "java" ? "Unknown error (SystemCallError) - file error" : "unknown error - file error"
+      assert_raise_message(msg){ @zstream.raise_zlib_error(Z_ERRNO, nil) }
    end
 
    def test_raise_zlib_error_unknown
       #notify('I think there might be a problem here - need to investigate')
       assert_raise(Zlib::Error){ @zstream.raise_zlib_error(999, nil) }
-      assert_raise_message('unknown error - file error'){ @zstream.raise_zlib_error(Z_ERRNO, nil) }
+      msg = RUBY_PLATFORM == "java" ? "Unknown error (SystemCallError) - file error" : "unknown error - file error"
+      assert_raise_message(msg){ @zstream.raise_zlib_error(Z_ERRNO, nil) }
    end
 
    def test_zstream_expand_buffer_basic
