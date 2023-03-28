@@ -15,7 +15,6 @@ Gem::Specification.new do |spec|
   spec.executables      = 'minirbgzip'
 
   spec.add_development_dependency('rake')
-  spec.add_development_dependency('ruby-prof', '~> 1.4')
   spec.add_development_dependency('test-unit', '~> 3.4')
 
   spec.metadata = {
