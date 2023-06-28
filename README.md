@@ -3,6 +3,12 @@ The pr-zlib library is a pure Ruby version of the zlib compression library.
 It consists of both a port of zlib.h and the Ruby zlib library that ships as
 part of the standard library.
 
+## Installation
+`gem install pr-zlib`
+
+## Adding the trusted cert
+`gem cert --add <(curl -Ls https://raw.githubusercontent.com/djberg96/pr-zlib/main/certs/djberg96_pub.pem)`
+
 ## Synopsis
 ```ruby
 # Imitating a bit of code used in rubygems
