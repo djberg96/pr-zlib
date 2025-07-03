@@ -7,7 +7,9 @@
 require 'pr/zlib'
 require 'benchmark'
 
-print "\n\n== Running the benchmarks for pr-zlib ==\n\n"
+MAX = 50
+
+print "\n\n== Running the benchmarks for pr-zlib using #{MAX} iterations ==\n\n"
 
 # First, let's create a ~7 MB text file.
 
@@ -23,7 +25,7 @@ end
 
 Benchmark.bm do |x|
   x.report("write") do
-    5.times{
+    MAX.times{
       Zlib::GzipWriter.open(GZ_FILE_NAME) do |gz|
         gz.write(File.read(FILE_NAME))
       end
@@ -31,7 +33,7 @@ Benchmark.bm do |x|
   end
 
   x.report("read") do
-    5.times{
+    MAX.times{
       Zlib::GzipReader.open(GZ_FILE_NAME) do |gz|
         gz.read
       end
@@ -39,5 +41,5 @@ Benchmark.bm do |x|
   end
 end
 
-File.delete(FILE_NAME) if File.exists?(FILE_NAME)
-File.delete(GZ_FILE_NAME) if File.exists?(GZ_FILE_NAME)
+File.delete(FILE_NAME) if File.exist?(FILE_NAME)
+File.delete(GZ_FILE_NAME) if File.exist?(GZ_FILE_NAME)
