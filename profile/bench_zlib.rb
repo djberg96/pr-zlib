@@ -7,7 +7,9 @@
 require 'zlib'
 require 'benchmark'
 
-print "\n\n== Running the benchmarks for zlib (stdlib) ==\n\n"
+MAX = 2000
+
+print "\n\n== Running the benchmarks for zlib (stdlib) using #{MAX} iterations ==\n\n"
 
 # First, let's create a ~7 MB text file.
 
@@ -23,7 +25,7 @@ end
 
 Benchmark.bm do |x|
   x.report("write") do
-    5.times{
+    MAX.times{
       Zlib::GzipWriter.open(GZ_FILE_NAME) do |gz|
         gz.write(File.read(FILE_NAME))
       end
@@ -31,7 +33,7 @@ Benchmark.bm do |x|
   end
 
   x.report("read") do
-    5.times{
+    MAX.times{
       Zlib::GzipReader.open(GZ_FILE_NAME) do |gz|
         gz.read
       end
