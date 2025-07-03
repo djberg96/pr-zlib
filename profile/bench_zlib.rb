@@ -39,5 +39,5 @@ Benchmark.bm do |x|
   end
 end
 
-File.delete(FILE_NAME) if File.exists?(FILE_NAME)
-File.delete(GZ_FILE_NAME) if File.exists?(GZ_FILE_NAME)
+File.delete(FILE_NAME) if File.exist?(FILE_NAME)
+File.delete(GZ_FILE_NAME) if File.exist?(GZ_FILE_NAME)
