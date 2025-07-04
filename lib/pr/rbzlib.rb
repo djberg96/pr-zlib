@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative 'bytef'
+require_relative 'posf'
+
 #  rbrzlib -- pure ruby version of 'zlib' general purpose compression library
 #  version 1.2.3, July 18th, 2005
 #
@@ -140,117 +143,6 @@ module Rbzlib
 
   def z_error(m)
     raise RuntimeError, m
-  end
-
-  class Bytef
-    def self.new(buffer, offset = 0)
-      if buffer.class == Array
-        Bytef_arr.new(buffer, offset)
-      else
-        Bytef_str.new(buffer, offset)
-      end
-    end
-  end
-
-  class Bytef_str
-    attr_accessor :buffer, :offset
-
-    def initialize(buffer, offset = 0)
-      if buffer.class == String
-        @buffer = buffer
-        @offset = offset
-        @buffer.force_encoding('ASCII-8BIT')
-      else
-        @buffer = buffer.buffer
-        @offset = offset
-      end
-    end
-
-    def length
-      @buffer.length
-    end
-
-    def +(inc)
-      @offset += inc
-      self
-    end
-
-    def -(dec)
-      @offset -= dec
-      self
-    end
-
-    def [](idx)
-      @buffer.getbyte(idx + @offset)
-    end
-
-    def []=(idx, val)
-      @buffer.setbyte(idx + @offset, val.ord)
-    end
-
-    def get
-      @buffer.getbyte(@offset)
-    end
-
-    def set(val)
-      @buffer.setbyte(@offset, val.ord)
-    end
-
-    def current
-      @buffer[@offset..-1]
-    end
-  end
-
-  class Bytef_arr < Bytef_str
-
-    def initialize(buffer, offset = 0)
-      @buffer = buffer
-      @offset = offset
-    end
-
-    def [](idx)
-      @buffer[idx + @offset]
-    end
-
-    def []=(idx, val)
-      @buffer[idx + @offset] = val
-    end
-
-    def get
-      @buffer[@offset]
-    end
-
-    def set(val)
-      @buffer[@offset] = val
-    end
-  end
-
-  class Posf < Bytef_str
-    def +(inc)
-      @offset += inc * 2
-      self
-    end
-
-    def -(dec)
-      @offset -= dec * 2
-      self
-    end
-
-    def [](idx)
-      @buffer[(idx * 2) + @offset, 2].unpack('v').first
-    end
-
-    def []=(idx, val)
-      @buffer[(idx * 2) + @offset, 2] = [val].pack('v')
-    end
-
-    def get
-      @buffer[@offset, 2].unpack('v').first
-    end
-
-    def set(val)
-      @buffer[@offset, 2] = [val].pack('v')
-    end
   end
 
   BASE = 65521
