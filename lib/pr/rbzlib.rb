@@ -264,80 +264,62 @@ module Rbzlib
 
     len = buf.length if len == 0
     sum2 = (adler >> 16) & 0xFFFF
-    adler &= 0xffff
+    adler &= 0xFFFF
+
+    i = 0
 
     if len == 1
       adler += buf[0].ord
-
-      if adler >= BASE
-        adler -= BASE
-      end
-
+      adler -= BASE if adler >= BASE
       sum2 += adler
-
-      if sum2 >= BASE
-        sum2 -= BASE
-      end
-
+      sum2 -= BASE if sum2 >= BASE
       return adler | (sum2 << 16)
     end
 
     if len < 16
-      i = 0
-
       while len > 0
-        len -= 1
         adler += buf[i].ord
-        i += 1
         sum2 += adler
+        i += 1
+        len -= 1
       end
-
-      if adler >= BASE
-        adler -= BASE
-      end
-
-      sum2 %= BASE
-
+      adler -= BASE while adler >= BASE
+      sum2 -= BASE while sum2 >= BASE
       return adler | (sum2 << 16)
     end
 
-    i = 0
-
     while len >= NMAX
-      len -= NMAX
       n = NMAX / 16
-
-      loop do
-        for j in 0 .. 15
-          adler += buf[i + j].ord
+      len -= NMAX
+      n.times do
+        16.times do
+          adler += buf[i].ord
           sum2 += adler
+          i += 1
         end
-        i += 16
-        n -= 1
-        break if n == 0
       end
       adler %= BASE
       sum2 %= BASE
     end
 
-    if len != 0
-      while len >= 16
-        len -= 16
-        for j in 0 .. 15
-          adler += buf[i + j].ord
-          sum2 += adler
-        end
-        i += 16
-      end
-      while len != 0
-        len -= 1
+    while len >= 16
+      16.times do
         adler += buf[i].ord
-        i += 1
         sum2 += adler
+        i += 1
       end
-      adler %= BASE
-      sum2 %= BASE
+      len -= 16
     end
+
+    while len > 0
+      adler += buf[i].ord
+      sum2 += adler
+      i += 1
+      len -= 1
+    end
+
+    adler %= BASE
+    sum2 %= BASE
 
     adler | (sum2 << 16)
   end
