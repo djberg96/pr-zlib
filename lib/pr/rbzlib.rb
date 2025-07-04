@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative 'bytef'
+require_relative 'posf'
+
 #  rbrzlib -- pure ruby version of 'zlib' general purpose compression library
 #  version 1.2.3, July 18th, 2005
 #
@@ -142,117 +145,6 @@ module Rbzlib
     raise RuntimeError, m
   end
 
-  class Bytef
-    def self.new(buffer, offset = 0)
-      if buffer.class == Array
-        Bytef_arr.new(buffer, offset)
-      else
-        Bytef_str.new(buffer, offset)
-      end
-    end
-  end
-
-  class Bytef_str
-    attr_accessor :buffer, :offset
-
-    def initialize(buffer, offset = 0)
-      if buffer.class == String
-        @buffer = buffer
-        @offset = offset
-        @buffer.force_encoding('ASCII-8BIT')
-      else
-        @buffer = buffer.buffer
-        @offset = offset
-      end
-    end
-
-    def length
-      @buffer.length
-    end
-
-    def +(inc)
-      @offset += inc
-      self
-    end
-
-    def -(dec)
-      @offset -= dec
-      self
-    end
-
-    def [](idx)
-      @buffer.getbyte(idx + @offset)
-    end
-
-    def []=(idx, val)
-      @buffer.setbyte(idx + @offset, val.ord)
-    end
-
-    def get
-      @buffer.getbyte(@offset)
-    end
-
-    def set(val)
-      @buffer.setbyte(@offset, val.ord)
-    end
-
-    def current
-      @buffer[@offset..-1]
-    end
-  end
-
-  class Bytef_arr < Bytef_str
-
-    def initialize(buffer, offset = 0)
-      @buffer = buffer
-      @offset = offset
-    end
-
-    def [](idx)
-      @buffer[idx + @offset]
-    end
-
-    def []=(idx, val)
-      @buffer[idx + @offset] = val
-    end
-
-    def get
-      @buffer[@offset]
-    end
-
-    def set(val)
-      @buffer[@offset] = val
-    end
-  end
-
-  class Posf < Bytef_str
-    def +(inc)
-      @offset += inc * 2
-      self
-    end
-
-    def -(dec)
-      @offset -= dec * 2
-      self
-    end
-
-    def [](idx)
-      @buffer[(idx * 2) + @offset, 2].unpack('v').first
-    end
-
-    def []=(idx, val)
-      @buffer[(idx * 2) + @offset, 2] = [val].pack('v')
-    end
-
-    def get
-      @buffer[@offset, 2].unpack('v').first
-    end
-
-    def set(val)
-      @buffer[@offset, 2] = [val].pack('v')
-    end
-  end
-
   BASE = 65521
   NMAX = 5552
 
@@ -264,80 +156,62 @@ module Rbzlib
 
     len = buf.length if len == 0
     sum2 = (adler >> 16) & 0xFFFF
-    adler &= 0xffff
+    adler &= 0xFFFF
+
+    i = 0
 
     if len == 1
       adler += buf[0].ord
-
-      if adler >= BASE
-        adler -= BASE
-      end
-
+      adler -= BASE if adler >= BASE
       sum2 += adler
-
-      if sum2 >= BASE
-        sum2 -= BASE
-      end
-
+      sum2 -= BASE if sum2 >= BASE
       return adler | (sum2 << 16)
     end
 
     if len < 16
-      i = 0
-
       while len > 0
-        len -= 1
         adler += buf[i].ord
-        i += 1
         sum2 += adler
+        i += 1
+        len -= 1
       end
-
-      if adler >= BASE
-        adler -= BASE
-      end
-
-      sum2 %= BASE
-
+      adler -= BASE while adler >= BASE
+      sum2 -= BASE while sum2 >= BASE
       return adler | (sum2 << 16)
     end
 
-    i = 0
-
     while len >= NMAX
-      len -= NMAX
       n = NMAX / 16
-
-      loop do
-        for j in 0 .. 15
-          adler += buf[i + j].ord
+      len -= NMAX
+      n.times do
+        16.times do
+          adler += buf[i].ord
           sum2 += adler
+          i += 1
         end
-        i += 16
-        n -= 1
-        break if n == 0
       end
       adler %= BASE
       sum2 %= BASE
     end
 
-    if len != 0
-      while len >= 16
-        len -= 16
-        for j in 0 .. 15
-          adler += buf[i + j].ord
-          sum2 += adler
-        end
-        i += 16
-      end
-      while len != 0
-        len -= 1
+    while len >= 16
+      16.times do
         adler += buf[i].ord
-        i += 1
         sum2 += adler
+        i += 1
       end
-      adler %= BASE
-      sum2 %= BASE
+      len -= 16
     end
+
+    while len > 0
+      adler += buf[i].ord
+      sum2 += adler
+      i += 1
+      len -= 1
+    end
+
+    adler %= BASE
+    sum2 %= BASE
 
     adler | (sum2 << 16)
   end
