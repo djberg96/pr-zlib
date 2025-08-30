@@ -18,7 +18,7 @@ RSpec.describe Zlib do
 
     it 'has the correct zlib version' do
       expect(described_class::ZLIB_VERSION).to eq('1.2.3')
-      expect(described_class::PR_ZLIB_VERSION).to eq('1.0.7')
+      expect(described_class::PR_ZLIB_VERSION).to eq('1.1.0')
     end
   end
 
