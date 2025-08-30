@@ -1,3 +1,9 @@
+## 1.1.0 - 30-Aug-2025
+* Fixed several critical bugs.
+* Many Ruby and Rubocop warnings cleaned up.
+* Tests now use rspec instead of test-unit.
+* Lots of cleanup, reorganization and general refactoring.
+
 ## 1.0.6 - 19-Mar-2018
 * Added the minirbgzip executable, a Ruby implementation of minigzip.
   Formerly minigzip.rb, this had been part of the repo but had never been

@@ -38,6 +38,15 @@ Last, the zlib interface that ships as part of the stdlib is a little on the
 clunky side. By providing a pure Ruby version, authors can create their own
 interface as they see fit.
 
+Update August 2025: Most of the original motivation for this library is no
+longer relevant today. Desktop users of MS Windows typically use the one-click
+installer which bundles the shared objects it needs. In the land of Unix, where
+most actual production code happens, folks use Docker images for Ruby which
+either already bundles everything, or they just add it to their Dockerfile.
+
+But, hey, I paid for this and it works. Who knows, maybe it'll be nice to have
+around someday.
+
 ## Origins
 This library was the result of a small code bounty that I (Daniel Berger) funded:
 
@@ -56,5 +65,5 @@ This library is covered under the same license as zlib itself. For the text
 of the zlib license, please see http://zlib.net/zlib_license.html.
 
 ## Authors
-* Park Heesob (C translation)
-* Daniel Berger (Testing, packaging, deployment)
+* Park Heesob (Original C translation)
+* Daniel Berger (Testing, packaging, deployment, maintenance)
