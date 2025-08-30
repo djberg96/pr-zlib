@@ -10,22 +10,35 @@ require 'fileutils'
 
 RSpec.describe Zlib::GzipReader do
   before(:all) do
-    # Change to spec directory and create test file
+    # Set up test file paths
     @original_dir = Dir.pwd
-    spec_dir = File.join(@original_dir, 'spec')
-    Dir.mkdir(spec_dir) unless Dir.exist?(spec_dir)
-    Dir.chdir(spec_dir)
+    @spec_dir = File.join(@original_dir, 'spec')
+    @test_txt = File.join(@spec_dir, 'test.txt')
+    @gz_file_path = File.join(@spec_dir, 'test.txt.gz')
+
+    # Ensure spec directory exists
+    Dir.mkdir(@spec_dir) unless Dir.exist?(@spec_dir)
+
+    # Clean up any existing files first
+    File.delete(@test_txt) if File.exist?(@test_txt)
+    File.delete(@gz_file_path) if File.exist?(@gz_file_path)
 
     # Create test file and gzip it
-    File.open('test.txt', 'wb') { |fh| fh.puts 'Test file' }
-    system('gzip *.txt')
-    @gz_file = 'test.txt.gz'
+    File.open(@test_txt, 'wb') { |fh| fh.puts 'Test file' }
+    Dir.chdir(@spec_dir) do
+      system('gzip test.txt')
+    end
+
+    @gz_file = @gz_file_path
   end
 
   after(:all) do
-    # Clean up
-    File.delete(@gz_file) if File.exist?(@gz_file)
-    Dir.chdir(@original_dir)
+    # Clean up test files
+    [@test_txt, @gz_file_path].each do |file|
+      File.delete(file) if File.exist?(file)
+    end
+    # Also clean up any leftover files in spec directory
+    Dir.glob(File.join(@spec_dir, 'test.txt*')).each { |f| File.delete(f) rescue nil }
   end
 
   let(:handle) { File.open(@gz_file) }
