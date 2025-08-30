@@ -14,7 +14,7 @@
 #
 # minigzip to minirbgzip Ruby translation By Park Heesob.
 
-require 'pr-zlib'
+require_relative '../lib/pr-zlib'
 include Rbzlib
 
 GZ_SUFFIX = ".gz"
@@ -149,7 +149,7 @@ end
           -f : compress with Z_FILTERED
           -h : compress with Z_HUFFMAN_ONLY
           -r : compress with Z_RLE
-          -1 to -9 : compression level 
+          -1 to -9 : compression level
         HERE
         puts help
         exit!
