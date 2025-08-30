@@ -8,14 +8,14 @@ Gem::Specification.new do |spec|
   spec.homepage         = 'https://github.com/djberg96/pr-zlib'
   spec.license          = 'Zlib'
   spec.summary          = 'Pure Ruby version of the zlib library'
-  spec.test_files       = Dir['test/*.rb']
+  spec.test_files       = Dir['spec/**/*_spec.rb']
   spec.files            = Dir["**/*"].reject{ |f| f.include?('git') }
   spec.extra_rdoc_files = ['README.md', 'CHANGES.md', 'MANIFEST.md']
   spec.cert_chain       = Dir['certs/*']
   spec.executables      = 'minirbgzip'
 
   spec.add_development_dependency('rake')
-  spec.add_development_dependency('test-unit', '~> 3.4')
+  spec.add_development_dependency('rspec', '~> 3.12')
 
   spec.metadata = {
     'homepage_uri'          => 'https://github.com/djberg96/pr-zlib',
@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
     'wiki_uri'              => 'https://github.com/djberg96/pr-zlib/wiki',
     'rubygems_mfa_required' => 'true'
   }
-   
+
   spec.description = <<-EOF
     The pr-zlib library is a pure Ruby implementation of both the zlib C
     library, and the Ruby zlib interface that ships as part of the standard
