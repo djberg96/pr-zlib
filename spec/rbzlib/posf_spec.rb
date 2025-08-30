@@ -13,8 +13,8 @@ RSpec.describe Rbzlib::Posf do
   let(:posf) { described_class.new(buffer) }
 
   describe 'inheritance' do
-    it 'inherits from Bytef_str' do
-      expect(described_class.superclass).to eq(Rbzlib::Bytef_str)
+    it 'inherits from ByteBuffer' do
+      expect(described_class.superclass).to eq(Rbzlib::ByteBuffer)
     end
   end
 

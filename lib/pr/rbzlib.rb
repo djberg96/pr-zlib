@@ -143,8 +143,6 @@ module Rbzlib
   end
 
   # Require the individual class files
-  require_relative 'rbzlib/bytef_str'
-  require_relative 'rbzlib/bytef_arr'
   require_relative 'rbzlib/posf'
   require_relative 'rbzlib/bytef'
 
