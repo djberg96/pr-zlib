@@ -4,7 +4,7 @@
 #
 # You can run this benchmark via the bench:przlib Rake task.
 ########################################################################
-require 'pr/zlib'
+require_relative '../lib/pr-zlib'
 require 'benchmark'
 
 MAX = 50

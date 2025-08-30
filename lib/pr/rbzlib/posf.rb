@@ -15,19 +15,37 @@ module Rbzlib
     end
 
     def [](idx)
-      @buffer[(idx * 2) + @offset, 2].unpack('v').first
+      # Optimize: cache offset calculation and use more efficient unpacking
+      offset_pos = (idx * 2) + @offset
+      @buffer[offset_pos, 2].unpack1('v')
     end
 
     def []=(idx, val)
-      @buffer[(idx * 2) + @offset, 2] = [val].pack('v')
+      # Optimize: cache offset calculation
+      offset_pos = (idx * 2) + @offset
+      @buffer[offset_pos, 2] = [val].pack('v')
     end
 
     def get
-      @buffer[@offset, 2].unpack('v').first
+      # Optimize: use unpack1 for single value
+      @buffer[@offset, 2].unpack1('v')
     end
 
     def set(val)
       @buffer[@offset, 2] = [val].pack('v')
+    end
+
+    # Optimized bulk operations
+    def get_and_advance
+      val = @buffer[@offset, 2].unpack1('v')
+      @offset += 2
+      val
+    end
+
+    def set_and_advance(val)
+      @buffer[@offset, 2] = [val].pack('v')
+      @offset += 2
+      self
     end
   end
 end
