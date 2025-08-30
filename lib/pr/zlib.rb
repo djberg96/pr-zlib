@@ -19,7 +19,7 @@ include Rbzlib
 module Zlib
 
   RUBY_ZLIB_VERSION = '0.6.0'.freeze
-  PR_ZLIB_VERSION   = '1.0.7'.freeze
+  PR_ZLIB_VERSION   = '1.1.0'.freeze
 
   VERSION = RUBY_ZLIB_VERSION
   ZLIB_VERSION = Rbzlib::ZLIB_VERSION

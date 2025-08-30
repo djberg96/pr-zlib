@@ -1,6 +1,6 @@
 require 'rake'
 require 'rake/clean'
-require 'rake/testtask'
+require 'rspec/core/rake_task'
 require 'rbconfig'
 
 CLEAN.include("**/*.rbc", "**/*.gem", "**/*.txt", "**/*.gz", "**/*.lock")
@@ -54,63 +54,13 @@ namespace :profile do
   end
 end
 
-Rake::TestTask.new do |t|
-  t.warning = true
-  t.verbose = true
+# RSpec tests
+RSpec::Core::RakeTask.new(:spec) do |t|
+  t.pattern = 'spec/**/*_spec.rb'
+  t.rspec_opts = ['--format', 'documentation', '--color']
 end
 
-Rake::TestTask.new('test_zlib') do |t|
-  t.warning = true
-  t.verbose = true
-  t.test_files = FileList['test/test_zlib.rb']
-end
+desc 'Run all RSpec tests'
+task :test => :spec
 
-Rake::TestTask.new('test_gzip_file') do |t|
-  t.warning = true
-  t.verbose = true
-  t.test_files = FileList['test/test_zlib_gzip_file.rb']
-end
-
-Rake::TestTask.new('test_gzip_reader') do |t|
-  t.warning = true
-  t.verbose = true
-  t.test_files = FileList['test/test_zlib_gzip_reader.rb']
-end
-
-Rake::TestTask.new('test_gzip_writer') do |t|
-  t.warning = true
-  t.verbose = true
-  t.test_files = FileList['test/test_zlib_gzip_writer.rb']
-end
-
-Rake::TestTask.new('test_deflate') do |t|
-  t.warning = true
-  t.verbose = true
-  t.test_files = FileList['test/test_zlib_deflate.rb']
-end
-
-Rake::TestTask.new('test_inflate') do |t|
-  t.warning = true
-  t.verbose = true
-  t.test_files = FileList['test/test_zlib_inflate.rb']
-end
-
-Rake::TestTask.new('test_rbzlib') do |t|
-  t.warning = true
-  t.verbose = true
-  t.test_files = FileList['test/test_rbzlib.rb']
-end
-
-Rake::TestTask.new('test_rbzlib_bytef') do |t|
-  t.warning = true
-  t.verbose = true
-  t.test_files = FileList['test/test_rbzlib_bytef.rb']
-end
-
-Rake::TestTask.new('test_rbzlib_posf') do |t|
-  t.warning = true
-  t.verbose = true
-  t.test_files = FileList['test/test_rbzlib_posf.rb']
-end
-
-task :default => :test
+task :default => :spec
