@@ -31,14 +31,7 @@ module Rbzlib
       end
     end
 
-    def method_missing(method, *args, &block)
-      @byte_buffer.string.send(method, *args, &block)
-    end
-
-    def respond_to_missing?(method, include_private = false)
-      @byte_buffer.string.respond_to?(method, include_private)
-    end
-
+    # Direct delegation for performance-critical methods
     def length
       @byte_buffer.length
     end
@@ -66,12 +59,32 @@ module Rbzlib
     def eql?(other)
       self == other
     end
+
+    def force_encoding(encoding)
+      @byte_buffer.string.force_encoding(encoding)
+      self
+    end
+
+    def getbyte(index)
+      @byte_buffer.string.getbyte(index)
+    end
+
+    def setbyte(index, value)
+      @byte_buffer.string.setbyte(index, value)
+    end
+
+    # Only use method_missing for non-performance-critical methods
+    def method_missing(method, *args, &block)
+      @byte_buffer.string.send(method, *args, &block)
+    end
+
+    def respond_to_missing?(method, include_private = false)
+      @byte_buffer.string.respond_to?(method, include_private)
+    end
   end
 
-  # A byte buffer that wraps StringIO and provides Bytef interface
+  # A byte buffer that provides Bytef interface with minimal overhead
   class ByteBuffer
-    attr_accessor :io
-
     def initialize(data, offset = 0)
       if data.is_a?(Array)
         # Keep arrays as arrays - both integer and object arrays
@@ -84,6 +97,10 @@ module Rbzlib
         if data.buffer.is_a?(Array)
           @buffer = data.buffer
           @is_array = true
+        elsif data.buffer.is_a?(BufferProxy)
+          # Extract underlying string from BufferProxy
+          @buffer = data.buffer.to_s.dup.force_encoding('ASCII-8BIT')
+          @is_array = false
         elsif data.buffer.respond_to?(:force_encoding)
           @buffer = data.buffer.dup.force_encoding('ASCII-8BIT')
           @is_array = false
@@ -98,11 +115,6 @@ module Rbzlib
       end
 
       @offset = offset
-
-      unless @is_array
-        @io = StringIO.new(@buffer, 'r+')
-        @io.pos = offset if offset > 0
-      end
     end
 
     # Array-like access
@@ -118,11 +130,9 @@ module Rbzlib
       if @is_array
         @buffer[idx + @offset] = val
       else
-        # Extend buffer if needed
+        # Extend buffer if needed - do this efficiently
         if idx >= @buffer.length
           @buffer << ("\x00" * (idx - @buffer.length + 1))
-          @io = StringIO.new(@buffer, 'r+')  # Recreate IO with extended buffer
-          @io.pos = @offset  # Restore position
         end
 
         @buffer.setbyte(idx, val.respond_to?(:ord) ? val.ord : val)
@@ -130,14 +140,13 @@ module Rbzlib
       val
     end
 
-    # Position management
+    # Position management - no StringIO overhead
     def pos
       @offset
     end
 
     def pos=(new_pos)
       @offset = new_pos
-      @io.pos = new_pos if @io
     end
 
     def offset
@@ -146,19 +155,16 @@ module Rbzlib
 
     def offset=(new_offset)
       @offset = new_offset
-      @io.pos = new_offset if @io
     end
 
     # Arithmetic operations
     def +(inc)
       @offset += inc
-      @io.pos += inc if @io
       self
     end
 
     def -(dec)
       @offset -= dec
-      @io.pos -= dec if @io
       self
     end
 
@@ -182,24 +188,41 @@ module Rbzlib
     def getbyte
       result = get
       @offset += 1
-      @io.pos += 1 if @io
       result
     end
 
     def putc(val)
       set(val)
       @offset += 1
-      @io.pos += 1 if @io
     end
 
     # Buffer access
-    def buffer
-      if @is_array
-        @buffer  # Return the actual array for arrays
+
+    def buffer=(new_buffer)
+      if new_buffer.is_a?(BufferProxy)
+        # Extract the underlying buffer from BufferProxy
+        @buffer = new_buffer.to_s.dup.force_encoding('ASCII-8BIT')
+        @is_array = false
+      elsif new_buffer.is_a?(Array)
+        @buffer = new_buffer.dup
+        @is_array = true
+      elsif new_buffer.is_a?(String)
+        @buffer = new_buffer.dup.force_encoding('ASCII-8BIT')
+        @is_array = false
+      elsif new_buffer.respond_to?(:buffer)
+        # Handle ByteBuffer objects
+        if new_buffer.buffer.is_a?(Array)
+          @buffer = new_buffer.buffer.dup
+          @is_array = true
+        else
+          @buffer = new_buffer.string.dup.force_encoding('ASCII-8BIT')
+          @is_array = false
+        end
       else
-        # Return a buffer object that supports range assignment with auto-extension
-        BufferProxy.new(self)
+        @buffer = new_buffer.to_s.force_encoding('ASCII-8BIT')
+        @is_array = false
       end
+      @offset = 0  # Reset offset when buffer is replaced
     end
 
     def string
@@ -207,10 +230,16 @@ module Rbzlib
     end
 
     def current
-      if @is_array
+      if @offset > @buffer.length
+        return @buffer.class.new
+      end
+
+      if @buffer.is_a?(String)
+        @buffer[@offset..-1]
+      elsif @buffer.is_a?(Array)
         @buffer[@offset..-1]
       else
-        @buffer[@offset..-1]
+        raise "ERROR: @buffer is #{@buffer.class}, expected String or Array. Value type: #{@buffer.class}"
       end
     end
 
@@ -230,8 +259,6 @@ module Rbzlib
         required_length = start_idx + length
         if required_length > @buffer.length
           @buffer << ("\x00" * (required_length - @buffer.length))
-          @io = StringIO.new(@buffer, 'r+')  # Recreate IO with extended buffer
-          @io.pos = @offset  # Restore position
         end
 
         @buffer[start_idx, length] = data
@@ -254,12 +281,10 @@ module Rbzlib
         if length.nil?
           result = @buffer[@offset..-1]
           @offset = @buffer.length
-          @io.pos = @offset if @io
           result
         else
           result = @buffer[@offset, length]
           @offset += result.length if result
-          @io.pos = @offset if @io
           result
         end
       end
@@ -277,7 +302,6 @@ module Rbzlib
         end
       end
       @offset += data.length
-      @io.pos = @offset if @io
       data.length
     end
 
@@ -288,6 +312,29 @@ module Rbzlib
       else
         @buffer.force_encoding(encoding)
         self
+      end
+    end
+
+    # Setter for buffer property - extracts underlying data from wrappers
+    def buffer=(value)
+      if value.is_a?(BufferProxy)
+        @buffer = value.instance_variable_get(:@byte_buffer).instance_variable_get(:@buffer)
+      elsif value.is_a?(ByteBuffer)
+        @buffer = value.instance_variable_get(:@buffer)
+      elsif value.is_a?(String) || value.is_a?(Array)
+        @buffer = value
+      else
+        raise "Cannot assign buffer of type #{value.class}"
+      end
+    end
+
+    # Getter for buffer property
+    def buffer
+      if @is_array
+        @buffer  # Return the actual array for arrays
+      else
+        # Return a buffer object that supports range assignment with auto-extension
+        BufferProxy.new(self)
       end
     end
 
