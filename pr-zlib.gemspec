@@ -14,6 +14,7 @@ Gem::Specification.new do |spec|
   spec.cert_chain       = Dir['certs/*']
   spec.executables      = 'minirbgzip'
 
+  spec.add_dependency('crc32')
   spec.add_development_dependency('rake')
   spec.add_development_dependency('rspec', '~> 3.12')
 
