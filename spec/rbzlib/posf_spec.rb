@@ -1,16 +1,22 @@
 # frozen_string_literal: true
 
 ########################################################################
-# rbzlib_posf_spec.rb
+# posf_spec.rb
 #
 # Spec for the Rbzlib::Posf class.
 ########################################################################
 require 'spec_helper'
-require 'pr/rbzlib'
+require 'pr/rbzlib/posf'
 
 RSpec.describe Rbzlib::Posf do
   let(:buffer) { 0.chr * 32 }
   let(:posf) { described_class.new(buffer) }
+
+  describe 'inheritance' do
+    it 'inherits from Bytef_str' do
+      expect(described_class.superclass).to eq(Rbzlib::Bytef_str)
+    end
+  end
 
   describe 'arithmetic operations' do
     it 'responds to +' do
