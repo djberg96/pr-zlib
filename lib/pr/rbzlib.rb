@@ -307,7 +307,7 @@ module Rbzlib
     i = 0
 
     while len >= 8
-      while i < 8
+      8.times do
         crc = @@crc_table[(crc ^ buf[i].ord) & 0xff] ^ (crc >> 8)
         i += 1
       end
@@ -315,11 +315,9 @@ module Rbzlib
     end
 
     if len != 0
-      loop do
+      len.times do
         crc = @@crc_table[(crc ^ buf[i].ord) & 0xff] ^ (crc >> 8)
         i += 1
-        len -= 1
-        break if len == 0
       end
     end
 
@@ -877,15 +875,20 @@ module Rbzlib
         end
         s.stream.avail_out = Z_BUFSIZE
       end
-      s.in += s.stream.avail_in
-      s.out += s.stream.avail_out
+
+      prev_avail_in = s.stream.avail_in
       s.z_err = deflate(s.stream, Z_NO_FLUSH)
-      s.in -= s.stream.avail_in
-      s.out -= s.stream.avail_out
+      # Track how many input bytes were consumed
+      consumed = prev_avail_in - s.stream.avail_in
+      s.in += consumed
+
       break if s.z_err != Z_OK
     end
-    s.crc = crc32(s.crc, buf, len)
-    (len - s.stream.avail_in)
+
+    # Calculate CRC only on the actually processed data
+    processed_len = len - s.stream.avail_in
+    s.crc = crc32(s.crc, buf, processed_len)
+    processed_len
   end
 
   #   Writes c, converted to an unsigned char, into the compressed file.
@@ -944,7 +947,7 @@ module Rbzlib
 
     end
 
-    if (s.z_err = Z_STREAM_END)
+    if (s.z_err == Z_STREAM_END)
       Z_OK
     else
       s.z_err
@@ -1127,7 +1130,7 @@ module Rbzlib
     if s.mode == 'w'
       err = do_flush(file, Z_FINISH)
       if err != Z_OK
-        return destroy(f)
+        return destroy(file)
       end
 
       putLong(s.file, s.crc)
