@@ -52,9 +52,6 @@ This library was the result of a small code bounty that I (Daniel Berger) funded
 
 https://rubytalk.org/t/bounty-pure-ruby-zlib-gzipwriter/50730
 
-## TODO
-More tests, and better tests, are needed for both Rbzlib and Zlib.
-
 ## Caveats
 You cannot use both this library and the zlib standard library at the same
 time. If you try to use both there is a good chance you will get an allocation
