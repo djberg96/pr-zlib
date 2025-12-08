@@ -57,7 +57,7 @@ end
 # RSpec tests
 RSpec::Core::RakeTask.new(:spec) do |t|
   t.pattern = 'spec/**/*_spec.rb'
-  t.rspec_opts = ['--format', 'documentation', '--color']
+  t.rspec_opts = ['--format', 'documentation', '--color', '--warnings']
 end
 
 desc 'Run all RSpec tests'
