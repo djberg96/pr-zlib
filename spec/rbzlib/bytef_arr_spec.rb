@@ -74,9 +74,9 @@ RSpec.describe Rbzlib::Bytef_arr do
     end
 
     it 'decrements the offset' do
-      bytef + 8
-      bytef - 4
-      expect(bytef.offset).to eq(4)
+      bytef_moved = bytef + 8
+      bytef_final = bytef_moved - 4
+      expect(bytef_final.offset).to eq(4)
     end
   end
 end
