@@ -162,7 +162,7 @@ module Rbzlib
     adler &= 0xffff
 
     if len == 1
-      adler += buf[0].ord
+      adler += buf.getbyte(0)
 
       if adler >= BASE
         adler -= BASE
@@ -182,7 +182,7 @@ module Rbzlib
 
       while len > 0
         len -= 1
-        adler += buf[i].ord
+        adler += buf.getbyte(i)
         i += 1
         sum2 += adler
       end
@@ -204,7 +204,7 @@ module Rbzlib
 
       loop do
         for j in 0 .. 15
-          adler += buf[i + j].ord
+          adler += buf.getbyte(i + j)
           sum2 += adler
         end
         i += 16
@@ -219,14 +219,14 @@ module Rbzlib
       while len >= 16
         len -= 16
         for j in 0 .. 15
-          adler += buf[i + j].ord
+          adler += buf.getbyte(i + j)
           sum2 += adler
         end
         i += 16
       end
       while len != 0
         len -= 1
-        adler += buf[i].ord
+        adler += buf.getbyte(i)
         i += 1
         sum2 += adler
       end
@@ -308,7 +308,7 @@ module Rbzlib
 
     while len >= 8
       8.times do
-        crc = @@crc_table[(crc ^ buf[i].ord) & 0xff] ^ (crc >> 8)
+        crc = @@crc_table[(crc ^ buf.getbyte(i)) & 0xff] ^ (crc >> 8)
         i += 1
       end
       len -= 8
@@ -316,7 +316,7 @@ module Rbzlib
 
     if len != 0
       len.times do
-        crc = @@crc_table[(crc ^ buf[i].ord) & 0xff] ^ (crc >> 8)
+        crc = @@crc_table[(crc ^ buf.getbyte(i)) & 0xff] ^ (crc >> 8)
         i += 1
       end
     end
@@ -3513,11 +3513,13 @@ module Rbzlib
   #
   def inflate_fast(strm, start)
     state = strm.state
-    _in = Bytef.new(strm.next_in, strm.next_in.offset - 1)
-    last = Bytef.new(_in, _in.offset + (strm.avail_in - 5))
-    out = Bytef.new(strm.next_out, strm.next_out.offset - 1)
-    beg = Bytef.new(out, out.offset - (start - strm.avail_out))
-    _end = Bytef.new(out, out.offset + (strm.avail_out - 257))
+    in_buf = strm.next_in.buffer
+    in_pos = strm.next_in.offset - 1
+    last_pos = in_pos + (strm.avail_in - 5)
+    out_buf = strm.next_out.buffer
+    out_pos = strm.next_out.offset - 1
+    beg_pos = out_pos - (start - strm.avail_out)
+    end_pos = out_pos + (strm.avail_out - 257)
     wsize = state.wsize
     whave = state.whave
     write = state.write
@@ -3537,11 +3539,11 @@ module Rbzlib
     loop do
       if status.nil?
         if bits < 15
-          _in += 1
-          hold += _in.get << bits
+          in_pos += 1
+          hold += in_buf.getbyte(in_pos) << bits
           bits += 8
-          _in += 1
-          hold += _in.get << bits
+          in_pos += 1
+          hold += in_buf.getbyte(in_pos) << bits
           bits += 8
         end
         this = lcode[hold & lmask]
@@ -3554,16 +3556,16 @@ module Rbzlib
         op = this.op
       end
       if op == 0
-        out += 1
-        out.set(this.val)
+        out_pos += 1
+        out_buf.setbyte(out_pos, this.val)
       elsif (op & 16) != 0 || status == :dodist
         if status != :dodist && (op & 16) != 0
           len = this.val
           op &= 15
           if op != 0
             if bits < op
-              _in += 1
-              hold += _in.get << bits
+              in_pos += 1
+              hold += in_buf.getbyte(in_pos) << bits
               bits += 8
             end
             len += hold & ((1 << op) - 1)
@@ -3571,11 +3573,11 @@ module Rbzlib
             bits -= op
           end
           if bits < 15
-            _in += 1
-            hold += _in.get << bits
+            in_pos += 1
+            hold += in_buf.getbyte(in_pos) << bits
             bits += 8
-            _in += 1
-            hold += _in.get << bits
+            in_pos += 1
+            hold += in_buf.getbyte(in_pos) << bits
             bits += 8
           end
           this = dcode[hold & dmask]
@@ -3588,19 +3590,19 @@ module Rbzlib
           dist = this.val
           op &= 15
           if bits < op
-            _in += 1
-            hold += _in.get << bits
+            in_pos += 1
+            hold += in_buf.getbyte(in_pos) << bits
             bits += 8
             if bits < op
-              _in += 1
-              hold += _in.get << bits
+              in_pos += 1
+              hold += in_buf.getbyte(in_pos) << bits
               bits += 8
             end
           end
           dist += hold & ((1 << op) - 1)
           hold >>= op
           bits -= op
-          op = (out.offset - beg.offset)
+          op = out_pos - beg_pos
           if dist > op
             op = dist - op
             if op > whave
@@ -3608,105 +3610,110 @@ module Rbzlib
               state.mode = BAD
               break
             end
-            from = Bytef.new(window, -1)
+            from_buf = window
+            from_pos = -1
             if write == 0
-              from += wsize - op
+              from_pos += wsize - op
               if op < len
                 len -= op
                 loop do
-                  out += 1
-                  from += 1
-                  out.set(from.get)
+                  out_pos += 1
+                  from_pos += 1
+                  out_buf.setbyte(out_pos, from_buf.getbyte(from_pos))
                   op -= 1
                   break if op == 0
                 end
-                from = Bytef.new(out, out.offset - dist)
+                from_buf = out_buf
+                from_pos = out_pos - dist
               end
             elsif write < op
-              from += wsize + write - op
+              from_pos += wsize + write - op
               op -= write
               if op < len
                 len -= op
                 loop do
-                  out += 1
-                  from += 1
-                  out.set(from.get)
+                  out_pos += 1
+                  from_pos += 1
+                  out_buf.setbyte(out_pos, from_buf.getbyte(from_pos))
                   op -= 1
                   break if op == 0
                 end
-                from = Bytef.new(window, -1)
+                from_buf = window
+                from_pos = -1
                 if write < len
                   op = write
                   len -= op
                   loop do
-                    out += 1
-                    from += 1
-                    out.set(from.get)
+                    out_pos += 1
+                    from_pos += 1
+                    out_buf.setbyte(out_pos, from_buf.getbyte(from_pos))
                     op -= 1
                     break if op == 0
                   end
-                  from = Bytef.new(out, out.offset - dist)
+                  from_buf = out_buf
+                  from_pos = out_pos - dist
                 end
               end
             else
-              from += write - op
+              from_pos += write - op
               if op < len
                 len -= op
                 loop do
-                  out += 1
-                  from += 1
-                  out.set(from.get)
+                  out_pos += 1
+                  from_pos += 1
+                  out_buf.setbyte(out_pos, from_buf.getbyte(from_pos))
                   op -= 1
                   break if op == 0
                 end
-                from = Bytef.new(out, out.offset - dist)
+                from_buf = out_buf
+                from_pos = out_pos - dist
               end
             end
             while len > 2
-              out += 1
-              from += 1
-              out.set(from.get)
-              out += 1
-              from += 1
-              out.set(from.get)
-              out += 1
-              from += 1
-              out.set(from.get)
+              out_pos += 1
+              from_pos += 1
+              out_buf.setbyte(out_pos, from_buf.getbyte(from_pos))
+              out_pos += 1
+              from_pos += 1
+              out_buf.setbyte(out_pos, from_buf.getbyte(from_pos))
+              out_pos += 1
+              from_pos += 1
+              out_buf.setbyte(out_pos, from_buf.getbyte(from_pos))
               len -= 3
             end
             if len != 0
-              out += 1
-              from += 1
-              out.set(from.get)
+              out_pos += 1
+              from_pos += 1
+              out_buf.setbyte(out_pos, from_buf.getbyte(from_pos))
               if len > 1
-                out += 1
-                from += 1
-                out.set(from.get)
+                out_pos += 1
+                from_pos += 1
+                out_buf.setbyte(out_pos, from_buf.getbyte(from_pos))
               end
             end
           else
-            from = Bytef.new(out, out.offset - dist)
+            from_pos = out_pos - dist
             loop do
-              out += 1
-              from += 1
-              out.set(from.get)
-              out += 1
-              from += 1
-              out.set(from.get)
-              out += 1
-              from += 1
-              out.set(from.get)
+              out_pos += 1
+              from_pos += 1
+              out_buf.setbyte(out_pos, out_buf.getbyte(from_pos))
+              out_pos += 1
+              from_pos += 1
+              out_buf.setbyte(out_pos, out_buf.getbyte(from_pos))
+              out_pos += 1
+              from_pos += 1
+              out_buf.setbyte(out_pos, out_buf.getbyte(from_pos))
               len -= 3
               break if len <= 2
             end
             if len != 0
-              out += 1
-              from += 1
-              out.set(from.get)
+              out_pos += 1
+              from_pos += 1
+              out_buf.setbyte(out_pos, out_buf.getbyte(from_pos))
               if len > 1
-                out += 1
-                from += 1
-                out.set(from.get)
+                out_pos += 1
+                from_pos += 1
+                out_buf.setbyte(out_pos, out_buf.getbyte(from_pos))
               end
             end
           end
@@ -3732,17 +3739,17 @@ module Rbzlib
         break
       end
       status = nil
-      break unless _in.offset < last.offset && out.offset < _end.offset
+      break unless in_pos < last_pos && out_pos < end_pos
     end
     len = bits >> 3
-    _in -= len
+    in_pos -= len
     bits -= len << 3
     hold &= (1 << bits) - 1
-    strm.next_in.offset = _in.offset + 1
-    strm.next_out.offset = out.offset + 1
-    strm.avail_in = (_in.offset < last.offset ? 5 + (last.offset - _in.offset) : 5 - (_in.offset - last.offset))
-    strm.avail_out = (out.offset < _end.offset ?
-                                 257 + (_end.offset - out.offset) : 257 - (out.offset - _end.offset))
+    strm.next_in.offset = in_pos + 1
+    strm.next_out.offset = out_pos + 1
+    strm.avail_in = (in_pos < last_pos ? 5 + (last_pos - in_pos) : 5 - (in_pos - last_pos))
+    strm.avail_out = (out_pos < end_pos ?
+                                 257 + (end_pos - out_pos) : 257 - (out_pos - end_pos))
     state.hold = hold
     state.bits = bits
     nil
@@ -4072,7 +4079,6 @@ module Rbzlib
   def PULLBYTE
     throw :inf_leave if @@have == 0
     @@have -= 1
-    @@next.get
     @@hold += (@@next.get) << @@bits
     @@next += 1
     @@bits += 8
