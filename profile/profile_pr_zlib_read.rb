@@ -1,28 +1,33 @@
 require 'pr/zlib'
+require_relative 'support'
 
 FILE_NAME = 'zlib_temp.txt'
 GZ_FILE_NAME = 'zlib_temp.txt.gz'
+LINES = ProfileSupport.env_int('PROFILE_LINES', ProfileSupport::DEFAULT_PROFILE_LINES)
+ITERATIONS = ProfileSupport.env_int('PROFILE_ITERATIONS', ProfileSupport::DEFAULT_PROFILE_ITERATIONS)
 
-# Create a text file to use first.
-File.open(FILE_NAME, "w") do |fh|
-  1000.times{ |x|
-    s = "Now is the time for #{x} good men to come to the aid of their country."
-    fh.puts s
-  }
-end
+ProfileSupport.create_text_file(FILE_NAME, lines: LINES)
+input = File.binread(FILE_NAME)
 
-Zlib::GzipWriter.open(GZ_FILE_NAME){ |gz| gz.write(IO.read(FILE_NAME)) }
+Zlib::GzipWriter.open(GZ_FILE_NAME){ |gz| gz.write(input) }
+ProfileSupport.report_config(
+  'Profiling pr-zlib read',
+  iterations: ITERATIONS,
+  lines: LINES,
+  file: FILE_NAME
+)
 
 require 'ruby-prof'
 
 result = RubyProf::Profile.profile do
-  Zlib::GzipReader.open(GZ_FILE_NAME) do |gz|
-    gz.read
+  ITERATIONS.times do
+    Zlib::GzipReader.open(GZ_FILE_NAME) do |gz|
+      gz.read
+    end
   end
 end
 
-File.delete(FILE_NAME) if File.exist?(FILE_NAME)
-File.delete(GZ_FILE_NAME) if File.exist?(GZ_FILE_NAME)
+ProfileSupport.cleanup(FILE_NAME, GZ_FILE_NAME)
 
 printer = RubyProf::FlatPrinter.new(result)
 printer.print(STDOUT)

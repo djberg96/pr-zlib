@@ -1,38 +1,48 @@
 ########################################################################
-# This benchmarks the zlib library that ships as part of the Ruby
-# standard library.
+# This benchmarks pr-zlib, the pure Ruby zlib implementation.
 #
 # You can run this benchmark via the bench:przlib Rake task.
 ########################################################################
 require 'pr/zlib'
 require 'benchmark'
+require_relative 'support'
 
-MAX = 50
-
-print "\n\n== Running the benchmarks for pr-zlib using #{MAX} iterations ==\n\n"
-
-# First, let's create a ~7 MB text file.
+MAX = ProfileSupport.env_int('BENCH_ITERATIONS', 10)
+LINES = ProfileSupport.env_int('BENCH_LINES', ProfileSupport::DEFAULT_BENCH_LINES)
+WARMUP = ProfileSupport.env_int('BENCH_WARMUP', 1)
 
 FILE_NAME = "benchmark.txt"
 GZ_FILE_NAME = "benchmark.txt.gz"
 
-File.open(FILE_NAME, "w") do |fh|
-  10000.times{ |x|
-    s = "Now is the time for #{x} good men to come to the aid of their country."
-    fh.puts s
-  }
+ProfileSupport.create_text_file(FILE_NAME, lines: LINES)
+input = File.binread(FILE_NAME)
+
+ProfileSupport.report_config(
+  'Running the benchmarks for pr-zlib',
+  iterations: MAX,
+  lines: LINES,
+  file: FILE_NAME
+)
+
+Zlib::GzipWriter.open(GZ_FILE_NAME) { |gz| gz.write(input) }
+
+WARMUP.times do
+  Zlib::GzipWriter.open(GZ_FILE_NAME) { |gz| gz.write(input) }
+  Zlib::GzipReader.open(GZ_FILE_NAME) { |gz| gz.read }
 end
 
 Benchmark.bm do |x|
   x.report("write") do
+    GC.start
     MAX.times{
       Zlib::GzipWriter.open(GZ_FILE_NAME) do |gz|
-        gz.write(File.read(FILE_NAME))
+        gz.write(input)
       end
     }
   end
 
   x.report("read") do
+    GC.start
     MAX.times{
       Zlib::GzipReader.open(GZ_FILE_NAME) do |gz|
         gz.read
@@ -41,5 +51,4 @@ Benchmark.bm do |x|
   end
 end
 
-File.delete(FILE_NAME) if File.exist?(FILE_NAME)
-File.delete(GZ_FILE_NAME) if File.exist?(GZ_FILE_NAME)
+ProfileSupport.cleanup(FILE_NAME, GZ_FILE_NAME)
