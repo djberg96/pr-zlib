@@ -171,6 +171,14 @@ RSpec.describe Zlib::GzipWriter do
     it 'can open with block without errors' do
       expect { described_class.open(@gz_file) {} }.not_to raise_error
     end
+
+    it 'writes gzip data that can be read back' do
+      data = ("hello world\n" * 100_000)
+
+      described_class.open(@gz_file) { |gz| gz.write(data) }
+
+      expect(Zlib::GzipReader.open(@gz_file, &:read)).to eq(data)
+    end
   end
 
   describe '#flush' do

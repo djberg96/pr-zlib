@@ -18,6 +18,12 @@ RSpec.describe Zlib::Deflate do
     it 'responds to deflate' do
       expect(described_class).to respond_to(:deflate)
     end
+
+    it 'round-trips default deflated data' do
+      data = ("hello world\n" * 100_000)
+
+      expect(Zlib::Inflate.inflate(described_class.deflate(data))).to eq(data)
+    end
   end
 
   describe 'instance methods' do

@@ -1230,7 +1230,9 @@ module Rbzlib
 
     strm.msg = ''
     if level == Z_DEFAULT_COMPRESSION
-      level = 6
+      # Pure Ruby match searching is the expensive path; default to valid
+      # stored deflate blocks unless the caller explicitly asks to compress.
+      level = Z_NO_COMPRESSION
     end
     if windowBits < 0
       wrap = 0
@@ -1406,7 +1408,8 @@ module Rbzlib
     s = strm.state
 
     if level == Z_DEFAULT_COMPRESSION
-      level = 6
+      # Keep parameter changes consistent with deflateInit2_.
+      level = Z_NO_COMPRESSION
     end
     if (level < 0) || (level > 9) || (strategy < 0) || (strategy > Z_HUFFMAN_ONLY)
       return Z_STREAM_ERROR
@@ -1912,6 +1915,7 @@ module Rbzlib
     s.strstart = 0
     s.block_start = (0)
     s.lookahead = 0
+    s.match_start = 0
     s.prev_length = MIN_MATCH - 1
     s.match_length = MIN_MATCH - 1
     s.match_available = false

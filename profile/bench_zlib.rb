@@ -7,17 +7,18 @@
 require 'zlib'
 require 'benchmark'
 
-MAX = 2000
+MAX = Integer(ENV.fetch('BENCH_ITERATIONS', '2000'))
+LINES = Integer(ENV.fetch('BENCH_LINES', '10000'))
 
-print "\n\n== Running the benchmarks for zlib (stdlib) using #{MAX} iterations ==\n\n"
+print "\n\n== Running the benchmarks for zlib (stdlib) using #{MAX} iterations and #{LINES} lines ==\n\n"
 
-# First, let's create a ~7 MB text file.
+# First, create a text file large enough for the compression window to move.
 
 FILE_NAME = "benchmark.txt"
 GZ_FILE_NAME = "benchmark.txt.gz"
 
 File.open(FILE_NAME, "w") do |fh|
-  10000.times{ |x|
+  LINES.times{ |x|
     s = "Now is the time for #{x} good men to come to the aid of their country."
     fh.puts s
   }
